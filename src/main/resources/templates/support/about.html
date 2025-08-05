@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="ja" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>会社概要 - TaskHelper | 近所の信頼できる代行サービス</title>
+  
+  <!-- CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- CSS Libraries -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  
+  <!-- Additional UI Libraries -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.1/sweetalert2.min.css" rel="stylesheet">
+  
+  <!-- Alpine.js -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  
+  <!-- Custom CSS -->
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .glass-effect {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .hero-section {
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(16, 185, 129, 0.1));
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .hero-section::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(37, 99, 235, 0.1) 0%, transparent 70%);
+      animation: rotate 20s linear infinite;
+    }
+    
+    @keyframes rotate {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .value-card {
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+    }
+    
+    .value-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+      border-color: rgba(37, 99, 235, 0.2);
+    }
+    
+    .team-card {
+      transition: all 0.3s ease;
+    }
+    
+    .team-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    }
+    
+    .stats-counter {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .timeline-item {
+      position: relative;
+      padding-left: 2rem;
+    }
+    
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.375rem;
+      width: 0.5rem;
+      height: 0.5rem;
+      background: #2563eb;
+      border-radius: 50%;
+    }
+    
+    .timeline-item::after {
+      content: '';
+      position: absolute;
+      left: 0.125rem;
+      top: 1rem;
+      width: 0.25rem;
+      height: calc(100% - 0.5rem);
+      background: #e5e7eb;
+      border-radius: 2px;
+    }
+    
+    .timeline-item:last-child::after {
+      display: none;
+    }
+    
+    .feature-icon {
+      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+      box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+    }
+    
+    .mission-card {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+      border-left: 4px solid #10b981;
+    }
+    
+    .vision-card {
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(29, 78, 216, 0.1));
+      border-left: 4px solid #2563eb;
+    }
+    
+    .parallax-bg {
+      background-attachment: fixed;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+    }
+  </style>
+</head>
+
+<body class="bg-gradient-to-br from-blue-50 via-white to-green-50 min-h-screen">
+
+<!-- Navigation -->
+<nav class="bg-white shadow-sm fixed top-0 left-0 right-0 z-50">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex items-center h-16">
+      <!-- Logo -->
+      <div class="flex items-center space-x-2">
+        <i class="fas fa-hands-helping text-2xl text-blue-600" aria-hidden="true"></i>
+        <span class="text-xl font-bold text-gray-900">TaskHelper</span>
+      </div>
+      
+      <!-- Desktop Menu (centered) -->
+      <div class="hidden md:flex items-center space-x-8 mx-auto">
+        <a href="index.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">ホーム</a>
+        <a href="task-list.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">依頼一覧</a>
+        <a href="task-create.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">依頼投稿</a>
+        <a href="profile.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">プロフィール</a>
+        <a href="my-tasks.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">マイタスク</a>
+      </div>
+      
+      <!-- Auth Buttons -->
+      <div class="hidden md:flex items-center space-x-3">
+        <a href="login.html" class="border border-blue-600 text-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-blue-50 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">ログイン</a>
+        <a href="register.html" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">始める</a>
+      </div>
+      
+      <!-- Mobile Menu Button -->
+      <div class="md:hidden ml-auto">
+        <button id="mobile-menu-button" class="text-gray-700 hover:text-blue-600 p-2 transition-all duration-300 ease-in-out" aria-expanded="false">
+          <svg class="w-6 h-6 transition-transform duration-300 ease-in-out" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path id="menu-icon" class="transition-opacity duration-300" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            <path id="close-icon" class="transition-opacity duration-300 opacity-0" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden md:hidden pb-4 transition-all duration-300 ease-in-out transform">
+      <div class="flex flex-col space-y-2">
+        <a href="index.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">ホーム</a>
+        <a href="task-list.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">依頼一覧</a>
+        <a href="task-create.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">依頼投稿</a>
+        <a href="profile.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">プロフィール</a>
+        <a href="my-tasks.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">マイタスク</a>
+        <hr class="my-3">
+        <div class="flex gap-2 justify-center">
+          <a href="login.html" class="border border-blue-600 text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-50 text-center transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">ログイン</a>
+          <a href="register.html" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 text-center transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">始める</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero-section pt-20 pb-16 relative">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    <div class="text-center">
+      <h1 class="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
+        <span class="bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">TaskHelper</span>
+        <br>について
+      </h1>
+      <p class="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto">
+        近所同士の助け合いで、<br class="md:hidden">
+        みんなの暮らしをもっと豊かに
+      </p>
+      
+      <!-- Stats -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mt-12">
+        <div class="text-center">
+          <div class="stats-counter text-3xl md:text-4xl font-bold mb-2">2,547</div>
+          <div class="text-gray-600">登録ユーザー数</div>
+        </div>
+        <div class="text-center">
+          <div class="stats-counter text-3xl md:text-4xl font-bold mb-2">1,892</div>
+          <div class="text-gray-600">完了した依頼</div>
+        </div>
+        <div class="text-center">
+          <div class="stats-counter text-3xl md:text-4xl font-bold mb-2">94.2%</div>
+          <div class="text-gray-600">満足度</div>
+        </div>
+        <div class="text-center">
+          <div class="stats-counter text-3xl md:text-4xl font-bold mb-2">23</div>
+          <div class="text-gray-600">対応エリア</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Mission & Vision -->
+<section class="py-16">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid lg:grid-cols-2 gap-12">
+      <!-- Mission -->
+      <div class="mission-card glass-effect rounded-2xl p-8 shadow-lg">
+        <div class="flex items-center mb-6">
+          <div class="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mr-4">
+            <i class="fas fa-bullseye text-2xl text-green-600"></i>
+          </div>
+          <h2 class="text-2xl font-bold text-gray-900">ミッション</h2>
+        </div>
+        <p class="text-gray-700 text-lg leading-relaxed">
+          近所同士の助け合いを通じて、地域コミュニティを活性化し、
+          一人ひとりの暮らしをより便利で豊かなものにすることを目指しています。
+          テクノロジーの力で人と人をつなぎ、信頼関係に基づいた
+          持続可能な社会の実現に貢献します。
+        </p>
+      </div>
+      
+      <!-- Vision -->
+      <div class="vision-card glass-effect rounded-2xl p-8 shadow-lg">
+        <div class="flex items-center mb-6">
+          <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mr-4">
+            <i class="fas fa-eye text-2xl text-blue-600"></i>
+          </div>
+          <h2 class="text-2xl font-bold text-gray-900">ビジョン</h2>
+        </div>
+        <p class="text-gray-700 text-lg leading-relaxed">
+          全ての人が気軽に助けを求め、喜んで手を差し伸べることができる社会。
+          TaskHelperが架け橋となって、世界中のコミュニティで
+          温かい助け合いの輪が広がり、誰もが安心して
+          暮らせる未来を創造します。
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Our Values -->
+<section class="py-16 bg-gradient-to-br from-gray-50 to-blue-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-16">
+      <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6">私たちの価値観</h2>
+      <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+        TaskHelperを支える3つの核となる価値観
+      </p>
+    </div>
+    
+    <div class="grid md:grid-cols-3 gap-8">
+      <!-- Trust -->
+      <div class="value-card glass-effect rounded-2xl p-8 shadow-lg text-center">
+        <div class="w-20 h-20 feature-icon rounded-2xl flex items-center justify-center mx-auto mb-6">
+          <i class="fas fa-handshake text-3xl text-white"></i>
+        </div>
+        <h3 class="text-xl font-bold text-gray-900 mb-4">信頼</h3>
+        <p class="text-gray-600 leading-relaxed">
+          透明性のある評価システムと厳格な本人確認により、
+          安全で信頼できるプラットフォームを提供します。
+          すべての取引が安心して行えるよう、
+          継続的にセキュリティを強化しています。
+        </p>
+      </div>
+      
+      <!-- Community -->
+      <div class="value-card glass-effect rounded-2xl p-8 shadow-lg text-center">
+        <div class="w-20 h-20 feature-icon rounded-2xl flex items-center justify-center mx-auto mb-6">
+          <i class="fas fa-users text-3xl text-white"></i>
+        </div>
+        <h3 class="text-xl font-bold text-gray-900 mb-4">コミュニティ</h3>
+        <p class="text-gray-600 leading-relaxed">
+          地域の絆を大切にし、近所同士の助け合いを促進します。
+          単なる取引ではなく、継続的な関係性を築き、
+          温かいコミュニティの形成をサポートします。
+        </p>
+      </div>
+      
+      <!-- Innovation -->
+      <div class="value-card glass-effect rounded-2xl p-8 shadow-lg text-center">
+        <div class="w-20 h-20 feature-icon rounded-2xl flex items-center justify-center mx-auto mb-6">
+          <i class="fas fa-lightbulb text-3xl text-white"></i>
+        </div>
+        <h3 class="text-xl font-bold text-gray-900 mb-4">革新</h3>
+        <p class="text-gray-600 leading-relaxed">
+          最新のテクノロジーを活用して、
+          より便利で使いやすいサービスを追求し続けます。
+          ユーザーのフィードバックを大切にし、
+          常に進化し続けるプラットフォームを目指します。
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Team Section -->
+<section class="py-16">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-16">
+      <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6">チーム</h2>
+      <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+        多様な背景を持つメンバーが、共通の目標に向かって取り組んでいます
+      </p>
+    </div>
+    
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <!-- CEO -->
+      <div class="team-card glass-effect rounded-2xl p-6 shadow-lg text-center">
+        <div class="w-24 h-24 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+          <span class="text-white text-2xl font-bold">田</span>
+        </div>
+        <h3 class="text-xl font-bold text-gray-900 mb-2">田中 太郎</h3>
+        <p class="text-blue-600 font-medium mb-3">代表取締役CEO</p>
+        <p class="text-gray-600 text-sm leading-relaxed">
+          元大手IT企業でエンジニアとして10年間勤務。
+          地域コミュニティの活性化に情熱を注ぎ、
+          TaskHelperを創設。
+        </p>
+      </div>
+      
+      <!-- CTO -->
+      <div class="team-card glass-effect rounded-2xl p-6 shadow-lg text-center">
+        <div class="w-24 h-24 bg-gradient-to-r from-green-600 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+          <span class="text-white text-2xl font-bold">佐</span>
+        </div>
+        <h3 class="text-xl font-bold text-gray-900 mb-2">佐藤 花子</h3>
+        <p class="text-green-600 font-medium mb-3">CTO</p>
+        <p class="text-gray-600 text-sm leading-relaxed">
+          スタートアップでの技術責任者として豊富な経験を持つ。
+          セキュリティとユーザビリティを両立した
+          システム設計を得意とする。
+        </p>
+      </div>
+      
+      <!-- CPO -->
+      <div class="team-card glass-effect rounded-2xl p-6 shadow-lg text-center">
+        <div class="w-24 h-24 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-4">
+          <span class="text-white text-2xl font-bold">山</span>
+        </div>
+        <h3 class="text-xl font-bold text-gray-900 mb-2">山田 次郎</h3>
+        <p class="text-purple-600 font-medium mb-3">CPO</p>
+        <p class="text-gray-600 text-sm leading-relaxed">
+          UXデザイナーとして多数のアプリ開発に携わる。
+          ユーザー中心設計の思想に基づき、
+          直感的で使いやすいプロダクトを追求。
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Company History -->
+<section class="py-16 bg-gradient-to-br from-blue-50 to-indigo-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-16">
+      <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6">沿革</h2>
+      <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+        TaskHelperの歩みと成長の軌跡
+      </p>
+    </div>
+    
+    <div class="glass-effect rounded-2xl p-8 shadow-lg">
+      <div class="space-y-8">
+        <div class="timeline-item">
+          <div class="flex flex-col md:flex-row md:items-center">
+            <div class="md:w-32 mb-2 md:mb-0">
+              <span class="text-blue-600 font-bold text-lg">2023年1月</span>
+            </div>
+            <div class="flex-1">
+              <h3 class="font-semibold text-gray-900 mb-1">会社設立</h3>
+              <p class="text-gray-600">田中太郎により株式会社TaskHelperを設立。初期チーム3名でサービス開発を開始。</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="timeline-item">
+          <div class="flex flex-col md:flex-row md:items-center">
+            <div class="md:w-32 mb-2 md:mb-0">
+              <span class="text-blue-600 font-bold text-lg">2023年6月</span>
+            </div>
+            <div class="flex-1">
+              <h3 class="font-semibold text-gray-900 mb-1">β版リリース</h3>
+              <p class="text-gray-600">東京都内限定でベータ版をリリース。100名のテストユーザーによるフィードバックを収集。</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="timeline-item">
+          <div class="flex flex-col md:flex-row md:items-center">
+            <div class="md:w-32 mb-2 md:mb-0">
+              <span class="text-blue-600 font-bold text-lg">2023年10月</span>
+            </div>
+            <div class="flex-1">
+              <h3 class="font-semibold text-gray-900 mb-1">正式版ローンチ</h3>
+              <p class="text-gray-600">一般向けサービスを正式リリース。1ヶ月で500名のユーザー登録を達成。</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="timeline-item">
+          <div class="flex flex-col md:flex-row md:items-center">
+            <div class="md:w-32 mb-2 md:mb-0">
+              <span class="text-blue-600 font-bold text-lg">2024年3月</span>
+            </div>
+            <div class="flex-1">
+              <h3 class="font-semibold text-gray-900 mb-1">シリーズA調達</h3>
+              <p class="text-gray-600">ベンチャーキャピタルより2億円の資金調達を実施。開発チームを大幅に拡充。</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="timeline-item">
+          <div class="flex flex-col md:flex-row md:items-center">
+            <div class="md:w-32 mb-2 md:mb-0">
+              <span class="text-blue-600 font-bold text-lg">2024年8月</span>
+            </div>
+            <div class="flex-1">
+              <h3 class="font-semibold text-gray-900 mb-1">関西エリア進出</h3>
+              <p class="text-gray-600">大阪・京都・神戸でサービスを開始。対応エリアを関西圏に拡大。</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="timeline-item">
+          <div class="flex flex-col md:flex-row md:items-center">
+            <div class="md:w-32 mb-2 md:mb-0">
+              <span class="text-blue-600 font-bold text-lg">2025年1月</span>
+            </div>
+            <div class="flex-1">
+              <h3 class="font-semibold text-gray-900 mb-1">現在</h3>
+              <p class="text-gray-600">全国23都市でサービス展開。ユーザー数2,500名突破、完了依頼数1,800件超。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Company Info -->
+<section class="py-16">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-16">
+      <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6">会社情報</h2>
+    </div>
+    
+    <div class="grid lg:grid-cols-2 gap-12">
+      <!-- Company Details -->
+      <div class="glass-effect rounded-2xl p-8 shadow-lg">
+        <h3 class="text-2xl font-bold text-gray-900 mb-6">会社概要</h3>
+        <div class="space-y-4">
+          <div class="flex items-start">
+            <span class="font-medium text-gray-900 w-24 flex-shrink-0">社名</span>
+            <span class="text-gray-700">株式会社TaskHelper</span>
+          </div>
+          <div class="flex items-start">
+            <span class="font-medium text-gray-900 w-24 flex-shrink-0">設立</span>
+            <span class="text-gray-700">2023年1月15日</span>
+          </div>
+          <div class="flex items-start">
+            <span class="font-medium text-gray-900 w-24 flex-shrink-0">資本金</span>
+            <span class="text-gray-700">2億5,000万円</span>
+          </div>
+          <div class="flex items-start">
+            <span class="font-medium text-gray-900 w-24 flex-shrink-0">従業員数</span>
+            <span class="text-gray-700">25名（2025年1月現在）</span>
+          </div>
+          <div class="flex items-start">
+            <span class="font-medium text-gray-900 w-24 flex-shrink-0">事業内容</span>
+            <span class="text-gray-700">地域密着型タスクシェアリングプラットフォームの運営</span>
+          </div>
+          <div class="flex items-start">
+            <span class="font-medium text-gray-900 w-24 flex-shrink-0">本社</span>
+            <span class="text-gray-700">
+              〒150-0002<br>
+              東京都渋谷区渋谷2-24-12<br>
+              渋谷スクランブルスクエア 15F
+            </span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Contact Info -->
+      <div class="glass-effect rounded-2xl p-8 shadow-lg">
+        <h3 class="text-2xl font-bold text-gray-900 mb-6">お問い合わせ</h3>
+        <div class="space-y-6">
+          <div class="flex items-start">
+            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+              <i class="fas fa-envelope text-blue-600"></i>
+            </div>
+            <div>
+              <div class="font-medium text-gray-900 mb-1">一般お問い合わせ</div>
+              <div class="text-gray-700">info@taskhelper.jp</div>
+            </div>
+          </div>
+          
+          <div class="flex items-start">
+            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+              <i class="fas fa-headset text-green-600"></i>
+            </div>
+            <div>
+              <div class="font-medium text-gray-900 mb-1">カスタマーサポート</div>
+              <div class="text-gray-700">support@taskhelper.jp</div>
+            </div>
+          </div>
+          
+          <div class="flex items-start">
+            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+              <i class="fas fa-briefcase text-purple-600"></i>
+            </div>
+            <div>
+              <div class="font-medium text-gray-900 mb-1">事業提携・取材</div>
+              <div class="text-gray-700">business@taskhelper.jp</div>
+            </div>
+          </div>
+          
+          <div class="flex items-start">
+            <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+              <i class="fas fa-shield-alt text-red-600"></i>
+            </div>
+            <div>
+              <div class="font-medium text-gray-900 mb-1">セキュリティ報告</div>
+              <div class="text-gray-700">security@taskhelper.jp</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="mt-8 pt-8 border-t border-gray-200">
+          <h4 class="font-medium text-gray-900 mb-4">SNS</h4>
+          <div class="flex space-x-4">
+            <a href="#" class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white hover:bg-blue-700 transition-colors">
+              <i class="fab fa-twitter"></i>
+            </a>
+            <a href="#" class="w-10 h-10 bg-blue-800 rounded-lg flex items-center justify-center text-white hover:bg-blue-900 transition-colors">
+              <i class="fab fa-facebook"></i>
+            </a>
+            <a href="#" class="w-10 h-10 bg-pink-600 rounded-lg flex items-center justify-center text-white hover:bg-pink-700 transition-colors">
+              <i class="fab fa-instagram"></i>
+            </a>
+            <a href="#" class="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center text-white hover:bg-green-700 transition-colors">
+              <i class="fab fa-line"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-16 parallax-bg" style="background-image: linear-gradient(135deg, rgba(37, 99, 235, 0.9), rgba(16, 185, 129, 0.9));">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+    <h2 class="text-3xl md:text-4xl font-bold text-white mb-6">
+      一緒にコミュニティを築きませんか？
+    </h2>
+    <p class="text-xl text-blue-100 mb-8">
+      TaskHelperで新しい助け合いの輪を始めましょう
+    </p>
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+      <a href="register.html" class="bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold hover:bg-gray-100 hover:scale-105 transition-all duration-200">
+        <i class="fas fa-rocket mr-2"></i>
+        今すぐ始める
+      </a>
+      <a href="task-list.html" class="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-all duration-200">
+        <i class="fas fa-search mr-2"></i>
+        依頼を探す
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="bg-gray-900 text-white py-12">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+      <!-- Brand Section -->
+      <div class="col-span-2 md:col-span-1">
+        <div class="flex items-center space-x-2 mb-4">
+          <i class="fas fa-hands-helping text-2xl text-blue-500"></i>
+          <span class="text-xl font-bold">TaskHelper</span>
+        </div>
+        <p class="text-gray-400 text-sm leading-relaxed">
+          近所の信頼できる代行サービスで、<br>
+          あなたの時間をより価値のあることに。
+        </p>
+      </div>
+      
+      <!-- Services Section -->
+      <div>
+        <h3 class="font-semibold mb-4">サービス</h3>
+        <ul class="space-y-2 text-sm">
+          <li><a href="task-list.html?category=shopping" class="text-gray-400 hover:text-white transition-colors">買い物代行</a></li>
+          <li><a href="task-list.html?category=cleaning" class="text-gray-400 hover:text-white transition-colors">掃除・整理</a></li>
+          <li><a href="task-list.html?category=delivery" class="text-gray-400 hover:text-white transition-colors">配送・引越し</a></li>
+          <li><a href="task-list.html?category=petcare" class="text-gray-400 hover:text-white transition-colors">ペットケア</a></li>
+          <li><a href="task-list.html?category=repairs" class="text-gray-400 hover:text-white transition-colors">修理・メンテナンス</a></li>
+        </ul>
+      </div>
+      
+      <!-- Support Section -->
+      <div>
+        <h3 class="font-semibold mb-4">サポート</h3>
+        <ul class="space-y-2 text-sm">
+          <li><a href="help.html" class="text-gray-400 hover:text-white transition-colors">ヘルプセンター</a></li>
+          <li><a href="#" class="text-gray-400 hover:text-white transition-colors">お問い合わせ</a></li>
+          <li><a href="terms.html" class="text-gray-400 hover:text-white transition-colors">利用規約</a></li>
+          <li><a href="privacy-policy.html" class="text-gray-400 hover:text-white transition-colors">プライバシーポリシー</a></li>
+        </ul>
+      </div>
+      
+      <!-- Company Section -->
+      <div>
+        <h3 class="font-semibold mb-4">会社情報</h3>
+        <ul class="space-y-2 text-sm">
+          <li><a href="about.html" class="text-blue-400 font-medium">会社概要</a></li>
+          <li><a href="#" class="text-gray-400 hover:text-white transition-colors">採用情報</a></li>
+          <li><a href="#" class="text-gray-400 hover:text-white transition-colors">プレスリリース</a></li>
+          <li><a href="#" class="text-gray-400 hover:text-white transition-colors">投資家情報</a></li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="border-t border-gray-800 mt-8 pt-8 text-center">
+      <p class="text-gray-400 text-sm" lang="ja">
+        &copy; 2025 TaskHelper. All rights reserved.
+      </p>
+    </div>
+  </div>
+</footer>
+
+<!-- JavaScript Libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.1/sweetalert2.all.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Mobile menu functionality
+  const mobileMenuButton = document.getElementById('mobile-menu-button');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const menuIcon = document.getElementById('menu-icon');
+  const closeIcon = document.getElementById('close-icon');
+  
+  if (mobileMenuButton && mobileMenu) {
+    mobileMenuButton.addEventListener('click', function() {
+      const isExpanded = this.getAttribute('aria-expanded') === 'true';
+      this.setAttribute('aria-expanded', !isExpanded);
+      mobileMenu.classList.toggle('hidden');
+      
+      // Toggle menu/close icons
+      if (menuIcon && closeIcon) {
+        menuIcon.classList.toggle('opacity-0');
+        closeIcon.classList.toggle('opacity-0');
+      }
+    });
+    
+    // Close menu when clicking links
+    mobileMenu.addEventListener('click', function(event) {
+      if (event.target.tagName === 'A') {
+        mobileMenu.classList.add('hidden');
+        mobileMenuButton.setAttribute('aria-expanded', 'false');
+        if (menuIcon && closeIcon) {
+          menuIcon.classList.remove('opacity-0');
+          closeIcon.classList.add('opacity-0');
+        }
+      }
+    });
+  }
+
+  // Smooth scrolling for anchor links
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      e.preventDefault();
+      const target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        target.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    });
+  });
+
+  // Counter animation
+  const counters = document.querySelectorAll('.stats-counter');
+  const animateCounters = () => {
+    counters.forEach(counter => {
+      const target = parseInt(counter.textContent.replace(/[^0-9.]/g, ''));
+      const duration = 2000;
+      const step = target / (duration / 16);
+      let current = 0;
+      
+      const timer = setInterval(() => {
+        current += step;
+        if (current >= target) {
+          counter.textContent = counter.textContent.replace(/[0-9.]+/, target);
+          clearInterval(timer);
+        } else {
+          const value = Math.floor(current);
+          counter.textContent = counter.textContent.replace(/[0-9.]+/, value);
+        }
+      }, 16);
+    });
+  };
+
+  // Intersection Observer for counter animation
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        animateCounters();
+        observer.unobserve(entry.target);
+      }
+    });
+  });
+
+  if (counters.length > 0) {
+    observer.observe(counters[0].closest('section'));
+  }
+});
+
+// Configure Toastr
+toastr.options = {
+  "closeButton": true,
+  "progressBar": true,
+  "positionClass": "toast-top-right",
+  "timeOut": "4000"
+};
+</script>
+
+</body>
+</html>

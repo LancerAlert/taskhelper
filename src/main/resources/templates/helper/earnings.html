@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="ja" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>収益管理 - TaskHelper</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.1/sweetalert2.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.1/sweetalert2.all.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stats-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.8));
+            backdrop-filter: blur(20px);
+            transition: all 0.3s ease;
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .earnings-gradient {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        
+        .pending-gradient {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+        
+        .withdrawn-gradient {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        }
+        
+        .tax-gradient {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        }
+
+        .chart-container {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+        }
+
+        .payment-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status-completed {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .status-processing {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .earning-item {
+            transition: all 0.3s ease;
+        }
+        
+        .earning-item:hover {
+            background: rgba(37, 99, 235, 0.05);
+            transform: translateX(4px);
+        }
+
+        .withdrawal-card {
+            border: 2px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+        
+        .withdrawal-card:hover {
+            border-color: #2563eb;
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.15);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-white to-green-50 min-h-screen">
+<!-- Navigation -->
+<nav class="bg-white shadow-sm fixed top-0 left-0 right-0 z-50">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex items-center h-16">
+      <!-- Logo -->
+      <div class="flex items-center space-x-2">
+        <i class="fas fa-hands-helping text-2xl text-blue-600" aria-hidden="true"></i>
+        <span class="text-xl font-bold text-gray-900">TaskHelper</span>
+      </div>
+      
+      <!-- Desktop Menu (centered) -->
+      <div class="hidden md:flex items-center space-x-8 mx-auto">
+        <a href="index.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">ホーム</a>
+        <a href="task-list.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">依頼一覧</a>
+        <a href="task-create.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">依頼投稿</a>
+        <a href="profile.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">プロフィール</a>
+        <a href="my-tasks.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">マイタスク</a>
+      </div>
+      
+      <!-- Auth Buttons -->
+      <div class="hidden md:flex items-center space-x-3">
+        <a href="login.html" class="border border-blue-600 text-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-blue-50 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">ログイン</a>
+        <a href="register.html" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">始める</a>
+      </div>
+      
+      <!-- Mobile Menu Button -->
+      <div class="md:hidden ml-auto">
+        <button id="mobile-menu-button" class="text-gray-700 hover:text-blue-600 p-2 transition-all duration-300 ease-in-out" aria-expanded="false">
+          <svg class="w-6 h-6 transition-transform duration-300 ease-in-out" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path id="menu-icon" class="transition-opacity duration-300" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            <path id="close-icon" class="transition-opacity duration-300 opacity-0" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden md:hidden pb-4 transition-all duration-300 ease-in-out transform">
+      <div class="flex flex-col space-y-2">
+        <a href="index.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">ホーム</a>
+        <a href="task-list.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">依頼一覧</a>
+        <a href="task-create.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">依頼投稿</a>
+        <a href="profile.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">プロフィール</a>
+        <a href="my-tasks.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">マイタスク</a>
+        <hr class="my-3">
+        <div class="flex gap-2 justify-center">
+          <a href="login.html" class="border border-blue-600 text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-50 text-center transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">ログイン</a>
+          <a href="register.html" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 text-center transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">始める</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-8" x-data="earningsApp()">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">
+                <i class="fas fa-chart-line text-green-600 mr-3"></i>
+                収益管理
+            </h1>
+            <p class="text-gray-600">タスク完了による収益とお支払い状況を管理できます</p>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="stats-card rounded-2xl p-6 shadow-lg">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="earnings-gradient w-12 h-12 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-yen-sign text-white text-xl"></i>
+                    </div>
+                    <span class="text-green-600 text-sm font-medium">+12.5%</span>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-1">¥142,500</h3>
+                <p class="text-gray-600 text-sm">今月の収益</p>
+            </div>
+            
+            <div class="stats-card rounded-2xl p-6 shadow-lg">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="pending-gradient w-12 h-12 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-clock text-white text-xl"></i>
+                    </div>
+                    <span class="text-orange-600 text-sm font-medium">5件</span>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-1">¥28,500</h3>
+                <p class="text-gray-600 text-sm">承認待ち</p>
+            </div>
+            
+            <div class="stats-card rounded-2xl p-6 shadow-lg">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="withdrawn-gradient w-12 h-12 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-download text-white text-xl"></i>
+                    </div>
+                    <span class="text-blue-600 text-sm font-medium">出金可能</span>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-1">¥114,000</h3>
+                <p class="text-gray-600 text-sm">出金残高</p>
+            </div>
+            
+            <div class="stats-card rounded-2xl p-6 shadow-lg">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="tax-gradient w-12 h-12 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-receipt text-white text-xl"></i>
+                    </div>
+                    <span class="text-purple-600 text-sm font-medium">年間</span>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-1">¥1,245,000</h3>
+                <p class="text-gray-600 text-sm">総収益</p>
+            </div>
+        </div>
+
+        <div class="grid lg:grid-cols-3 gap-8">
+            <!-- Charts and Analytics -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Earnings Chart -->
+                <div class="glass-effect rounded-2xl p-6 shadow-lg">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-xl font-bold text-gray-900">
+                            <i class="fas fa-chart-area text-blue-600 mr-2"></i>
+                            収益推移
+                        </h2>
+                        <div class="flex space-x-2">
+                            <button @click="chartPeriod = 'week'" 
+                                    class="px-3 py-1 text-sm rounded-lg"
+                                    :class="chartPeriod === 'week' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600'">
+                                週
+                            </button>
+                            <button @click="chartPeriod = 'month'" 
+                                    class="px-3 py-1 text-sm rounded-lg"
+                                    :class="chartPeriod === 'month' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600'">
+                                月
+                            </button>
+                            <button @click="chartPeriod = 'year'" 
+                                    class="px-3 py-1 text-sm rounded-lg"
+                                    :class="chartPeriod === 'year' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600'">
+                                年
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chart-container rounded-xl p-4">
+                        <canvas id="earningsChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+
+                <!-- Category Breakdown -->
+                <div class="glass-effect rounded-2xl p-6 shadow-lg">
+                    <h2 class="text-xl font-bold text-gray-900 mb-6">
+                        <i class="fas fa-pie-chart text-green-600 mr-2"></i>
+                        カテゴリ別収益
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="chart-container rounded-xl p-4">
+                            <canvas id="categoryChart" width="200" height="200"></canvas>
+                        </div>
+                        <div class="space-y-4">
+                            <template x-for="category in categoryBreakdown" :key="category.name">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 rounded-full mr-3" :style="`background-color: ${category.color}`"></div>
+                                        <span class="text-sm font-medium text-gray-700" x-text="category.name"></span>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-sm font-bold text-gray-900" x-text="'¥' + category.amount.toLocaleString()"></div>
+                                        <div class="text-xs text-gray-500" x-text="category.percentage + '%'"></div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Earnings -->
+                <div class="glass-effect rounded-2xl p-6 shadow-lg">
+                    <h2 class="text-xl font-bold text-gray-900 mb-6">
+                        <i class="fas fa-history text-purple-600 mr-2"></i>
+                        最近の収益
+                    </h2>
+                    <div class="space-y-3">
+                        <template x-for="earning in recentEarnings" :key="earning.id">
+                            <div class="earning-item rounded-xl p-4 border border-gray-100">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-4">
+                                        <div class="w-10 h-10 rounded-xl flex items-center justify-center"
+                                             :style="`background: ${earning.categoryColor}20; color: ${earning.categoryColor}`">
+                                            <i :class="earning.icon"></i>
+                                        </div>
+                                        <div>
+                                            <h3 class="font-medium text-gray-900" x-text="earning.taskTitle"></h3>
+                                            <p class="text-sm text-gray-600" x-text="earning.clientName + ' • ' + earning.date"></p>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-lg font-bold text-gray-900" x-text="'¥' + earning.amount.toLocaleString()"></div>
+                                        <div class="payment-status" :class="`status-${earning.status}`">
+                                            <i :class="getStatusIcon(earning.status)" class="mr-1"></i>
+                                            <span x-text="getStatusText(earning.status)"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="space-y-6">
+                <!-- Withdrawal -->
+                <div class="withdrawal-card glass-effect rounded-2xl p-6 shadow-lg">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                        <i class="fas fa-wallet text-blue-600 mr-2"></i>
+                        出金申請
+                    </h3>
+                    <div class="mb-4">
+                        <div class="text-2xl font-bold text-gray-900">¥114,000</div>
+                        <p class="text-sm text-gray-600">出金可能残高</p>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">出金額</label>
+                        <input type="number" 
+                               x-model="withdrawalAmount"
+                               max="114000"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               placeholder="出金する金額を入力">
+                    </div>
+                    <button @click="requestWithdrawal()" 
+                            :disabled="!withdrawalAmount || withdrawalAmount > 114000"
+                            class="w-full bg-blue-600 text-white py-3 rounded-xl font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200">
+                        <i class="fas fa-paper-plane mr-2"></i>
+                        出金申請
+                    </button>
+                    <p class="text-xs text-gray-500 mt-2 text-center">
+                        営業日の15:00までの申請で翌営業日振込
+                    </p>
+                </div>
+
+                <!-- Tax Information -->
+                <div class="glass-effect rounded-2xl p-6 shadow-lg">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                        <i class="fas fa-file-invoice text-green-600 mr-2"></i>
+                        税務情報
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">今年の総収益</span>
+                            <span class="font-semibold">¥1,245,000</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">プラットフォーム手数料</span>
+                            <span class="font-semibold">¥124,500</span>
+                        </div>
+                        <div class="flex justify-between border-t pt-3">
+                            <span class="text-sm font-medium text-gray-900">課税対象所得</span>
+                            <span class="font-bold text-lg">¥1,120,500</span>
+                        </div>
+                    </div>
+                    <div class="mt-4 p-3 bg-yellow-50 rounded-lg">
+                        <p class="text-xs text-yellow-800">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            年間所得が38万円を超える場合は確定申告が必要です
+                        </p>
+                    </div>
+                    <button class="w-full mt-4 bg-green-600 text-white py-2 rounded-lg font-medium hover:bg-green-700 transition-colors duration-200">
+                        <i class="fas fa-download mr-2"></i>
+                        支払調書をダウンロード
+                    </button>
+                </div>
+
+                <!-- Payment Methods -->
+                <div class="glass-effect rounded-2xl p-6 shadow-lg">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                        <i class="fas fa-credit-card text-purple-600 mr-2"></i>
+                        振込先情報
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="p-3 border border-gray-200 rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="font-medium text-gray-900">三菱UFJ銀行</div>
+                                    <div class="text-sm text-gray-600">****1234</div>
+                                </div>
+                                <div class="text-green-600">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="w-full mt-4 border border-gray-300 text-gray-700 py-2 rounded-lg font-medium hover:bg-gray-50 transition-colors duration-200">
+                        <i class="fas fa-plus mr-2"></i>
+                        振込先を追加
+                    </button>
+                </div>
+
+                <!-- Goals -->
+                <div class="glass-effect rounded-2xl p-6 shadow-lg">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                        <i class="fas fa-target text-red-500 mr-2"></i>
+                        月間目標
+                    </h3>
+                    <div class="mb-4">
+                        <div class="flex justify-between mb-2">
+                            <span class="text-sm text-gray-600">今月の目標</span>
+                            <span class="text-sm font-medium">¥150,000</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full" style="width: 95%"></div>
+                        </div>
+                        <div class="flex justify-between mt-2">
+                            <span class="text-sm text-gray-600">¥142,500 / ¥150,000</span>
+                            <span class="text-sm font-medium text-green-600">95%</span>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-600 text-center">
+                        あと¥7,500で目標達成！
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-16">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-4">サービス</h3>
+                    <ul class="space-y-2">
+                        <li><a href="task-list.html" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">タスク一覧</a></li>
+                        <li><a href="task-create.html" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">タスク投稿</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">ヘルパー登録</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">料金プラン</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-4">サポート</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">ヘルプセンター</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">安全ガイド</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">お問い合わせ</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">よくある質問</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-4">会社情報</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">会社概要</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">採用情報</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">プレスリリース</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">パートナー</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-4">法的事項</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">利用規約</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">プライバシー</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">特定商取引法</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">資金決済法</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-200 pt-8 mt-8">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <div class="flex items-center space-x-3 mb-4 md:mb-0">
+                        <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-green-600 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-hands-helping text-white text-sm"></i>
+                        </div>
+                        <span class="font-bold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">TaskHelper</span>
+                    </div>
+                    <p class="text-gray-500 text-sm">&copy; 2025 TaskHelper. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const menuIcon = document.getElementById('menu-icon');
+            const closeIcon = document.getElementById('close-icon');
+            
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', function() {
+                    const isExpanded = this.getAttribute('aria-expanded') === 'true';
+                    this.setAttribute('aria-expanded', !isExpanded);
+                    mobileMenu.classList.toggle('hidden');
+                    
+                    // Toggle menu/close icons
+                    if (menuIcon && closeIcon) {
+                        menuIcon.classList.toggle('opacity-0');
+                        closeIcon.classList.toggle('opacity-0');
+                    }
+                });
+                
+                // Close menu when clicking links
+                mobileMenu.addEventListener('click', function(event) {
+                    if (event.target.tagName === 'A') {
+                        mobileMenu.classList.add('hidden');
+                        mobileMenuButton.setAttribute('aria-expanded', 'false');
+                        if (menuIcon && closeIcon) {
+                            menuIcon.classList.remove('opacity-0');
+                            closeIcon.classList.add('opacity-0');
+                        }
+                    }
+                });
+            }
+        });
+
+        // Earnings App using Alpine.js
+        function earningsApp() {
+            return {
+                chartPeriod: 'month',
+                withdrawalAmount: '',
+                categoryBreakdown: [
+                    { name: '買い物代行', amount: 45000, percentage: 32, color: '#10b981' },
+                    { name: '掃除・整理', amount: 38000, percentage: 27, color: '#3b82f6' },
+                    { name: '配送・引越し', amount: 32000, percentage: 22, color: '#f59e0b' },
+                    { name: 'ペットケア', amount: 18000, percentage: 13, color: '#8b5cf6' },
+                    { name: '修理・メンテナンス', amount: 9500, percentage: 6, color: '#ef4444' }
+                ],
+                recentEarnings: [
+                    {
+                        id: 1,
+                        taskTitle: '食材の買い物代行',
+                        clientName: '田中さん',
+                        amount: 3500,
+                        status: 'completed',
+                        date: '2025-08-02',
+                        categoryColor: '#10b981',
+                        icon: 'fas fa-shopping-cart'
+                    },
+                    {
+                        id: 2,
+                        taskTitle: 'アパートの掃除',
+                        clientName: '佐藤さん',
+                        amount: 5200,
+                        status: 'pending',
+                        date: '2025-08-01',
+                        categoryColor: '#3b82f6',
+                        icon: 'fas fa-broom'
+                    },
+                    {
+                        id: 3,
+                        taskTitle: '荷物の配送',
+                        clientName: '山田さん',
+                        amount: 2800,
+                        status: 'processing',
+                        date: '2025-07-31',
+                        categoryColor: '#f59e0b',
+                        icon: 'fas fa-truck'
+                    },
+                    {
+                        id: 4,
+                        taskTitle: '犬の散歩',
+                        clientName: '鈴木さん',
+                        amount: 1500,
+                        status: 'completed',
+                        date: '2025-07-30',
+                        categoryColor: '#8b5cf6',
+                        icon: 'fas fa-paw'
+                    }
+                ],
+
+                getStatusText(status) {
+                    const statusMap = {
+                        completed: '完了',
+                        pending: '承認待ち',
+                        processing: '処理中'
+                    };
+                    return statusMap[status] || status;
+                },
+
+                getStatusIcon(status) {
+                    const iconMap = {
+                        completed: 'fas fa-check-circle',
+                        pending: 'fas fa-clock',
+                        processing: 'fas fa-spinner'
+                    };
+                    return iconMap[status] || 'fas fa-question-circle';
+                },
+
+                requestWithdrawal() {
+                    if (!this.withdrawalAmount || this.withdrawalAmount <= 0) {
+                        toastr.error('出金額を入力してください');
+                        return;
+                    }
+
+                    if (this.withdrawalAmount > 114000) {
+                        toastr.error('出金可能残高を超えています');
+                        return;
+                    }
+
+                    Swal.fire({
+                        title: '出金申請の確認',
+                        html: `
+                            <div class="text-left">
+                                <p class="mb-3">以下の内容で出金申請を行います：</p>
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <div class="flex justify-between mb-2">
+                                        <span>出金額：</span>
+                                        <span class="font-bold">¥${parseInt(this.withdrawalAmount).toLocaleString()}</span>
+                                    </div>
+                                    <div class="flex justify-between mb-2">
+                                        <span>振込手数料：</span>
+                                        <span>¥220</span>
+                                    </div>
+                                    <div class="flex justify-between font-bold border-t pt-2">
+                                        <span>実際の振込額：</span>
+                                        <span>¥${(parseInt(this.withdrawalAmount) - 220).toLocaleString()}</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-gray-600 mt-3">
+                                    ※ 営業日の15:00までの申請で翌営業日振込
+                                </p>
+                            </div>
+                        `,
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#2563eb',
+                        cancelButtonColor: '#6b7280',
+                        confirmButtonText: '申請する',
+                        cancelButtonText: 'キャンセル'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Simulate API call
+                            Swal.fire({
+                                title: '申請を処理中...',
+                                allowOutsideClick: false,
+                                allowEscapeKey: false,
+                                showConfirmButton: false,
+                                willOpen: () => {
+                                    Swal.showLoading();
+                                }
+                            });
+
+                            setTimeout(() => {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: '出金申請が完了しました',
+                                    text: '申請内容を確認の上、指定口座へ振込手続きを行います。',
+                                    confirmButtonColor: '#2563eb'
+                                });
+                                this.withdrawalAmount = '';
+                            }, 1500);
+                        }
+                    });
+                },
+
+                init() {
+                    // Initialize charts after DOM is ready
+                    this.$nextTick(() => {
+                        this.initEarningsChart();
+                        this.initCategoryChart();
+                    });
+                },
+
+                initEarningsChart() {
+                    const ctx = document.getElementById('earningsChart').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月'],
+                            datasets: [{
+                                label: '月間収益',
+                                data: [85000, 92000, 88000, 105000, 118000, 125000, 135000, 142500],
+                                borderColor: '#2563eb',
+                                backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                                fill: true,
+                                tension: 0.4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        callback: function(value) {
+                                            return '¥' + value.toLocaleString();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                },
+
+                initCategoryChart() {
+                    const ctx = document.getElementById('categoryChart').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: this.categoryBreakdown.map(c => c.name),
+                            datasets: [{
+                                data: this.categoryBreakdown.map(c => c.amount),
+                                backgroundColor: this.categoryBreakdown.map(c => c.color),
+                                borderWidth: 0
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+        }
+
+        // Toastr configuration
+        toastr.options = {
+            "closeButton": true,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "timeOut": "3000"
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="ja" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2段階認証 - TaskHelper | 近所の信頼できる代行サービス</title>
+  
+  <!-- CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- CSS Libraries -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  
+  <!-- Additional UI Libraries -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.1/sweetalert2.min.css" rel="stylesheet">
+  
+  <!-- Alpine.js -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  
+  <!-- Custom CSS -->
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .glass-effect {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .form-container {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    }
+    
+    .step-indicator {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #e5e7eb;
+      color: #6b7280;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+    
+    .step-indicator.active {
+      background: #2563eb;
+      color: white;
+      transform: scale(1.1);
+    }
+    
+    .step-indicator.completed {
+      background: #10b981;
+      color: white;
+    }
+    
+    .step-line {
+      flex: 1;
+      height: 2px;
+      background: #e5e7eb;
+      margin: 0 1rem;
+      transition: all 0.3s ease;
+    }
+    
+    .step-line.active {
+      background: #2563eb;
+    }
+    
+    .step-line.completed {
+      background: #10b981;
+    }
+    
+    .code-input {
+      width: 50px;
+      height: 60px;
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+      border: 2px solid #d1d5db;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+    }
+    
+    .code-input:focus {
+      border-color: #2563eb;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+    
+    .code-input.filled {
+      border-color: #10b981;
+      background-color: #f0fdf4;
+    }
+    
+    .qr-code-container {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      display: inline-block;
+    }
+    
+    .backup-code {
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      padding: 0.5rem;
+      border-radius: 4px;
+      user-select: all;
+    }
+  </style>
+</head>
+
+<body class="bg-gradient-to-br from-blue-50 via-white to-green-50 min-h-screen">
+
+<!-- Navigation -->
+<nav class="bg-white shadow-sm fixed top-0 left-0 right-0 z-50">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex items-center h-16">
+      <!-- Logo -->
+      <div class="flex items-center space-x-2">
+        <i class="fas fa-hands-helping text-2xl text-blue-600" aria-hidden="true"></i>
+        <span class="text-xl font-bold text-gray-900">TaskHelper</span>
+      </div>
+      
+      <!-- Desktop Menu (centered) -->
+      <div class="hidden md:flex items-center space-x-8 mx-auto">
+        <a href="../index.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">ホーム</a>
+        <a href="../tasks/task-list.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">依頼一覧</a>
+        <a href="../tasks/task-create.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">依頼投稿</a>
+        <a href="../user/profile.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">プロフィール</a>
+        <a href="../tasks/my-tasks.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">マイタスク</a>
+      </div>
+      
+      <!-- Auth Buttons -->
+      <div class="hidden md:flex items-center space-x-3">
+        <a href="login.html" class="border border-blue-600 text-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-blue-50 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">ログイン</a>
+        <a href="register.html" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">始める</a>
+      </div>
+      
+      <!-- Mobile Menu Button -->
+      <div class="md:hidden ml-auto">
+        <button id="mobile-menu-button" class="text-gray-700 hover:text-blue-600 p-2 transition-all duration-300 ease-in-out" aria-expanded="false">
+          <svg class="w-6 h-6 transition-transform duration-300 ease-in-out" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path id="menu-icon" class="transition-opacity duration-300" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            <path id="close-icon" class="transition-opacity duration-300 opacity-0" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden md:hidden pb-4 transition-all duration-300 ease-in-out transform">
+      <div class="flex flex-col space-y-2">
+        <a href="../index.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">ホーム</a>
+        <a href="../tasks/task-list.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">依頼一覧</a>
+        <a href="../tasks/task-create.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">依頼投稿</a>
+        <a href="../user/profile.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">プロフィール</a>
+        <a href="../tasks/my-tasks.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">マイタスク</a>
+        <hr class="my-3">
+        <div class="flex gap-2 justify-center">
+          <a href="login.html" class="border border-blue-600 text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-50 text-center transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">ログイン</a>
+          <a href="register.html" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 text-center transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">始める</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<main class="min-h-screen pt-20 pb-8 px-4" x-data="twoFactorApp()">
+  <div class="max-w-2xl mx-auto">
+    
+    <!-- Back Navigation -->
+    <div class="mb-6">
+      <a href="settings.html" class="inline-flex items-center text-blue-600 hover:text-blue-700 transition-colors">
+        <i class="fas fa-arrow-left mr-2"></i>
+        設定に戻る
+      </a>
+    </div>
+
+    <!-- Progress Steps -->
+    <div class="flex items-center justify-center mb-8">
+      <div class="flex items-center">
+        <div class="step-indicator" :class="currentStep >= 1 ? 'active' : ''">1</div>
+        <div class="step-line" :class="currentStep >= 2 ? 'active' : ''"></div>
+        <div class="step-indicator" :class="currentStep >= 2 ? 'active' : ''">2</div>
+        <div class="step-line" :class="currentStep >= 3 ? 'active' : ''"></div>
+        <div class="step-indicator" :class="currentStep >= 3 ? 'active' : ''">3</div>
+      </div>
+    </div>
+
+    <!-- Form Container -->
+    <div class="form-container rounded-2xl p-8 shadow-2xl">
+      
+      <!-- Step 1: Introduction -->
+      <div x-show="currentStep === 1" class="text-center space-y-6">
+        <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto">
+          <i class="fas fa-shield-alt text-3xl text-blue-600"></i>
+        </div>
+        
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900 mb-2">2段階認証の設定</h1>
+          <p class="text-gray-600">
+            アカウントのセキュリティを強化するため、2段階認証を設定しましょう。<br>
+            ログイン時にパスワードに加えて認証コードが必要になります。
+          </p>
+        </div>
+
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 text-left">
+          <h3 class="font-medium text-blue-900 mb-3 flex items-center">
+            <i class="fas fa-info-circle mr-2"></i>
+            2段階認証の利点
+          </h3>
+          <ul class="text-sm text-blue-800 space-y-2">
+            <li class="flex items-start">
+              <i class="fas fa-check text-blue-600 mr-2 mt-0.5 text-xs"></i>
+              パスワードが盗まれても不正アクセスを防げます
+            </li>
+            <li class="flex items-start">
+              <i class="fas fa-check text-blue-600 mr-2 mt-0.5 text-xs"></i>
+              アカウントの信頼度が向上します
+            </li>
+            <li class="flex items-start">
+              <i class="fas fa-check text-blue-600 mr-2 mt-0.5 text-xs"></i>
+              重要な操作時の安全性が向上します
+            </li>
+          </ul>
+        </div>
+
+        <div class="space-y-3">
+          <button @click="currentStep = 2" class="w-full bg-blue-600 text-white py-4 rounded-lg font-semibold hover:bg-blue-700 hover:scale-105 transition-all duration-200">
+            設定を開始
+          </button>
+          <button @click="goBack()" class="w-full text-gray-600 py-3 rounded-lg hover:bg-gray-50 transition-colors">
+            後で設定する
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 2: QR Code Setup -->
+      <div x-show="currentStep === 2" class="space-y-6">
+        <div class="text-center">
+          <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-qrcode text-2xl text-green-600"></i>
+          </div>
+          <h2 class="text-2xl font-bold text-gray-900 mb-2">認証アプリの設定</h2>
+          <p class="text-gray-600">認証アプリでQRコードをスキャンしてください</p>
+        </div>
+
+        <!-- QR Code -->
+        <div class="text-center">
+          <div class="qr-code-container">
+            <div class="w-48 h-48 bg-gray-100 flex items-center justify-center rounded">
+              <!-- Simulated QR Code -->
+              <div class="grid grid-cols-8 gap-0.5">
+                <template x-for="i in 64">
+                  <div class="w-2 h-2 bg-gray-800" :class="Math.random() > 0.5 ? 'bg-gray-800' : 'bg-white'"></div>
+                </template>
+              </div>
+            </div>
+          </div>
+          <p class="text-sm text-gray-500 mt-2">QRコードが読み取れない場合</p>
+        </div>
+
+        <!-- Manual Setup -->
+        <div class="bg-gray-50 rounded-lg p-4">
+          <h3 class="font-medium text-gray-900 mb-2">手動セットアップキー</h3>
+          <div class="bg-white border rounded p-3 text-center">
+            <code class="text-sm font-mono text-gray-800">JBSWY3DPEHPK3PXP</code>
+          </div>
+          <p class="text-xs text-gray-500 mt-2">
+            認証アプリにこのキーを手動で入力することもできます
+          </p>
+        </div>
+
+        <!-- Recommended Apps -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <h3 class="font-medium text-blue-900 mb-3">推奨認証アプリ</h3>
+          <div class="grid grid-cols-2 gap-3 text-sm">
+            <div class="flex items-center">
+              <i class="fab fa-google text-blue-600 mr-2"></i>
+              Google Authenticator
+            </div>
+            <div class="flex items-center">
+              <i class="fas fa-mobile-alt text-blue-600 mr-2"></i>
+              Microsoft Authenticator
+            </div>
+            <div class="flex items-center">
+              <i class="fas fa-key text-blue-600 mr-2"></i>
+              Authy
+            </div>
+            <div class="flex items-center">
+              <i class="fas fa-shield text-blue-600 mr-2"></i>
+              1Password
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-3">
+          <button @click="currentStep = 3" class="w-full bg-blue-600 text-white py-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+            認証アプリの設定完了
+          </button>
+          <button @click="currentStep = 1" class="w-full text-gray-600 py-3 rounded-lg hover:bg-gray-50 transition-colors">
+            前に戻る
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 3: Verification -->
+      <div x-show="currentStep === 3" class="space-y-6">
+        <div class="text-center">
+          <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-mobile-alt text-2xl text-purple-600"></i>
+          </div>
+          <h2 class="text-2xl font-bold text-gray-900 mb-2">認証コードの確認</h2>
+          <p class="text-gray-600">
+            認証アプリに表示される6桁のコードを入力してください
+          </p>
+        </div>
+
+        <!-- Code Input -->
+        <div class="flex justify-center space-x-2">
+          <template x-for="(digit, index) in verificationCode" :key="index">
+            <input 
+              type="text" 
+              maxlength="1" 
+              class="code-input"
+              :class="digit ? 'filled' : ''"
+              x-model="verificationCode[index]"
+              @input="handleCodeInput($event, index)"
+              @keydown="handleKeyDown($event, index)"
+              :id="`code-${index}`">
+          </template>
+        </div>
+
+        <div x-show="verificationError" class="text-red-600 text-sm text-center" x-text="verificationError"></div>
+
+        <!-- Backup Codes -->
+        <div x-show="setupComplete" class="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+          <div class="flex items-start">
+            <i class="fas fa-exclamation-triangle text-yellow-600 mr-3 mt-0.5"></i>
+            <div>
+              <h3 class="font-medium text-yellow-900 mb-2">バックアップコード</h3>
+              <p class="text-sm text-yellow-800 mb-3">
+                認証アプリが使えない場合に使用できるコードです。安全な場所に保管してください。
+              </p>
+              <div class="grid grid-cols-2 gap-2 text-sm">
+                <template x-for="code in backupCodes" :key="code">
+                  <div class="backup-code" x-text="code"></div>
+                </template>
+              </div>
+              <button @click="downloadBackupCodes()" class="mt-3 text-sm text-yellow-800 underline hover:text-yellow-900">
+                <i class="fas fa-download mr-1"></i>
+                コードをダウンロード
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-3">
+          <button 
+            @click="verifyCode()" 
+            class="w-full bg-blue-600 text-white py-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+            :disabled="loading"
+            :class="loading ? 'opacity-75 cursor-not-allowed' : ''">
+            <span x-show="!loading">認証コードを確認</span>
+            <span x-show="loading" class="flex items-center justify-center">
+              <i class="fas fa-spinner fa-spin mr-2"></i>
+              確認中...
+            </span>
+          </button>
+          
+          <button x-show="!setupComplete" @click="currentStep = 2" class="w-full text-gray-600 py-3 rounded-lg hover:bg-gray-50 transition-colors">
+            QRコードに戻る
+          </button>
+          
+          <button x-show="setupComplete" @click="finishSetup()" class="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors">
+            設定を完了
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Additional Info -->
+    <div x-show="currentStep !== 3 || !setupComplete" class="mt-8 bg-gray-50 border border-gray-200 rounded-lg p-6">
+      <h3 class="font-medium text-gray-900 mb-3 flex items-center">
+        <i class="fas fa-question-circle mr-2"></i>
+        よくある質問
+      </h3>
+      <div class="space-y-3 text-sm text-gray-600">
+        <div>
+          <p class="font-medium text-gray-800">Q: 認証アプリを変更したい場合はどうすればいいですか？</p>
+          <p>A: 設定画面から2段階認証を無効にして、再度設定してください。</p>
+        </div>
+        <div>
+          <p class="font-medium text-gray-800">Q: スマートフォンを紛失した場合はどうなりますか？</p>
+          <p>A: バックアップコードを使用してログインし、新しいデバイスで再設定してください。</p>
+        </div>
+        <div>
+          <p class="font-medium text-gray-800">Q: 2段階認証を無効にすることはできますか？</p>
+          <p>A: はい、設定画面からいつでも無効にすることができます。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- JavaScript Libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.1/sweetalert2.all.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Mobile menu functionality
+  const mobileMenuButton = document.getElementById('mobile-menu-button');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const menuIcon = document.getElementById('menu-icon');
+  const closeIcon = document.getElementById('close-icon');
+  
+  if (mobileMenuButton && mobileMenu) {
+    mobileMenuButton.addEventListener('click', function() {
+      const isExpanded = this.getAttribute('aria-expanded') === 'true';
+      this.setAttribute('aria-expanded', !isExpanded);
+      mobileMenu.classList.toggle('hidden');
+      
+      // Toggle menu/close icons
+      if (menuIcon && closeIcon) {
+        menuIcon.classList.toggle('opacity-0');
+        closeIcon.classList.toggle('opacity-0');
+      }
+    });
+    
+    // Close menu when clicking links
+    mobileMenu.addEventListener('click', function(event) {
+      if (event.target.tagName === 'A') {
+        mobileMenu.classList.add('hidden');
+        mobileMenuButton.setAttribute('aria-expanded', 'false');
+        if (menuIcon && closeIcon) {
+          menuIcon.classList.remove('opacity-0');
+          closeIcon.classList.add('opacity-0');
+        }
+      }
+    });
+  }
+});
+
+// Two Factor App using Alpine.js
+function twoFactorApp() {
+  return {
+    currentStep: 1,
+    verificationCode: ['', '', '', '', '', ''],
+    verificationError: '',
+    loading: false,
+    setupComplete: false,
+    backupCodes: [
+      '1234-5678', '2345-6789', '3456-7890', '4567-8901',
+      '5678-9012', '6789-0123', '7890-1234', '8901-2345'
+    ],
+    
+    init() {
+      // Check if user is coming from settings with action=verify
+      const urlParams = new URLSearchParams(window.location.search);
+      const action = urlParams.get('action');
+      
+      if (action === 'verify') {
+        // Skip to verification step if user already has 2FA enabled
+        this.currentStep = 3;
+      }
+    },
+    
+    handleCodeInput(event, index) {
+      const value = event.target.value;
+      
+      if (value.length === 1 && /^\d$/.test(value)) {
+        this.verificationCode[index] = value;
+        
+        // Auto-focus next input
+        if (index < 5) {
+          const nextInput = document.getElementById(`code-${index + 1}`);
+          if (nextInput) nextInput.focus();
+        }
+        
+        // Auto-verify when all digits are entered
+        if (this.verificationCode.every(digit => digit !== '')) {
+          setTimeout(() => this.verifyCode(), 500);
+        }
+      } else if (value.length === 0) {
+        this.verificationCode[index] = '';
+      } else {
+        // Invalid input, reset
+        event.target.value = '';
+        this.verificationCode[index] = '';
+      }
+      
+      this.verificationError = '';
+    },
+    
+    handleKeyDown(event, index) {
+      if (event.key === 'Backspace' && this.verificationCode[index] === '' && index > 0) {
+        // Focus previous input on backspace
+        const prevInput = document.getElementById(`code-${index - 1}`);
+        if (prevInput) {
+          prevInput.focus();
+          this.verificationCode[index - 1] = '';
+        }
+      } else if (event.key === 'ArrowLeft' && index > 0) {
+        const prevInput = document.getElementById(`code-${index - 1}`);
+        if (prevInput) prevInput.focus();
+      } else if (event.key === 'ArrowRight' && index < 5) {
+        const nextInput = document.getElementById(`code-${index + 1}`);
+        if (nextInput) nextInput.focus();
+      }
+    },
+    
+    async verifyCode() {
+      const code = this.verificationCode.join('');
+      
+      if (code.length !== 6) {
+        this.verificationError = '6桁のコードを入力してください';
+        return;
+      }
+      
+      this.loading = true;
+      this.verificationError = '';
+      
+      try {
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Simulate different verification scenarios
+        if (code === '123456') {
+          this.verificationError = 'コードが正しくありません。認証アプリの時刻が正確かご確認ください。';
+          this.verificationCode = ['', '', '', '', '', ''];
+          document.getElementById('code-0').focus();
+          return;
+        }
+        
+        // Success
+        this.setupComplete = true;
+        toastr.success('2段階認証が正常に設定されました！');
+        
+      } catch (error) {
+        this.verificationError = '認証に失敗しました。しばらく時間をおいて再度お試しください。';
+        toastr.error('認証エラーが発生しました');
+      } finally {
+        this.loading = false;
+      }
+    },
+    
+    downloadBackupCodes() {
+      const content = this.backupCodes.join('\n');
+      const blob = new Blob([`TaskHelper 2段階認証バックアップコード\n生成日: ${new Date().toLocaleDateString('ja-JP')}\n\n${content}\n\n※ これらのコードは安全な場所に保管してください`], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'taskhelper-backup-codes.txt';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      toastr.info('バックアップコードをダウンロードしました');
+    },
+    
+    finishSetup() {
+      Swal.fire({
+        title: '設定完了',
+        text: '2段階認証が正常に設定されました。次回ログイン時から認証コードが必要になります。',
+        icon: 'success',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#2563eb'
+      }).then(() => {
+        window.location.href = 'settings.html';
+      });
+    },
+    
+    goBack() {
+      if (confirm('2段階認証の設定を中断しますか？')) {
+        window.location.href = 'settings.html';
+      }
+    }
+  }
+}
+
+// Configure Toastr
+toastr.options = {
+  "closeButton": true,
+  "progressBar": true,
+  "positionClass": "toast-top-right",
+  "timeOut": "4000"
+};
+</script>
+
+</body>
+</html>

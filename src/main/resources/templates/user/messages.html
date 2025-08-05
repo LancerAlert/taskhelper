@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="ja" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>メッセージ - TaskHelper | 近所の信頼できる代行サービス</title>
+  
+  <!-- CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- CSS Libraries -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  
+  <!-- Additional UI Libraries -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.1/sweetalert2.min.css" rel="stylesheet">
+  
+  <!-- Alpine.js -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  
+  <!-- Custom CSS -->
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .message-container {
+      height: calc(100vh - 140px);
+      min-height: 600px;
+    }
+    
+    .chat-area {
+      height: calc(100% - 80px);
+      overflow-y: auto;
+    }
+    
+    .message-bubble {
+      max-width: 70%;
+      word-wrap: break-word;
+      position: relative;
+    }
+    
+    .message-bubble.sent {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      color: white;
+      margin-left: auto;
+    }
+    
+    .message-bubble.received {
+      background: #f3f4f6;
+      color: #374151;
+      margin-right: auto;
+    }
+    
+    .message-time {
+      font-size: 0.75rem;
+      opacity: 0.7;
+      margin-top: 0.25rem;
+    }
+    
+    .conversation-item:hover {
+      background-color: #f9fafb;
+      transform: translateX(2px);
+      transition: all 0.2s ease;
+    }
+    
+    .conversation-item.active {
+      background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+      border-left: 4px solid #3b82f6;
+    }
+    
+    .online-indicator {
+      width: 8px;
+      height: 8px;
+      background: #10b981;
+      border-radius: 50%;
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      border: 2px solid white;
+    }
+    
+    .typing-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 12px;
+      background: #f3f4f6;
+      border-radius: 18px;
+      color: #6b7280;
+      font-size: 0.875rem;
+    }
+    
+    .typing-dots {
+      display: flex;
+      gap: 2px;
+    }
+    
+    .typing-dot {
+      width: 4px;
+      height: 4px;
+      background: #9ca3af;
+      border-radius: 50%;
+      animation: typing 1.4s infinite;
+    }
+    
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    
+    @keyframes typing {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-10px); }
+    }
+    
+    .file-preview {
+      max-width: 200px;
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .file-preview img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    
+    .scroll-to-bottom {
+      position: absolute;
+      bottom: 100px;
+      right: 20px;
+      z-index: 10;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-50 min-h-screen">
+
+<!-- Navigation -->
+<nav class="bg-white shadow-sm fixed top-0 left-0 right-0 z-50">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex items-center h-16">
+      <!-- Logo -->
+      <div class="flex items-center space-x-2">
+        <i class="fas fa-hands-helping text-2xl text-blue-600" aria-hidden="true"></i>
+        <span class="text-xl font-bold text-gray-900">TaskHelper</span>
+      </div>
+      
+      <!-- Desktop Menu (centered) -->
+      <div class="hidden md:flex items-center space-x-8 mx-auto">
+        <a href="index.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">ホーム</a>
+        <a href="task-list.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">依頼一覧</a>
+        <a href="task-create.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">依頼投稿</a>
+        <a href="profile.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">プロフィール</a>
+        <a href="my-tasks.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">マイタスク</a>
+      </div>
+      
+      <!-- Auth Buttons -->
+      <div class="hidden md:flex items-center space-x-3">
+        <a href="login.html" class="border border-blue-600 text-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-blue-50 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">ログイン</a>
+        <a href="register.html" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">始める</a>
+      </div>
+      
+      <!-- Mobile Menu Button -->
+      <div class="md:hidden ml-auto">
+        <button id="mobile-menu-button" class="text-gray-700 hover:text-blue-600 p-2 transition-all duration-300 ease-in-out" aria-expanded="false">
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path id="menu-icon" class="transition-opacity duration-300" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            <path id="close-icon" class="transition-opacity duration-300 opacity-0" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden md:hidden pb-4 transition-all duration-300 ease-in-out transform">
+      <div class="flex flex-col space-y-2">
+        <a href="index.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">ホーム</a>
+        <a href="task-list.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">依頼一覧</a>
+        <a href="task-create.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">依頼投稿</a>
+        <a href="profile.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">プロフィール</a>
+        <a href="my-tasks.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">マイタスク</a>
+        <hr class="my-3">
+        <div class="flex gap-2 justify-center">
+          <a href="login.html" class="border border-blue-600 text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-50 text-center transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">ログイン</a>
+          <a href="register.html" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 text-center transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">始める</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main class="pt-16">
+  <!-- Messages Interface -->
+  <div class="message-container bg-white" x-data="messageApp()">
+    <div class="flex h-full">
+      
+      <!-- Conversations Sidebar -->
+      <div class="w-1/3 border-r border-gray-200 flex flex-col">
+        <!-- Header -->
+        <div class="p-4 border-b border-gray-200 bg-gray-50">
+          <div class="flex items-center justify-between">
+            <h1 class="text-xl font-bold text-gray-900">メッセージ</h1>
+            <button class="p-2 text-gray-500 hover:text-blue-600 rounded-full hover:bg-blue-50 transition-colors">
+              <i class="fas fa-search"></i>
+            </button>
+          </div>
+          <!-- Search -->
+          <div class="mt-3 relative">
+            <input type="text" 
+                   placeholder="会話を検索..." 
+                   class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                   x-model="searchQuery">
+            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+          </div>
+        </div>
+        
+        <!-- Conversations List -->
+        <div class="flex-1 overflow-y-auto">
+          <template x-for="conversation in filteredConversations" :key="conversation.id">
+            <div class="conversation-item p-4 border-b border-gray-100 cursor-pointer"
+                 :class="{ 'active': activeConversation?.id === conversation.id }"
+                 @click="selectConversation(conversation)">
+              <div class="flex items-start space-x-3">
+                <!-- Avatar -->
+                <div class="relative">
+                  <div class="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                    <span x-text="conversation.user.name.charAt(0)"></span>
+                  </div>
+                  <div class="online-indicator" x-show="conversation.user.online"></div>
+                </div>
+                
+                <!-- Conversation Info -->
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center justify-between">
+                    <h3 class="font-semibold text-gray-900 truncate" x-text="conversation.user.name"></h3>
+                    <span class="text-xs text-gray-500" x-text="formatTime(conversation.lastMessage.timestamp)"></span>
+                  </div>
+                  <p class="text-sm text-gray-600 truncate mt-1" x-text="conversation.lastMessage.content"></p>
+                  <!-- Task Info -->
+                  <div class="flex items-center mt-2 text-xs text-gray-500">
+                    <i class="fas fa-tag mr-1"></i>
+                    <span x-text="conversation.task.title"></span>
+                  </div>
+                  <!-- Unread Badge -->
+                  <div class="mt-2" x-show="conversation.unreadCount > 0">
+                    <span class="bg-blue-600 text-white text-xs px-2 py-1 rounded-full" x-text="conversation.unreadCount"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </template>
+        </div>
+      </div>
+      
+      <!-- Chat Area -->
+      <div class="flex-1 flex flex-col" x-show="activeConversation">
+        <!-- Chat Header -->
+        <div class="p-4 border-b border-gray-200 bg-white">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <div class="relative">
+                <div class="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                  <span x-text="activeConversation?.user.name.charAt(0)"></span>
+                </div>
+                <div class="online-indicator" x-show="activeConversation?.user.online"></div>
+              </div>
+              <div>
+                <h2 class="font-semibold text-gray-900" x-text="activeConversation?.user.name"></h2>
+                <p class="text-sm text-gray-500" x-text="activeConversation?.task.title"></p>
+              </div>
+            </div>
+            <div class="flex items-center space-x-2">
+              <button class="p-2 text-gray-500 hover:text-blue-600 rounded-full hover:bg-blue-50 transition-colors" title="通話">
+                <i class="fas fa-phone"></i>
+              </button>
+              <button class="p-2 text-gray-500 hover:text-blue-600 rounded-full hover:bg-blue-50 transition-colors" title="ビデオ通話">
+                <i class="fas fa-video"></i>
+              </button>
+              <button class="p-2 text-gray-500 hover:text-blue-600 rounded-full hover:bg-blue-50 transition-colors" title="詳細情報">
+                <i class="fas fa-info-circle"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Messages Area -->
+        <div class="chat-area flex-1 p-4 space-y-4 overflow-y-auto" id="chatArea">
+          <template x-for="message in activeConversation?.messages || []" :key="message.id">
+            <div class="flex" :class="message.sender === 'me' ? 'justify-end' : 'justify-start'">
+              <div class="message-bubble p-3 rounded-2xl"
+                   :class="message.sender === 'me' ? 'sent' : 'received'">
+                
+                <!-- Text Message -->
+                <div x-show="message.type === 'text'">
+                  <p x-text="message.content"></p>
+                </div>
+                
+                <!-- Image Message -->
+                <div x-show="message.type === 'image'" class="file-preview">
+                  <img :src="message.fileUrl" :alt="message.fileName" class="cursor-pointer" @click="openImageModal(message.fileUrl)">
+                </div>
+                
+                <!-- File Message -->
+                <div x-show="message.type === 'file'" class="flex items-center space-x-2 p-2 bg-white bg-opacity-20 rounded-lg">
+                  <i class="fas fa-file-alt text-lg"></i>
+                  <div>
+                    <p class="font-medium" x-text="message.fileName"></p>
+                    <p class="text-xs opacity-75" x-text="formatFileSize(message.fileSize)"></p>
+                  </div>
+                  <button class="ml-auto text-sm underline hover:no-underline">
+                    ダウンロード
+                  </button>
+                </div>
+                
+                <!-- Message Time -->
+                <div class="message-time text-right" x-text="formatTime(message.timestamp)"></div>
+                
+                <!-- Read Status -->
+                <div x-show="message.sender === 'me'" class="text-right mt-1">
+                  <i class="fas fa-check text-xs opacity-60" :class="message.read ? 'fa-check-double text-blue-300' : ''"></i>
+                </div>
+              </div>
+            </div>
+          </template>
+          
+          <!-- Typing Indicator -->
+          <div x-show="showTypingIndicator" class="flex justify-start">
+            <div class="typing-indicator">
+              <span x-text="activeConversation?.user.name"></span>が入力中
+              <div class="typing-dots">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Message Input -->
+        <div class="p-4 border-t border-gray-200 bg-white">
+          <div class="flex items-end space-x-3">
+            <!-- File Upload -->
+            <button class="p-2 text-gray-500 hover:text-blue-600 rounded-full hover:bg-blue-50 transition-colors" @click="$refs.fileInput.click()">
+              <i class="fas fa-paperclip"></i>
+            </button>
+            <input type="file" x-ref="fileInput" class="hidden" @change="handleFileUpload($event)" multiple accept="image/*,.pdf,.doc,.docx,.txt">
+            
+            <!-- Message Input -->
+            <div class="flex-1 relative">
+              <textarea x-model="newMessage" 
+                        @keydown.enter.prevent="sendMessage()" 
+                        @input="handleTyping()"
+                        placeholder="メッセージを入力..." 
+                        rows="1"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-full resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        style="min-height: 40px; max-height: 120px;"></textarea>
+              
+              <!-- Emoji Button -->
+              <button class="absolute right-3 top-2 p-1 text-gray-500 hover:text-blue-600 transition-colors">
+                <i class="fas fa-smile"></i>
+              </button>
+            </div>
+            
+            <!-- Send Button -->
+            <button @click="sendMessage()" 
+                    :disabled="!newMessage.trim()"
+                    class="p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+              <i class="fas fa-paper-plane"></i>
+            </button>
+          </div>
+          
+          <!-- File Preview Area -->
+          <div x-show="uploadedFiles.length > 0" class="mt-3 flex flex-wrap gap-2">
+            <template x-for="(file, index) in uploadedFiles" :key="index">
+              <div class="relative bg-gray-100 rounded-lg p-2 flex items-center space-x-2">
+                <i class="fas fa-file text-blue-600"></i>
+                <span class="text-sm" x-text="file.name"></span>
+                <button @click="removeFile(index)" class="text-red-500 hover:text-red-700">
+                  <i class="fas fa-times text-xs"></i>
+                </button>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Empty State -->
+      <div x-show="!activeConversation" class="flex-1 flex items-center justify-center bg-gray-50">
+        <div class="text-center">
+          <i class="fas fa-comments text-6xl text-gray-300 mb-4"></i>
+          <h2 class="text-xl font-semibold text-gray-500 mb-2">会話を選択してください</h2>
+          <p class="text-gray-400">左側から会話を選んでメッセージを開始しましょう</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Scroll to Bottom Button -->
+    <button x-show="showScrollButton" 
+            @click="scrollToBottom()" 
+            class="scroll-to-bottom bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition-colors">
+      <i class="fas fa-chevron-down"></i>
+    </button>
+  </div>
+</main>
+
+<!-- Footer -->
+<footer class="bg-gray-900 text-white py-12">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+      <!-- Brand Section -->
+      <div>
+        <div class="flex items-center space-x-2 mb-4">
+          <i class="fas fa-hands-helping text-2xl text-blue-500" aria-hidden="true"></i>
+          <span class="text-xl font-bold">TaskHelper</span>
+        </div>
+        <p class="text-gray-400">近所の方々と一緒に信頼できる代行サービス</p>
+      </div>
+      
+      <!-- Services Section -->
+      <div>
+        <h4 class="font-semibold mb-4">サービス</h4>
+        <ul class="space-y-2 text-gray-400">
+          <li><a href="task-list.html?category=shopping" class="hover:text-white transition-colors">買い物代行</a></li>
+          <li><a href="task-list.html?category=cleaning" class="hover:text-white transition-colors">清掃サービス</a></li>
+          <li><a href="task-list.html?category=delivery" class="hover:text-white transition-colors">配達・運搬</a></li>
+          <li><a href="task-list.html?category=petcare" class="hover:text-white transition-colors">ペットケア</a></li>
+        </ul>
+      </div>
+      
+      <!-- Support Section -->
+      <div>
+        <h4 class="font-semibold mb-4">サポート</h4>
+        <ul class="space-y-2 text-gray-400">
+          <li><a href="#" class="hover:text-white transition-colors">ヘルプセンター</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">お問い合わせ</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">利用規約</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">プライバシーポリシー</a></li>
+        </ul>
+      </div>
+      
+      <!-- Follow Section -->
+      <div>
+        <h4 class="font-semibold mb-4">フォロー</h4>
+        <div class="flex space-x-4">
+          <a href="#" class="text-gray-400 hover:text-white transition-colors" aria-label="Twitter">
+            <i class="fab fa-twitter text-xl"></i>
+          </a>
+          <a href="#" class="text-gray-400 hover:text-white transition-colors" aria-label="Facebook">
+            <i class="fab fa-facebook text-xl"></i>
+          </a>
+          <a href="#" class="text-gray-400 hover:text-white transition-colors" aria-label="Instagram">
+            <i class="fab fa-instagram text-xl"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Copyright Section -->
+    <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+      <p>&copy; 2025 <span lang="en">TaskHelper</span>. <span lang="en">All rights reserved</span>.</p>
+    </div>
+  </div>
+</footer>
+
+<!-- JS Libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.1/sweetalert2.all.min.js"></script>
+
+<script>
+function messageApp() {
+  return {
+    // State
+    conversations: [],
+    activeConversation: null,
+    newMessage: '',
+    uploadedFiles: [],
+    searchQuery: '',
+    showTypingIndicator: false,
+    showScrollButton: false,
+    typingTimeout: null,
+    
+    // Initialize
+    init() {
+      this.loadConversations();
+      this.setupScrollListener();
+      // URLから会話IDを取得して自動選択
+      const urlParams = new URLSearchParams(window.location.search);
+      const conversationId = urlParams.get('conversation');
+      if (conversationId) {
+        const conversation = this.conversations.find(c => c.id === conversationId);
+        if (conversation) {
+          this.selectConversation(conversation);
+        }
+      }
+    },
+    
+    // Load sample conversations
+    loadConversations() {
+      this.conversations = [
+        {
+          id: 'conv1',
+          user: {
+            name: '田中 花子',
+            online: true
+          },
+          task: {
+            id: 'task1',
+            title: 'スーパーでの買い物代行'
+          },
+          lastMessage: {
+            content: 'ありがとうございました！とても助かりました。',
+            timestamp: new Date(Date.now() - 1800000) // 30分前
+          },
+          unreadCount: 0,
+          messages: [
+            {
+              id: 'msg1',
+              sender: 'other',
+              type: 'text',
+              content: 'こんにちは！買い物の件でご相談があります。',
+              timestamp: new Date(Date.now() - 7200000), // 2時間前
+              read: true
+            },
+            {
+              id: 'msg2',
+              sender: 'me',
+              type: 'text',
+              content: 'はじめまして！喜んでお手伝いさせていただきます。どのような商品が必要でしょうか？',
+              timestamp: new Date(Date.now() - 7000000),
+              read: true
+            },
+            {
+              id: 'msg3',
+              sender: 'other',
+              type: 'text',
+              content: '野菜と肉類を中心に、リストを送らせていただきますね。',
+              timestamp: new Date(Date.now() - 6800000),
+              read: true
+            },
+            {
+              id: 'msg4',
+              sender: 'other',
+              type: 'file',
+              content: '',
+              fileName: '買い物リスト.pdf',
+              fileSize: 245760,
+              fileUrl: '#',
+              timestamp: new Date(Date.now() - 6700000),
+              read: true
+            },
+            {
+              id: 'msg5',
+              sender: 'me',
+              type: 'text',
+              content: 'リストを確認しました。予算は大体どのくらいを想定されていますか？',
+              timestamp: new Date(Date.now() - 6500000),
+              read: true
+            },
+            {
+              id: 'msg6',
+              sender: 'other',
+              type: 'text',
+              content: '5000円程度で考えています。もし超えそうでしたら事前にご連絡ください。',
+              timestamp: new Date(Date.now() - 6300000),
+              read: true
+            },
+            {
+              id: 'msg7',
+              sender: 'me',
+              type: 'text',
+              content: '承知いたしました。買い物が完了しましたら写真でお送りしますね。',
+              timestamp: new Date(Date.now() - 2000000),
+              read: true
+            },
+            {
+              id: 'msg8',
+              sender: 'other',
+              type: 'text',
+              content: 'ありがとうございました！とても助かりました。',
+              timestamp: new Date(Date.now() - 1800000),
+              read: true
+            }
+          ]
+        },
+        {
+          id: 'conv2',
+          user: {
+            name: '佐藤 太郎',
+            online: false
+          },
+          task: {
+            id: 'task2',
+            title: '引越しの手伝い'
+          },
+          lastMessage: {
+            content: '明日の10時からでお願いします。',
+            timestamp: new Date(Date.now() - 3600000) // 1時間前
+          },
+          unreadCount: 2,
+          messages: [
+            {
+              id: 'msg9',
+              sender: 'other',
+              type: 'text',
+              content: '引越しの手伝いをお願いしたいのですが、時間はいつ頃が良いでしょうか？',
+              timestamp: new Date(Date.now() - 7200000),
+              read: true
+            },
+            {
+              id: 'msg10',
+              sender: 'me',
+              type: 'text',
+              content: '明日でしたら午前中が空いています。何時頃からがご希望ですか？',
+              timestamp: new Date(Date.now() - 7000000),
+              read: true
+            },
+            {
+              id: 'msg11',
+              sender: 'other',
+              type: 'text',
+              content: '明日の10時からでお願いします。',
+              timestamp: new Date(Date.now() - 3600000),
+              read: false
+            }
+          ]
+        },
+        {
+          id: 'conv3',
+          user: {
+            name: '山田 美咲',
+            online: true
+          },
+          task: {
+            id: 'task3',
+            title: 'ペットの散歩代行'
+          },
+          lastMessage: {
+            content: '写真ありがとうございます！',
+            timestamp: new Date(Date.now() - 900000) // 15分前
+          },
+          unreadCount: 1,
+          messages: [
+            {
+              id: 'msg12',
+              sender: 'other',
+              type: 'text',
+              content: 'うちの犬の散歩をお願いしたいのですが、経験はおありですか？',
+              timestamp: new Date(Date.now() - 5400000),
+              read: true
+            },
+            {
+              id: 'msg13',
+              sender: 'me',
+              type: 'text',
+              content: 'はい、犬の散歩は慣れています。犬種と普段の散歩時間を教えていただけますか？',
+              timestamp: new Date(Date.now() - 5200000),
+              read: true
+            },
+            {
+              id: 'msg14',
+              sender: 'other',
+              type: 'text',
+              content: '柴犬の男の子で、普段は30分程度お散歩しています。',
+              timestamp: new Date(Date.now() - 5000000),
+              read: true
+            },
+            {
+              id: 'msg15',
+              sender: 'me',
+              type: 'image',
+              content: '',
+              fileName: '散歩中の写真.jpg',
+              fileUrl: 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=300&h=200&fit=crop',
+              timestamp: new Date(Date.now() - 1000000),
+              read: true
+            },
+            {
+              id: 'msg16',
+              sender: 'other',
+              type: 'text',
+              content: '写真ありがとうございます！',
+              timestamp: new Date(Date.now() - 900000),
+              read: false
+            }
+          ]
+        }
+      ];
+    },
+    
+    // Computed properties
+    get filteredConversations() {
+      if (!this.searchQuery) return this.conversations;
+      return this.conversations.filter(conv => 
+        conv.user.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+        conv.task.title.toLowerCase().includes(this.searchQuery.toLowerCase())
+      );
+    },
+    
+    // Methods
+    selectConversation(conversation) {
+      this.activeConversation = conversation;
+      conversation.unreadCount = 0;
+      this.$nextTick(() => {
+        this.scrollToBottom();
+      });
+    },
+    
+    sendMessage() {
+      if (!this.newMessage.trim() && this.uploadedFiles.length === 0) return;
+      
+      const message = {
+        id: 'msg' + Date.now(),
+        sender: 'me',
+        type: this.uploadedFiles.length > 0 ? 'file' : 'text',
+        content: this.newMessage.trim(),
+        timestamp: new Date(),
+        read: false
+      };
+      
+      // Handle file attachments
+      if (this.uploadedFiles.length > 0) {
+        message.fileName = this.uploadedFiles[0].name;
+        message.fileSize = this.uploadedFiles[0].size;
+        message.fileUrl = URL.createObjectURL(this.uploadedFiles[0]);
+        if (this.uploadedFiles[0].type.startsWith('image/')) {
+          message.type = 'image';
+        }
+      }
+      
+      this.activeConversation.messages.push(message);
+      this.activeConversation.lastMessage = {
+        content: message.type === 'text' ? message.content : `📎 ${message.fileName}`,
+        timestamp: message.timestamp
+      };
+      
+      this.newMessage = '';
+      this.uploadedFiles = [];
+      
+      this.$nextTick(() => {
+        this.scrollToBottom();
+      });
+      
+      // Simulate typing indicator and response
+      this.simulateResponse();
+      
+      toastr.success('メッセージを送信しました');
+    },
+    
+    simulateResponse() {
+      setTimeout(() => {
+        this.showTypingIndicator = true;
+        setTimeout(() => {
+          this.showTypingIndicator = false;
+          const responses = [
+            'ありがとうございます！',
+            '承知いたしました。',
+            'かしこまりました。',
+            'お疲れさまでした！'
+          ];
+          const response = {
+            id: 'msg' + Date.now(),
+            sender: 'other',
+            type: 'text',
+            content: responses[Math.floor(Math.random() * responses.length)],
+            timestamp: new Date(),
+            read: false
+          };
+          this.activeConversation.messages.push(response);
+          this.activeConversation.lastMessage = {
+            content: response.content,
+            timestamp: response.timestamp
+          };
+          this.$nextTick(() => {
+            this.scrollToBottom();
+          });
+        }, 2000);
+      }, 1000);
+    },
+    
+    handleFileUpload(event) {
+      const files = Array.from(event.target.files);
+      this.uploadedFiles = [...this.uploadedFiles, ...files];
+    },
+    
+    removeFile(index) {
+      this.uploadedFiles.splice(index, 1);
+    },
+    
+    handleTyping() {
+      clearTimeout(this.typingTimeout);
+      this.typingTimeout = setTimeout(() => {
+        // Stop typing indicator
+      }, 1000);
+    },
+    
+    scrollToBottom() {
+      const chatArea = document.getElementById('chatArea');
+      if (chatArea) {
+        chatArea.scrollTop = chatArea.scrollHeight;
+        this.showScrollButton = false;
+      }
+    },
+    
+    setupScrollListener() {
+      this.$nextTick(() => {
+        const chatArea = document.getElementById('chatArea');
+        if (chatArea) {
+          chatArea.addEventListener('scroll', () => {
+            const isScrolledToBottom = chatArea.scrollHeight - chatArea.clientHeight <= chatArea.scrollTop + 1;
+            this.showScrollButton = !isScrolledToBottom;
+          });
+        }
+      });
+    },
+    
+    openImageModal(imageUrl) {
+      Swal.fire({
+        imageUrl: imageUrl,
+        imageAlt: '画像',
+        showConfirmButton: false,
+        showCloseButton: true,
+        customClass: {
+          image: 'max-w-full max-h-96 object-contain'
+        }
+      });
+    },
+    
+    // Utility functions
+    formatTime(timestamp) {
+      const now = new Date();
+      const messageDate = new Date(timestamp);
+      const diff = now - messageDate;
+      
+      if (diff < 60000) return 'たった今';
+      if (diff < 3600000) return Math.floor(diff / 60000) + '分前';
+      if (diff < 86400000) return Math.floor(diff / 3600000) + '時間前';
+      if (diff < 604800000) return Math.floor(diff / 86400000) + '日前';
+      
+      return messageDate.toLocaleDateString('ja-JP');
+    },
+    
+    formatFileSize(bytes) {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+  }
+}
+
+// Mobile menu functionality
+document.addEventListener('DOMContentLoaded', function() {
+  const mobileMenuButton = document.getElementById('mobile-menu-button');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const menuIcon = document.getElementById('menu-icon');
+  const closeIcon = document.getElementById('close-icon');
+  
+  if (mobileMenuButton && mobileMenu) {
+    mobileMenuButton.addEventListener('click', function() {
+      const isExpanded = this.getAttribute('aria-expanded') === 'true';
+      this.setAttribute('aria-expanded', !isExpanded);
+      mobileMenu.classList.toggle('hidden');
+      
+      if (menuIcon && closeIcon) {
+        menuIcon.classList.toggle('opacity-0');
+        closeIcon.classList.toggle('opacity-0');
+      }
+    });
+  }
+});
+</script>
+
+</body>
+</html>

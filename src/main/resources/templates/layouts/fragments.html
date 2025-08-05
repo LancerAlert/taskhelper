@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>TaskHelper Fragments</title>
+</head>
+<body>
+
+<!-- Relative Time Update Script Fragment -->
+<div th:fragment="relative-time-script">
+  <script>
+  function updateRelativeTimes() {
+    const timeElements = document.querySelectorAll('[data-time]');
+    const now = new Date();
+    
+    timeElements.forEach(element => {
+      const timeAttr = element.getAttribute('data-time');
+      if (!timeAttr) return;
+      
+      const postTime = new Date(timeAttr);
+      const diffMs = now - postTime;
+      const diffMins = Math.floor(diffMs / (1000 * 60));
+      const diffHours = Math.floor(diffMins / 60);
+      const diffDays = Math.floor(diffHours / 24);
+      
+      let relativeText;
+      if (diffMins < 1) {
+        relativeText = 'たった今';
+      } else if (diffMins < 60) {
+        relativeText = diffMins + '分前';
+      } else if (diffHours < 24) {
+        relativeText = diffHours + '時間前';
+      } else if (diffDays < 30) {
+        relativeText = diffDays + '日前';
+      } else {
+        // Format as MM/DD for older posts
+        relativeText = (postTime.getMonth() + 1) + '/' + postTime.getDate();
+      }
+      
+      element.textContent = relativeText;
+    });
+  }
+  
+  document.addEventListener('DOMContentLoaded', function() {
+    updateRelativeTimes();
+    // Update every 60 seconds
+    setInterval(updateRelativeTimes, 60000);
+  });
+  </script>
+</div>
+
+</body>
+</html>

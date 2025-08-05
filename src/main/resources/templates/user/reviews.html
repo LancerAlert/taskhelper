@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="ja" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>評価・レビュー - TaskHelper</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.1/sweetalert2.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.1/sweetalert2.all.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .star-rating {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .star {
+            color: #d1d5db;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 1.5rem;
+        }
+        
+        .star:hover,
+        .star.active {
+            color: #fbbf24;
+            transform: scale(1.1);
+        }
+        
+        .star.half {
+            background: linear-gradient(90deg, #fbbf24 50%, #d1d5db 50%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .review-card {
+            transition: all 0.3s ease;
+        }
+        
+        .review-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        .rating-distribution {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .rating-bar {
+            flex: 1;
+            height: 8px;
+            background: #f3f4f6;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .rating-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #fbbf24, #f59e0b);
+            transition: width 0.5s ease;
+        }
+
+        .filter-chip {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .filter-chip.active {
+            background: #2563eb;
+            color: white;
+            border-color: #2563eb;
+        }
+        
+        .filter-chip:not(.active):hover {
+            background: rgba(37, 99, 235, 0.1);
+            border-color: #2563eb;
+            color: #2563eb;
+        }
+
+        .review-modal {
+            backdrop-filter: blur(10px);
+        }
+
+        .animate-pulse-slow {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        .review-avatar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .helper-badge {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .client-badge {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-white to-green-50 min-h-screen">
+<!-- Navigation -->
+<nav class="bg-white shadow-sm fixed top-0 left-0 right-0 z-50">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex items-center h-16">
+      <!-- Logo -->
+      <div class="flex items-center space-x-2">
+        <i class="fas fa-hands-helping text-2xl text-blue-600" aria-hidden="true"></i>
+        <span class="text-xl font-bold text-gray-900">TaskHelper</span>
+      </div>
+      
+      <!-- Desktop Menu (centered) -->
+      <div class="hidden md:flex items-center space-x-8 mx-auto">
+        <a href="index.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">ホーム</a>
+        <a href="task-list.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">依頼一覧</a>
+        <a href="task-create.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">依頼投稿</a>
+        <a href="profile.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">プロフィール</a>
+        <a href="my-tasks.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">マイタスク</a>
+      </div>
+      
+      <!-- Auth Buttons -->
+      <div class="hidden md:flex items-center space-x-3">
+        <a href="login.html" class="border border-blue-600 text-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-blue-50 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">ログイン</a>
+        <a href="register.html" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">始める</a>
+      </div>
+      
+      <!-- Mobile Menu Button -->
+      <div class="md:hidden ml-auto">
+        <button id="mobile-menu-button" class="text-gray-700 hover:text-blue-600 p-2 transition-all duration-300 ease-in-out" aria-expanded="false">
+          <svg class="w-6 h-6 transition-transform duration-300 ease-in-out" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path id="menu-icon" class="transition-opacity duration-300" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            <path id="close-icon" class="transition-opacity duration-300 opacity-0" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden md:hidden pb-4 transition-all duration-300 ease-in-out transform">
+      <div class="flex flex-col space-y-2">
+        <a href="index.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">ホーム</a>
+        <a href="task-list.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">依頼一覧</a>
+        <a href="task-create.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">依頼投稿</a>
+        <a href="profile.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">プロフィール</a>
+        <a href="my-tasks.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">マイタスク</a>
+        <hr class="my-3">
+        <div class="flex gap-2 justify-center">
+          <a href="login.html" class="border border-blue-600 text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-50 text-center transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">ログイン</a>
+          <a href="register.html" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 text-center transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">始める</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-8" x-data="reviewApp()">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">
+                <i class="fas fa-star text-yellow-500 mr-3"></i>
+                評価・レビュー
+            </h1>
+            <p class="text-gray-600">ユーザー間の信頼を築く相互評価システム</p>
+        </div>
+
+        <!-- Review Writing Modal -->
+        <div x-show="showReviewModal" 
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="fixed inset-0 z-50 overflow-y-auto review-modal bg-black bg-opacity-50"
+             @click.self="showReviewModal = false">
+            <div class="flex items-center justify-center min-h-screen px-4">
+                <div class="glass-effect rounded-2xl p-8 max-w-2xl w-full shadow-2xl"
+                     x-transition:enter="transition ease-out duration-300"
+                     x-transition:enter-start="opacity-0 scale-95"
+                     x-transition:enter-end="opacity-100 scale-100">
+                    
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-900">
+                            <i class="fas fa-star text-yellow-500 mr-2"></i>
+                            評価を投稿
+                        </h2>
+                        <button @click="showReviewModal = false" class="text-gray-400 hover:text-gray-600 text-2xl">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+
+                    <!-- Task Info -->
+                    <div class="bg-gray-50 rounded-xl p-4 mb-6">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                                <i class="fas fa-shopping-cart text-green-600"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-gray-900">食材の買い物代行</h3>
+                                <p class="text-sm text-gray-600">ヘルパー: 田中さん</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Star Rating -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-3">評価</label>
+                        <div class="star-rating justify-center">
+                            <template x-for="i in 5" :key="i">
+                                <i class="fas fa-star star"
+                                   :class="{ 'active': i <= newReview.rating }"
+                                   @click="newReview.rating = i"></i>
+                            </template>
+                        </div>
+                        <p class="text-center text-sm text-gray-600 mt-2" x-text="getRatingText(newReview.rating)"></p>
+                    </div>
+
+                    <!-- Review Categories -->
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">コミュニケーション</label>
+                            <div class="star-rating">
+                                <template x-for="i in 5" :key="i">
+                                    <i class="fas fa-star star text-lg"
+                                       :class="{ 'active': i <= newReview.categories.communication }"
+                                       @click="newReview.categories.communication = i"></i>
+                                </template>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">時間厳守</label>
+                            <div class="star-rating">
+                                <template x-for="i in 5" :key="i">
+                                    <i class="fas fa-star star text-lg"
+                                       :class="{ 'active': i <= newReview.categories.punctuality }"
+                                       @click="newReview.categories.punctuality = i"></i>
+                                </template>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">作業品質</label>
+                            <div class="star-rating">
+                                <template x-for="i in 5" :key="i">
+                                    <i class="fas fa-star star text-lg"
+                                       :class="{ 'active': i <= newReview.categories.quality }"
+                                       @click="newReview.categories.quality = i"></i>
+                                </template>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">また依頼したい</label>
+                            <div class="star-rating">
+                                <template x-for="i in 5" :key="i">
+                                    <i class="fas fa-star star text-lg"
+                                       :class="{ 'active': i <= newReview.categories.recommend }"
+                                       @click="newReview.categories.recommend = i"></i>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Comment -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">コメント</label>
+                        <textarea x-model="newReview.comment"
+                                  rows="4"
+                                  placeholder="具体的な感想やアドバイスをお聞かせください..."
+                                  class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"></textarea>
+                        <p class="text-xs text-gray-500 mt-1">
+                            <span x-text="newReview.comment.length"></span>/500文字
+                        </p>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex justify-end space-x-4">
+                        <button @click="showReviewModal = false"
+                                class="px-6 py-3 border border-gray-300 rounded-xl font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+                            キャンセル
+                        </button>
+                        <button @click="submitReview()"
+                                class="px-6 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 hover:scale-105 transition-all duration-200">
+                            <i class="fas fa-paper-plane mr-2"></i>
+                            投稿する
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="glass-effect rounded-2xl p-6 shadow-lg text-center">
+                <div class="w-16 h-16 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-star text-white text-2xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-1">4.8</h3>
+                <p class="text-gray-600 text-sm">平均評価</p>
+            </div>
+            
+            <div class="glass-effect rounded-2xl p-6 shadow-lg text-center">
+                <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-comments text-white text-2xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-1">1,247</h3>
+                <p class="text-gray-600 text-sm">総レビュー数</p>
+            </div>
+            
+            <div class="glass-effect rounded-2xl p-6 shadow-lg text-center">
+                <div class="w-16 h-16 bg-gradient-to-r from-green-500 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-thumbs-up text-white text-2xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-1">94%</h3>
+                <p class="text-gray-600 text-sm">満足度</p>
+            </div>
+            
+            <div class="glass-effect rounded-2xl p-6 shadow-lg text-center">
+                <div class="w-16 h-16 bg-gradient-to-r from-red-500 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-medal text-white text-2xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-1">156</h3>
+                <p class="text-gray-600 text-sm">優秀ヘルパー</p>
+            </div>
+        </div>
+
+        <div class="grid lg:grid-cols-3 gap-8">
+            <!-- Reviews List -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Filters -->
+                <div class="glass-effect rounded-2xl p-6 shadow-lg">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0 mb-4">
+                        <h2 class="text-xl font-bold text-gray-900">
+                            <i class="fas fa-list text-blue-600 mr-2"></i>
+                            レビュー一覧
+                        </h2>
+                        <button @click="showReviewModal = true"
+                                class="bg-blue-600 text-white px-6 py-2.5 rounded-xl font-medium hover:bg-blue-700 hover:scale-105 transition-all duration-200">
+                            <i class="fas fa-plus mr-2"></i>
+                            レビューを書く
+                        </button>
+                    </div>
+                    
+                    <!-- Filter Chips -->
+                    <div class="flex flex-wrap gap-3">
+                        <button @click="setFilter('all')"
+                                class="filter-chip px-4 py-2 rounded-lg font-medium text-sm"
+                                :class="activeFilter === 'all' ? 'active' : 'bg-white border border-gray-200 text-gray-700'">
+                            すべて
+                        </button>
+                        <button @click="setFilter(5)"
+                                class="filter-chip px-4 py-2 rounded-lg font-medium text-sm"
+                                :class="activeFilter === 5 ? 'active' : 'bg-white border border-gray-200 text-gray-700'">
+                            ⭐⭐⭐⭐⭐
+                        </button>
+                        <button @click="setFilter(4)"
+                                class="filter-chip px-4 py-2 rounded-lg font-medium text-sm"
+                                :class="activeFilter === 4 ? 'active' : 'bg-white border border-gray-200 text-gray-700'">
+                            ⭐⭐⭐⭐
+                        </button>
+                        <button @click="setFilter(3)"
+                                class="filter-chip px-4 py-2 rounded-lg font-medium text-sm"
+                                :class="activeFilter === 3 ? 'active' : 'bg-white border border-gray-200 text-gray-700'">
+                            ⭐⭐⭐
+                        </button>
+                        <button @click="setFilter('helper')"
+                                class="filter-chip px-4 py-2 rounded-lg font-medium text-sm"
+                                :class="activeFilter === 'helper' ? 'active' : 'bg-white border border-gray-200 text-gray-700'">
+                            ヘルパー評価
+                        </button>
+                        <button @click="setFilter('client')"
+                                class="filter-chip px-4 py-2 rounded-lg font-medium text-sm"
+                                :class="activeFilter === 'client' ? 'active' : 'bg-white border border-gray-200 text-gray-700'">
+                            依頼者評価
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Review Cards -->
+                <div class="space-y-4">
+                    <template x-for="review in filteredReviews" :key="review.id">
+                        <div class="review-card glass-effect rounded-2xl p-6 shadow-lg">
+                            <div class="flex items-start space-x-4">
+                                <!-- Avatar -->
+                                <div class="review-avatar w-12 h-12 rounded-full flex items-center justify-center text-white font-semibold">
+                                    <span x-text="review.reviewerName.charAt(0)"></span>
+                                </div>
+
+                                <!-- Review Content -->
+                                <div class="flex-1">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <div class="flex items-center space-x-3">
+                                            <h3 class="font-semibold text-gray-900" x-text="review.reviewerName"></h3>
+                                            <span class="px-2 py-1 rounded-lg text-xs font-medium"
+                                                  :class="review.reviewerType === 'helper' ? 'helper-badge text-white' : 'client-badge text-white'"
+                                                  x-text="review.reviewerType === 'helper' ? 'ヘルパー' : '依頼者'"></span>
+                                        </div>
+                                        <span class="text-sm text-gray-500" x-text="getRelativeTime(review.createdAt)"></span>
+                                    </div>
+
+                                    <!-- Stars -->
+                                    <div class="flex items-center mb-3">
+                                        <div class="star-rating mr-3">
+                                            <template x-for="i in 5" :key="i">
+                                                <i class="fas fa-star text-sm"
+                                                   :class="i <= review.rating ? 'text-yellow-400' : 'text-gray-300'"></i>
+                                            </template>
+                                        </div>
+                                        <span class="text-sm font-medium text-gray-700" x-text="review.rating + '.0'"></span>
+                                    </div>
+
+                                    <!-- Task Info -->
+                                    <div class="bg-gray-50 rounded-lg p-3 mb-3">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-8 h-8 rounded-lg flex items-center justify-center"
+                                                 :class="getTaskCategoryClass(review.taskCategory)">
+                                                <i :class="getTaskCategoryIcon(review.taskCategory)" class="text-white text-sm"></i>
+                                            </div>
+                                            <span class="text-sm font-medium text-gray-900" x-text="review.taskTitle"></span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Comment -->
+                                    <p class="text-gray-700 text-sm leading-relaxed mb-3" x-text="review.comment"></p>
+
+                                    <!-- Category Ratings -->
+                                    <div class="grid grid-cols-2 gap-4 text-xs">
+                                        <div class="flex justify-between">
+                                            <span class="text-gray-600">コミュニケーション</span>
+                                            <div class="star-rating">
+                                                <template x-for="i in 5" :key="i">
+                                                    <i class="fas fa-star text-xs"
+                                                       :class="i <= review.categories.communication ? 'text-yellow-400' : 'text-gray-300'"></i>
+                                                </template>
+                                            </div>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span class="text-gray-600">時間厳守</span>
+                                            <div class="star-rating">
+                                                <template x-for="i in 5" :key="i">
+                                                    <i class="fas fa-star text-xs"
+                                                       :class="i <= review.categories.punctuality ? 'text-yellow-400' : 'text-gray-300'"></i>
+                                                </template>
+                                            </div>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span class="text-gray-600">作業品質</span>
+                                            <div class="star-rating">
+                                                <template x-for="i in 5" :key="i">
+                                                    <i class="fas fa-star text-xs"
+                                                       :class="i <= review.categories.quality ? 'text-yellow-400' : 'text-gray-300'"></i>
+                                                </template>
+                                            </div>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span class="text-gray-600">また依頼したい</span>
+                                            <div class="star-rating">
+                                                <template x-for="i in 5" :key="i">
+                                                    <i class="fas fa-star text-xs"
+                                                       :class="i <= review.categories.recommend ? 'text-yellow-400' : 'text-gray-300'"></i>
+                                                </template>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Helpful Button -->
+                                    <div class="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
+                                        <button @click="toggleHelpful(review.id)"
+                                                class="flex items-center space-x-2 text-sm text-gray-600 hover:text-blue-600 transition-colors duration-200">
+                                            <i class="fas fa-thumbs-up" :class="review.isHelpful ? 'text-blue-600' : 'text-gray-400'"></i>
+                                            <span>参考になった (<span x-text="review.helpfulCount"></span>)</span>
+                                        </button>
+                                        <button class="text-gray-400 hover:text-gray-600 transition-colors duration-200">
+                                            <i class="fas fa-flag text-sm"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- Load More -->
+                <div class="text-center">
+                    <button class="bg-white border border-gray-200 text-gray-700 px-8 py-3 rounded-xl font-medium hover:bg-gray-50 hover:scale-105 transition-all duration-200">
+                        <i class="fas fa-plus mr-2"></i>
+                        さらに読み込む
+                    </button>
+                </div>
+            </div>
+
+            <!-- Rating Analytics -->
+            <div class="space-y-6">
+                <!-- Rating Distribution -->
+                <div class="glass-effect rounded-2xl p-6 shadow-lg">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                        <i class="fas fa-chart-bar text-blue-600 mr-2"></i>
+                        評価分布
+                    </h3>
+                    
+                    <div class="space-y-3">
+                        <template x-for="(count, rating) in ratingDistribution" :key="rating">
+                            <div class="rating-distribution">
+                                <span class="text-sm text-gray-600 w-4" x-text="rating"></span>
+                                <i class="fas fa-star text-yellow-400 text-sm"></i>
+                                <div class="rating-bar">
+                                    <div class="rating-bar-fill"
+                                         :style="`width: ${(count / getTotalReviews()) * 100}%`"></div>
+                                </div>
+                                <span class="text-sm text-gray-600 w-8 text-right" x-text="count"></span>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Top Categories -->
+                <div class="glass-effect rounded-2xl p-6 shadow-lg">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                        <i class="fas fa-trophy text-yellow-500 mr-2"></i>
+                        評価の高いカテゴリ
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-700">コミュニケーション</span>
+                            <div class="flex items-center space-x-2">
+                                <div class="star-rating">
+                                    <template x-for="i in 5" :key="i">
+                                        <i class="fas fa-star text-sm"
+                                           :class="i <= 4.9 ? 'text-yellow-400' : 'text-gray-300'"></i>
+                                    </template>
+                                </div>
+                                <span class="text-sm font-medium text-gray-900">4.9</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-700">作業品質</span>
+                            <div class="flex items-center space-x-2">
+                                <div class="star-rating">
+                                    <template x-for="i in 5" :key="i">
+                                        <i class="fas fa-star text-sm"
+                                           :class="i <= 4.8 ? 'text-yellow-400' : 'text-gray-300'"></i>
+                                    </template>
+                                </div>
+                                <span class="text-sm font-medium text-gray-900">4.8</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-700">時間厳守</span>
+                            <div class="flex items-center space-x-2">
+                                <div class="star-rating">
+                                    <template x-for="i in 5" :key="i">
+                                        <i class="fas fa-star text-sm"
+                                           :class="i <= 4.7 ? 'text-yellow-400' : 'text-gray-300'"></i>
+                                    </template>
+                                </div>
+                                <span class="text-sm font-medium text-gray-900">4.7</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-700">また依頼したい</span>
+                            <div class="flex items-center space-x-2">
+                                <div class="star-rating">
+                                    <template x-for="i in 5" :key="i">
+                                        <i class="fas fa-star text-sm"
+                                           :class="i <= 4.6 ? 'text-yellow-400' : 'text-gray-300'"></i>
+                                    </template>
+                                </div>
+                                <span class="text-sm font-medium text-gray-900">4.6</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="glass-effect rounded-2xl p-6 shadow-lg">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                        <i class="fas fa-clock text-blue-600 mr-2"></i>
+                        最近のアクティビティ
+                    </h3>
+                    
+                    <div class="space-y-3">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                            <p class="text-sm text-gray-600">新しいレビューが投稿されました</p>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                            <p class="text-sm text-gray-600">平均評価が4.8に上昇</p>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                            <p class="text-sm text-gray-600">優秀ヘルパーが156名に増加</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-16">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-4">サービス</h3>
+                    <ul class="space-y-2">
+                        <li><a href="task-list.html" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">依頼一覧</a></li>
+                        <li><a href="task-create.html" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">依頼投稿</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">ヘルパー登録</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">料金プラン</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-4">サポート</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">ヘルプセンター</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">安全ガイド</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">お問い合わせ</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">よくある質問</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-4">会社情報</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">会社概要</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">採用情報</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">プレスリリース</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">パートナー</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-4">法的事項</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">利用規約</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">プライバシー</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">特定商取引法</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">資金決済法</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-200 pt-8 mt-8">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <div class="flex items-center space-x-3 mb-4 md:mb-0">
+                        <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-green-600 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-hands-helping text-white text-sm"></i>
+                        </div>
+                        <span class="font-bold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">TaskHelper</span>
+                    </div>
+                    <p class="text-gray-500 text-sm">&copy; 2025 TaskHelper. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu functionality
+        document.addEventListener('DOMContentLoaded', function() {
+          const mobileMenuButton = document.getElementById('mobile-menu-button');
+          const mobileMenu = document.getElementById('mobile-menu');
+          const menuIcon = document.getElementById('menu-icon');
+          const closeIcon = document.getElementById('close-icon');
+
+          mobileMenuButton.addEventListener('click', function() {
+            const isExpanded = mobileMenuButton.getAttribute('aria-expanded') === 'true';
+            
+            mobileMenuButton.setAttribute('aria-expanded', !isExpanded);
+            mobileMenu.classList.toggle('hidden');
+            
+            if (!isExpanded) {
+              menuIcon.classList.add('opacity-0');
+              closeIcon.classList.remove('opacity-0');
+            } else {
+              menuIcon.classList.remove('opacity-0');
+              closeIcon.classList.add('opacity-0');
+            }
+          });
+        });
+
+        // Review App using Alpine.js
+        function reviewApp() {
+            return {
+                activeFilter: 'all',
+                showReviewModal: false,
+                newReview: {
+                    rating: 0,
+                    comment: '',
+                    categories: {
+                        communication: 0,
+                        punctuality: 0,
+                        quality: 0,
+                        recommend: 0
+                    }
+                },
+                reviews: [
+                    {
+                        id: 1,
+                        reviewerName: '田中さん',
+                        reviewerType: 'client',
+                        rating: 5,
+                        comment: '非常に丁寧で信頼できるヘルパーさんでした。時間通りに到着し、買い物リストに沿って完璧に商品を選んでくれました。また必ずお願いしたいです！',
+                        taskTitle: '食材の買い物代行',
+                        taskCategory: 'shopping',
+                        categories: {
+                            communication: 5,
+                            punctuality: 5,
+                            quality: 5,
+                            recommend: 5
+                        },
+                        createdAt: '2025-08-03T10:30:00Z',
+                        helpfulCount: 12,
+                        isHelpful: false
+                    },
+                    {
+                        id: 2,
+                        reviewerName: '佐藤さん',
+                        reviewerType: 'helper',
+                        rating: 4,
+                        comment: '依頼内容が明確で、スムーズにタスクを完了できました。依頼者の方も親切で、コミュニケーションが取りやすかったです。',
+                        taskTitle: 'アパートの掃除',
+                        taskCategory: 'cleaning',
+                        categories: {
+                            communication: 5,
+                            punctuality: 4,
+                            quality: 4,
+                            recommend: 4
+                        },
+                        createdAt: '2025-08-02T16:45:00Z',
+                        helpfulCount: 8,
+                        isHelpful: true
+                    },
+                    {
+                        id: 3,
+                        reviewerName: '山田さん',
+                        reviewerType: 'client',
+                        rating: 5,
+                        comment: 'ペットの散歩をお願いしましたが、愛犬がとても懐いていて安心しました。写真付きで報告もしてくれて、サービス精神が素晴らしいです。',
+                        taskTitle: '犬の散歩代行',
+                        taskCategory: 'pets',
+                        categories: {
+                            communication: 5,
+                            punctuality: 5,
+                            quality: 5,
+                            recommend: 5
+                        },
+                        createdAt: '2025-08-01T14:20:00Z',
+                        helpfulCount: 15,
+                        isHelpful: false
+                    },
+                    {
+                        id: 4,
+                        reviewerName: '鈴木さん',
+                        reviewerType: 'helper',
+                        rating: 4,
+                        comment: '引越しの手伝いでしたが、重い荷物もありがとうございました。事前に詳細を教えていただけたので準備もしっかりできました。',
+                        taskTitle: '引越しの手伝い',
+                        taskCategory: 'delivery',
+                        categories: {
+                            communication: 4,
+                            punctuality: 4,
+                            quality: 4,
+                            recommend: 4
+                        },
+                        createdAt: '2025-07-31T11:15:00Z',
+                        helpfulCount: 6,
+                        isHelpful: false
+                    },
+                    {
+                        id: 5,
+                        reviewerName: '高橋さん',
+                        reviewerType: 'client',
+                        rating: 3,
+                        comment: '水道の修理をお願いしました。技術的には問題ありませんでしたが、少し時間がかかったのが気になりました。',
+                        taskTitle: '水道修理',
+                        taskCategory: 'repairs',
+                        categories: {
+                            communication: 3,
+                            punctuality: 2,
+                            quality: 4,
+                            recommend: 3
+                        },
+                        createdAt: '2025-07-30T09:30:00Z',
+                        helpfulCount: 3,
+                        isHelpful: false
+                    }
+                ],
+                ratingDistribution: {
+                    5: 847,
+                    4: 298,
+                    3: 87,
+                    2: 12,
+                    1: 3
+                },
+
+                get filteredReviews() {
+                    let filtered = this.reviews;
+                    
+                    if (this.activeFilter === 'helper') {
+                        filtered = filtered.filter(r => r.reviewerType === 'helper');
+                    } else if (this.activeFilter === 'client') {
+                        filtered = filtered.filter(r => r.reviewerType === 'client');
+                    } else if (typeof this.activeFilter === 'number') {
+                        filtered = filtered.filter(r => r.rating === this.activeFilter);
+                    }
+                    
+                    return filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                },
+
+                setFilter(filter) {
+                    this.activeFilter = filter;
+                },
+
+                getTotalReviews() {
+                    return Object.values(this.ratingDistribution).reduce((sum, count) => sum + count, 0);
+                },
+
+                getRatingText(rating) {
+                    const texts = {
+                        1: '不満',
+                        2: '改善が必要',
+                        3: '普通',
+                        4: '良い',
+                        5: '素晴らしい'
+                    };
+                    return texts[rating] || '評価を選択してください';
+                },
+
+                getTaskCategoryClass(category) {
+                    const classes = {
+                        shopping: 'bg-green-500',
+                        cleaning: 'bg-blue-500',
+                        delivery: 'bg-orange-500',
+                        pets: 'bg-purple-500',
+                        repairs: 'bg-red-500'
+                    };
+                    return classes[category] || 'bg-gray-500';
+                },
+
+                getTaskCategoryIcon(category) {
+                    const icons = {
+                        shopping: 'fas fa-shopping-cart',
+                        cleaning: 'fas fa-broom',
+                        delivery: 'fas fa-truck',
+                        pets: 'fas fa-paw',
+                        repairs: 'fas fa-tools'
+                    };
+                    return icons[category] || 'fas fa-tasks';
+                },
+
+                getRelativeTime(timestamp) {
+                    const now = new Date();
+                    const time = new Date(timestamp);
+                    const diff = Math.floor((now - time) / 1000);
+
+                    if (diff < 60) return 'たった今';
+                    if (diff < 3600) return `${Math.floor(diff / 60)}分前`;
+                    if (diff < 86400) return `${Math.floor(diff / 3600)}時間前`;
+                    if (diff < 604800) return `${Math.floor(diff / 86400)}日前`;
+                    
+                    return time.toLocaleDateString('ja-JP');
+                },
+
+                toggleHelpful(reviewId) {
+                    const review = this.reviews.find(r => r.id === reviewId);
+                    if (review) {
+                        if (review.isHelpful) {
+                            review.helpfulCount--;
+                            review.isHelpful = false;
+                            toastr.info('参考になったを取り消しました');
+                        } else {
+                            review.helpfulCount++;
+                            review.isHelpful = true;
+                            toastr.success('参考になったとマークしました');
+                        }
+                    }
+                },
+
+                submitReview() {
+                    if (this.newReview.rating === 0) {
+                        toastr.error('評価を選択してください');
+                        return;
+                    }
+
+                    if (this.newReview.comment.trim() === '') {
+                        toastr.error('コメントを入力してください');
+                        return;
+                    }
+
+                    if (this.newReview.comment.length > 500) {
+                        toastr.error('コメントは500文字以内で入力してください');
+                        return;
+                    }
+
+                    // Simulate API call
+                    Swal.fire({
+                        title: 'レビューを投稿中...',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        showConfirmButton: false,
+                        willOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    setTimeout(() => {
+                        // Add new review to the list
+                        const newReviewData = {
+                            id: this.reviews.length + 1,
+                            reviewerName: 'あなた',
+                            reviewerType: 'client',
+                            rating: this.newReview.rating,
+                            comment: this.newReview.comment,
+                            taskTitle: '食材の買い物代行',
+                            taskCategory: 'shopping',
+                            categories: this.newReview.categories,
+                            createdAt: new Date().toISOString(),
+                            helpfulCount: 0,
+                            isHelpful: false
+                        };
+
+                        this.reviews.unshift(newReviewData);
+
+                        // Reset form
+                        this.newReview = {
+                            rating: 0,
+                            comment: '',
+                            categories: {
+                                communication: 0,
+                                punctuality: 0,
+                                quality: 0,
+                                recommend: 0
+                            }
+                        };
+
+                        this.showReviewModal = false;
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'レビューを投稿しました！',
+                            text: 'ご協力ありがとうございます。',
+                            confirmButtonColor: '#2563eb'
+                        });
+                    }, 1500);
+                }
+            }
+        }
+
+        // Toastr configuration
+        toastr.options = {
+            "closeButton": true,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "timeOut": "3000"
+        };
+    </script>
+</body>
+</html>

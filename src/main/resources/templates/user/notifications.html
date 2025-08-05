@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="ja" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>通知 - TaskHelper</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.1/sweetalert2.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.1/sweetalert2.all.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .notification-item {
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+        
+        .notification-item:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        .notification-item.unread {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05), rgba(37, 99, 235, 0.02));
+            border-left-color: #2563eb;
+        }
+        
+        .notification-item.read {
+            background: rgba(249, 250, 251, 0.8);
+            border-left-color: #e5e7eb;
+        }
+
+        .notification-badge {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .notification-badge::after {
+            content: attr(data-count);
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+        }
+        
+        .notification-badge[data-count="0"]::after {
+            display: none;
+        }
+
+        .filter-tab {
+            transition: all 0.3s ease;
+        }
+        
+        .filter-tab.active {
+            background: #2563eb;
+            color: white;
+        }
+        
+        .filter-tab:not(.active):hover {
+            background: rgba(37, 99, 235, 0.1);
+            color: #2563eb;
+        }
+
+        .notification-type-task {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        
+        .notification-type-payment {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+        
+        .notification-type-message {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        }
+        
+        .notification-type-system {
+            background: linear-gradient(135deg, #6b7280, #4b5563);
+        }
+
+        .settings-toggle {
+            transition: all 0.3s ease;
+        }
+        
+        .settings-toggle.enabled {
+            background: #10b981;
+        }
+        
+        .settings-toggle.disabled {
+            background: #d1d5db;
+        }
+        
+        .settings-toggle-dot {
+            transition: all 0.3s ease;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transform: translateX(0);
+        }
+        
+        .settings-toggle.enabled .settings-toggle-dot {
+            transform: translateX(24px);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-white to-green-50 min-h-screen">
+<!-- Navigation -->
+<nav class="bg-white shadow-sm fixed top-0 left-0 right-0 z-50">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex items-center h-16">
+      <!-- Logo -->
+      <div class="flex items-center space-x-2">
+        <i class="fas fa-hands-helping text-2xl text-blue-600" aria-hidden="true"></i>
+        <span class="text-xl font-bold text-gray-900">TaskHelper</span>
+      </div>
+      
+      <!-- Desktop Menu (centered) -->
+      <div class="hidden md:flex items-center space-x-8 mx-auto">
+        <a href="index.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">ホーム</a>
+        <a href="task-list.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">依頼一覧</a>
+        <a href="task-create.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">依頼投稿</a>
+        <a href="profile.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">プロフィール</a>
+        <a href="my-tasks.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">マイタスク</a>
+      </div>
+      
+      <!-- Auth Buttons -->
+      <div class="hidden md:flex items-center space-x-3">
+        <a href="login.html" class="border border-blue-600 text-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-blue-50 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">ログイン</a>
+        <a href="register.html" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">始める</a>
+      </div>
+      
+      <!-- Mobile Menu Button -->
+      <div class="md:hidden ml-auto">
+        <button id="mobile-menu-button" class="text-gray-700 hover:text-blue-600 p-2 transition-all duration-300 ease-in-out" aria-expanded="false">
+          <svg class="w-6 h-6 transition-transform duration-300 ease-in-out" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path id="menu-icon" class="transition-opacity duration-300" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            <path id="close-icon" class="transition-opacity duration-300 opacity-0" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden md:hidden pb-4 transition-all duration-300 ease-in-out transform">
+      <div class="flex flex-col space-y-2">
+        <a href="index.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">ホーム</a>
+        <a href="task-list.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">依頼一覧</a>
+        <a href="task-create.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">依頼投稿</a>
+        <a href="profile.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">プロフィール</a>
+        <a href="my-tasks.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">マイタスク</a>
+        <hr class="my-3">
+        <div class="flex gap-2 justify-center">
+          <a href="login.html" class="border border-blue-600 text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-50 text-center transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">ログイン</a>
+          <a href="register.html" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 text-center transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">始める</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-8" x-data="notificationApp()">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">
+                <i class="fas fa-bell text-blue-600 mr-3"></i>
+                通知センター
+            </h1>
+            <p class="text-gray-600">重要なお知らせとアップデートを確認できます</p>
+        </div>
+
+        <!-- Notification Controls -->
+        <div class="glass-effect rounded-2xl p-6 shadow-lg mb-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+                <!-- Filter Tabs -->
+                <div class="flex flex-wrap gap-2">
+                    <button @click="setFilter('all')" 
+                            class="filter-tab px-4 py-2 rounded-lg font-medium text-sm"
+                            :class="activeFilter === 'all' ? 'active' : ''">
+                        すべて (<span x-text="getAllCount()"></span>)
+                    </button>
+                    <button @click="setFilter('unread')" 
+                            class="filter-tab px-4 py-2 rounded-lg font-medium text-sm"
+                            :class="activeFilter === 'unread' ? 'active' : ''">
+                        未読 (<span x-text="getUnreadCount()"></span>)
+                    </button>
+                    <button @click="setFilter('task')" 
+                            class="filter-tab px-4 py-2 rounded-lg font-medium text-sm"
+                            :class="activeFilter === 'task' ? 'active' : ''">
+                        タスク
+                    </button>
+                    <button @click="setFilter('payment')" 
+                            class="filter-tab px-4 py-2 rounded-lg font-medium text-sm"
+                            :class="activeFilter === 'payment' ? 'active' : ''">
+                        支払い
+                    </button>
+                    <button @click="setFilter('message')" 
+                            class="filter-tab px-4 py-2 rounded-lg font-medium text-sm"
+                            :class="activeFilter === 'message' ? 'active' : ''">
+                        メッセージ
+                    </button>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex items-center space-x-3">
+                    <button @click="markAllAsRead()" 
+                            class="text-blue-600 hover:text-blue-700 font-medium text-sm transition-colors duration-200">
+                        <i class="fas fa-check-double mr-1"></i>
+                        すべて既読
+                    </button>
+                    <button @click="showSettings = !showSettings" 
+                            class="text-gray-600 hover:text-gray-700 transition-colors duration-200">
+                        <i class="fas fa-cog text-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notification Settings Panel -->
+        <div x-show="showSettings" x-transition class="glass-effect rounded-2xl p-6 shadow-lg mb-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                <i class="fas fa-bell-slash text-blue-600 mr-2"></i>
+                通知設定
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-4">
+                    <h4 class="font-medium text-gray-900">プッシュ通知</h4>
+                    
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-700">新しいタスクの依頼</span>
+                        <button @click="toggleSetting('newTask')" 
+                                class="settings-toggle w-12 h-6 rounded-full p-1 relative"
+                                :class="settings.newTask ? 'enabled' : 'disabled'">
+                            <div class="settings-toggle-dot"></div>
+                        </button>
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-700">タスクの承認</span>
+                        <button @click="toggleSetting('taskApproval')" 
+                                class="settings-toggle w-12 h-6 rounded-full p-1 relative"
+                                :class="settings.taskApproval ? 'enabled' : 'disabled'">
+                            <div class="settings-toggle-dot"></div>
+                        </button>
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-700">支払い関連</span>
+                        <button @click="toggleSetting('payment')" 
+                                class="settings-toggle w-12 h-6 rounded-full p-1 relative"
+                                :class="settings.payment ? 'enabled' : 'disabled'">
+                            <div class="settings-toggle-dot"></div>
+                        </button>
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-700">新しいメッセージ</span>
+                        <button @click="toggleSetting('newMessage')" 
+                                class="settings-toggle w-12 h-6 rounded-full p-1 relative"
+                                :class="settings.newMessage ? 'enabled' : 'disabled'">
+                            <div class="settings-toggle-dot"></div>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="space-y-4">
+                    <h4 class="font-medium text-gray-900">メール通知</h4>
+                    
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-700">日次サマリー</span>
+                        <button @click="toggleSetting('dailySummary')" 
+                                class="settings-toggle w-12 h-6 rounded-full p-1 relative"
+                                :class="settings.dailySummary ? 'enabled' : 'disabled'">
+                            <div class="settings-toggle-dot"></div>
+                        </button>
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-700">週次レポート</span>
+                        <button @click="toggleSetting('weeklyReport')" 
+                                class="settings-toggle w-12 h-6 rounded-full p-1 relative"
+                                :class="settings.weeklyReport ? 'enabled' : 'disabled'">
+                            <div class="settings-toggle-dot"></div>
+                        </button>
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-700">プロモーション</span>
+                        <button @click="toggleSetting('promotion')" 
+                                class="settings-toggle w-12 h-6 rounded-full p-1 relative"
+                                :class="settings.promotion ? 'enabled' : 'disabled'">
+                            <div class="settings-toggle-dot"></div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notifications List -->
+        <div class="space-y-3">
+            <template x-for="notification in filteredNotifications" :key="notification.id">
+                <div class="notification-item glass-effect rounded-2xl p-6 shadow-lg cursor-pointer"
+                     :class="notification.read ? 'read' : 'unread'"
+                     @click="markAsRead(notification.id)">
+                    <div class="flex items-start space-x-4">
+                        <!-- Notification Icon -->
+                        <div class="w-12 h-12 rounded-xl flex items-center justify-center text-white"
+                             :class="`notification-type-${notification.type}`">
+                            <i :class="getNotificationIcon(notification.type)" class="text-lg"></i>
+                        </div>
+
+                        <!-- Notification Content -->
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-start justify-between">
+                                <h3 class="font-semibold text-gray-900 mb-1" x-text="notification.title"></h3>
+                                <div class="flex items-center space-x-2 ml-4">
+                                    <span class="text-xs text-gray-500" x-text="getRelativeTime(notification.timestamp)"></span>
+                                    <div x-show="!notification.read" class="w-2 h-2 bg-blue-600 rounded-full"></div>
+                                </div>
+                            </div>
+                            <p class="text-gray-600 text-sm mb-2" x-text="notification.message"></p>
+                            
+                            <!-- Action Button -->
+                            <div x-show="notification.actionButton">
+                                <button @click.stop="handleNotificationAction(notification)"
+                                        class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors duration-200">
+                                    <span x-text="notification.actionButton?.text"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <!-- Empty State -->
+            <div x-show="filteredNotifications.length === 0" class="text-center py-12">
+                <div class="w-24 h-24 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-bell-slash text-gray-400 text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">通知がありません</h3>
+                <p class="text-gray-600">
+                    <span x-show="activeFilter === 'all'">現在表示できる通知はありません。</span>
+                    <span x-show="activeFilter === 'unread'">未読の通知はありません。</span>
+                    <span x-show="activeFilter !== 'all' && activeFilter !== 'unread'">このタイプの通知はありません。</span>
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-16">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-4">サービス</h3>
+                    <ul class="space-y-2">
+                        <li><a href="task-list.html" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">依頼一覧</a></li>
+                        <li><a href="task-create.html" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">依頼投稿</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">ヘルパー登録</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">料金プラン</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-4">サポート</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">ヘルプセンター</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">安全ガイド</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">お問い合わせ</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">よくある質問</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-4">会社情報</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">会社概要</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">採用情報</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">プレスリリース</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">パートナー</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-4">法的事項</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">利用規約</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">プライバシー</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">特定商取引法</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">資金決済法</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-200 pt-8 mt-8">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <div class="flex items-center space-x-3 mb-4 md:mb-0">
+                        <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-green-600 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-hands-helping text-white text-sm"></i>
+                        </div>
+                        <span class="font-bold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">TaskHelper</span>
+                    </div>
+                    <p class="text-gray-500 text-sm">&copy; 2025 TaskHelper. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu functionality
+        document.addEventListener('DOMContentLoaded', function() {
+          const mobileMenuButton = document.getElementById('mobile-menu-button');
+          const mobileMenu = document.getElementById('mobile-menu');
+          const menuIcon = document.getElementById('menu-icon');
+          const closeIcon = document.getElementById('close-icon');
+
+          mobileMenuButton.addEventListener('click', function() {
+            const isExpanded = mobileMenuButton.getAttribute('aria-expanded') === 'true';
+            
+            mobileMenuButton.setAttribute('aria-expanded', !isExpanded);
+            mobileMenu.classList.toggle('hidden');
+            
+            if (!isExpanded) {
+              menuIcon.classList.add('opacity-0');
+              closeIcon.classList.remove('opacity-0');
+            } else {
+              menuIcon.classList.remove('opacity-0');
+              closeIcon.classList.add('opacity-0');
+            }
+          });
+        });
+
+        // Notification App using Alpine.js
+        function notificationApp() {
+            return {
+                activeFilter: 'all',
+                showSettings: false,
+                settings: {
+                    newTask: true,
+                    taskApproval: true,
+                    payment: true,
+                    newMessage: true,
+                    dailySummary: false,
+                    weeklyReport: true,
+                    promotion: false
+                },
+                notifications: [
+                    {
+                        id: 1,
+                        type: 'task',
+                        title: '新しいタスクの依頼',
+                        message: '「食材の買い物代行」タスクに応募がありました。詳細を確認してください。',
+                        timestamp: '2025-08-03T14:30:00Z',
+                        read: false,
+                        actionButton: {
+                            text: '詳細を確認',
+                            action: 'viewTask',
+                            data: { taskId: 1 }
+                        }
+                    },
+                    {
+                        id: 2,
+                        type: 'payment',
+                        title: '支払いが完了しました',
+                        message: 'タスク「掃除代行」の支払い（¥2,500）が正常に処理されました。',
+                        timestamp: '2025-08-03T13:15:00Z',
+                        read: false,
+                        actionButton: {
+                            text: '領収書を表示',
+                            action: 'viewReceipt',
+                            data: { paymentId: 123 }
+                        }
+                    },
+                    {
+                        id: 3,
+                        type: 'message',
+                        title: '新しいメッセージ',
+                        message: '田中さんからメッセージが届きました。「明日の件について相談があります」',
+                        timestamp: '2025-08-03T12:45:00Z',
+                        read: false,
+                        actionButton: {
+                            text: 'メッセージを確認',
+                            action: 'viewMessage',
+                            data: { conversationId: 456 }
+                        }
+                    },
+                    {
+                        id: 4,
+                        type: 'task',
+                        title: 'タスクが完了しました',
+                        message: 'ヘルパー「佐藤さん」がタスク「ペットの散歩」を完了しました。評価をお願いします。',
+                        timestamp: '2025-08-03T11:20:00Z',
+                        read: true,
+                        actionButton: {
+                            text: '評価する',
+                            action: 'rateHelper',
+                            data: { taskId: 789 }
+                        }
+                    },
+                    {
+                        id: 5,
+                        type: 'system',
+                        title: 'システムメンテナンス',
+                        message: '8月5日（月）午前2:00-4:00にシステムメンテナンスを実施します。',
+                        timestamp: '2025-08-03T10:00:00Z',
+                        read: true
+                    },
+                    {
+                        id: 6,
+                        type: 'payment',
+                        title: '支払い期限のお知らせ',
+                        message: 'タスク「引越し手伝い」の支払い期限が明日までです。お早めにお手続きください。',
+                        timestamp: '2025-08-02T18:30:00Z',
+                        read: false,
+                        actionButton: {
+                            text: '今すぐ支払う',
+                            action: 'makePayment',
+                            data: { taskId: 101 }
+                        }
+                    }
+                ],
+
+                get filteredNotifications() {
+                    let filtered = this.notifications;
+                    
+                    switch(this.activeFilter) {
+                        case 'unread':
+                            filtered = filtered.filter(n => !n.read);
+                            break;
+                        case 'task':
+                            filtered = filtered.filter(n => n.type === 'task');
+                            break;
+                        case 'payment':
+                            filtered = filtered.filter(n => n.type === 'payment');
+                            break;
+                        case 'message':
+                            filtered = filtered.filter(n => n.type === 'message');
+                            break;
+                        case 'system':
+                            filtered = filtered.filter(n => n.type === 'system');
+                            break;
+                    }
+                    
+                    return filtered.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                },
+
+                setFilter(filter) {
+                    this.activeFilter = filter;
+                },
+
+                getAllCount() {
+                    return this.notifications.length;
+                },
+
+                getUnreadCount() {
+                    return this.notifications.filter(n => !n.read).length;
+                },
+
+                markAsRead(notificationId) {
+                    const notification = this.notifications.find(n => n.id === notificationId);
+                    if (notification && !notification.read) {
+                        notification.read = true;
+                        this.updateNotificationBadge();
+                        
+                        // Show toast
+                        toastr.success('通知を既読にしました');
+                    }
+                },
+
+                markAllAsRead() {
+                    const unreadCount = this.getUnreadCount();
+                    if (unreadCount === 0) {
+                        toastr.info('既読でない通知はありません');
+                        return;
+                    }
+
+                    this.notifications.forEach(n => n.read = true);
+                    this.updateNotificationBadge();
+                    toastr.success(`${unreadCount}件の通知を既読にしました`);
+                },
+
+                toggleSetting(settingKey) {
+                    this.settings[settingKey] = !this.settings[settingKey];
+                    
+                    // Save to localStorage
+                    localStorage.setItem('notificationSettings', JSON.stringify(this.settings));
+                    
+                    const status = this.settings[settingKey] ? '有効' : '無効';
+                    toastr.info(`設定を${status}にしました`);
+                },
+
+                updateNotificationBadge() {
+                    const badge = document.querySelector('.notification-badge');
+                    const unreadCount = this.getUnreadCount();
+                    badge.setAttribute('data-count', unreadCount);
+                },
+
+                getNotificationIcon(type) {
+                    const icons = {
+                        task: 'fas fa-tasks',
+                        payment: 'fas fa-credit-card',
+                        message: 'fas fa-envelope',
+                        system: 'fas fa-cog'
+                    };
+                    return icons[type] || 'fas fa-bell';
+                },
+
+                getRelativeTime(timestamp) {
+                    const now = new Date();
+                    const time = new Date(timestamp);
+                    const diff = Math.floor((now - time) / 1000);
+
+                    if (diff < 60) return 'たった今';
+                    if (diff < 3600) return `${Math.floor(diff / 60)}分前`;
+                    if (diff < 86400) return `${Math.floor(diff / 3600)}時間前`;
+                    if (diff < 604800) return `${Math.floor(diff / 86400)}日前`;
+                    
+                    return time.toLocaleDateString('ja-JP');
+                },
+
+                handleNotificationAction(notification) {
+                    if (!notification.actionButton) return;
+
+                    const { action, data } = notification.actionButton;
+                    
+                    switch(action) {
+                        case 'viewTask':
+                            window.location.href = `task-detail.html?id=${data.taskId}`;
+                            break;
+                        case 'viewReceipt':
+                            window.location.href = `payment.html?receipt=${data.paymentId}`;
+                            break;
+                        case 'viewMessage':
+                            window.location.href = `messages.html?conversation=${data.conversationId}`;
+                            break;
+                        case 'rateHelper':
+                            window.location.href = `reviews.html?task=${data.taskId}`;
+                            break;
+                        case 'makePayment':
+                            window.location.href = `payment.html?task=${data.taskId}`;
+                            break;
+                        default:
+                            toastr.info('この機能は準備中です');
+                    }
+                },
+
+                init() {
+                    // Load settings from localStorage
+                    const savedSettings = localStorage.getItem('notificationSettings');
+                    if (savedSettings) {
+                        this.settings = { ...this.settings, ...JSON.parse(savedSettings) };
+                    }
+                    
+                    // Update notification badge
+                    this.updateNotificationBadge();
+                    
+                    // Simulate real-time updates
+                    setInterval(() => {
+                        // Update relative times
+                        this.$nextTick(() => {
+                            // Force reactivity update
+                            this.notifications = [...this.notifications];
+                        });
+                    }, 60000); // Update every minute
+                }
+            }
+        }
+
+        // Toastr configuration
+        toastr.options = {
+            "closeButton": true,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "timeOut": "3000"
+        };
+    </script>
+</body>
+</html>

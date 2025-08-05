@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>作業進行状況 - TaskHelper</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.all.min.js"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .progress-step {
+            transition: all 0.3s ease;
+        }
+        .progress-step.completed {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        .progress-step.active {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+        }
+        .chat-message {
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 30px;
+            bottom: -20px;
+            width: 2px;
+            background: linear-gradient(to bottom, #e5e7eb, transparent);
+        }
+        .timeline-item:last-child::before {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-screen">
+    <!-- Header -->
+    <header class="glass-effect shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-4">
+                    <a href="index.html" class="text-2xl font-bold text-indigo-600">
+                        <i class="fas fa-hands-helping mr-2"></i>TaskHelper
+                    </a>
+                    <div class="hidden md:flex items-center space-x-2 bg-white/20 rounded-full px-4 py-2">
+                        <i class="fas fa-tasks text-blue-600"></i>
+                        <span class="text-sm font-medium">作業進行中</span>
+                    </div>
+                </div>
+                <nav class="hidden md:flex items-center space-x-6">
+                    <a href="my-tasks.html" class="text-gray-700 hover:text-indigo-600 transition-colors">
+                        <i class="fas fa-list-check mr-2"></i>マイタスク
+                    </a>
+                    <a href="messages.html" class="text-gray-700 hover:text-indigo-600 transition-colors">
+                        <i class="fas fa-comments mr-2"></i>メッセージ
+                    </a>
+                    <a href="notifications.html" class="text-gray-700 hover:text-indigo-600 transition-colors">
+                        <i class="fas fa-bell mr-2"></i>通知
+                    </a>
+                    <a href="profile.html" class="text-gray-700 hover:text-indigo-600 transition-colors">
+                        <i class="fas fa-user mr-2"></i>プロフィール
+                    </a>
+                </nav>
+                <button class="md:hidden" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="md:hidden glass-effect fixed top-20 inset-x-0 z-40 hidden">
+        <div class="px-4 py-4 space-y-3">
+            <a href="my-tasks.html" class="block text-gray-700 hover:text-indigo-600 transition-colors">
+                <i class="fas fa-list-check mr-2"></i>マイタスク
+            </a>
+            <a href="messages.html" class="block text-gray-700 hover:text-indigo-600 transition-colors">
+                <i class="fas fa-comments mr-2"></i>メッセージ
+            </a>
+            <a href="notifications.html" class="block text-gray-700 hover:text-indigo-600 transition-colors">
+                <i class="fas fa-bell mr-2"></i>通知
+            </a>
+            <a href="profile.html" class="block text-gray-700 hover:text-indigo-600 transition-colors">
+                <i class="fas fa-user mr-2"></i>プロフィール
+            </a>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" x-data="taskProgress()">
+        <!-- Task Header -->
+        <div class="glass-effect rounded-2xl p-6 mb-8">
+            <div class="flex items-start justify-between mb-4">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900 mb-2">
+                        <i class="fas fa-shopping-cart text-green-600 mr-2"></i>
+                        週末の食材買い物代行
+                    </h1>
+                    <div class="flex items-center space-x-4 text-sm text-gray-600">
+                        <span><i class="fas fa-user mr-1"></i>田中 花子さん</span>
+                        <span><i class="fas fa-yen-sign mr-1"></i>3,000円</span>
+                        <span><i class="fas fa-clock mr-1"></i>開始: 2025年1月15日 10:00</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                        <i class="fas fa-play mr-1"></i>進行中
+                    </span>
+                    <button @click="emergencyContact()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>緊急連絡
+                    </button>
+                </div>
+            </div>
+            <p class="text-gray-700 leading-relaxed">
+                スーパーマーケットで以下の食材を購入してください：野菜類（キャベツ、人参、玉ねぎ）、肉類（豚肉500g、鶏肉300g）、調味料（醤油、味噌）。できるだけ新鮮で安価なものを選んでください。
+            </p>
+        </div>
+
+        <!-- Progress Steps -->
+        <div class="glass-effect rounded-2xl p-6 mb-8">
+            <h2 class="text-xl font-bold text-gray-900 mb-6">
+                <i class="fas fa-list-check mr-2 text-blue-600"></i>作業進行状況
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="progress-step completed text-center p-4 rounded-xl text-white">
+                    <div class="text-3xl mb-2"><i class="fas fa-handshake"></i></div>
+                    <h3 class="font-semibold mb-1">1. マッチング完了</h3>
+                    <p class="text-xs opacity-90">完了済み</p>
+                    <div class="text-xs mt-2">15:30 完了</div>
+                </div>
+                <div class="progress-step active text-center p-4 rounded-xl text-white">
+                    <div class="text-3xl mb-2"><i class="fas fa-shopping-cart"></i></div>
+                    <h3 class="font-semibold mb-1">2. 買い物実行</h3>
+                    <p class="text-xs opacity-90">進行中</p>
+                    <div class="text-xs mt-2">16:00 開始</div>
+                </div>
+                <div class="progress-step bg-gray-200 text-gray-600 text-center p-4 rounded-xl">
+                    <div class="text-3xl mb-2"><i class="fas fa-camera"></i></div>
+                    <h3 class="font-semibold mb-1">3. 購入確認</h3>
+                    <p class="text-xs">待機中</p>
+                </div>
+                <div class="progress-step bg-gray-200 text-gray-600 text-center p-4 rounded-xl">
+                    <div class="text-3xl mb-2"><i class="fas fa-truck"></i></div>
+                    <h3 class="font-semibold mb-1">4. 配達完了</h3>
+                    <p class="text-xs">待機中</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Task Checklist -->
+            <div class="glass-effect rounded-2xl p-6">
+                <h2 class="text-xl font-bold text-gray-900 mb-6">
+                    <i class="fas fa-clipboard-check mr-2 text-green-600"></i>チェックリスト
+                </h2>
+                <div class="space-y-4">
+                    <div x-data="{ items: [
+                        { id: 1, text: 'キャベツ（1玉）', completed: true, price: '¥200' },
+                        { id: 2, text: '人参（3本）', completed: true, price: '¥150' },
+                        { id: 3, text: '玉ねぎ（2個）', completed: false, price: '¥120' },
+                        { id: 4, text: '豚肉（500g）', completed: false, price: '¥800' },
+                        { id: 5, text: '鶏肉（300g）', completed: false, price: '¥450' },
+                        { id: 6, text: '醤油', completed: false, price: '¥300' },
+                        { id: 7, text: '味噌', completed: false, price: '¥250' }
+                    ] }">
+                        <template x-for="item in items" :key="item.id">
+                            <div class="flex items-center justify-between p-3 bg-white/50 rounded-lg">
+                                <div class="flex items-center space-x-3">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" :checked="item.completed" @change="item.completed = !item.completed" class="w-5 h-5 text-green-600 rounded">
+                                        <span :class="item.completed ? 'line-through text-gray-500' : ''" class="ml-2" x-text="item.text"></span>
+                                    </label>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span x-text="item.price" class="text-sm font-medium text-gray-600"></span>
+                                    <i x-show="item.completed" class="fas fa-check-circle text-green-500"></i>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="font-medium">予算合計:</span>
+                        <span class="font-bold text-lg">¥2,270 / ¥3,000</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+                        <div class="bg-blue-600 h-2 rounded-full" style="width: 75%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Real-time Chat -->
+            <div class="glass-effect rounded-2xl p-6">
+                <h2 class="text-xl font-bold text-gray-900 mb-6">
+                    <i class="fas fa-comments mr-2 text-purple-600"></i>リアルタイム連絡
+                </h2>
+                <div class="h-64 overflow-y-auto mb-4 space-y-3 border rounded-lg p-3 bg-white/30">
+                    <div class="chat-message">
+                        <div class="flex items-start space-x-2">
+                            <img src="https://images.unsplash.com/photo-1494790108755-2616b612b416?w=40&h=40&fit=crop&crop=face" class="w-8 h-8 rounded-full">
+                            <div class="bg-gray-100 rounded-lg p-2 max-w-xs">
+                                <p class="text-sm">スーパーに到着しました！まずは野菜コーナーから回ります。</p>
+                                <span class="text-xs text-gray-500">16:05</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chat-message">
+                        <div class="flex items-start space-x-2 justify-end">
+                            <div class="bg-blue-500 text-white rounded-lg p-2 max-w-xs">
+                                <p class="text-sm">ありがとうございます！キャベツは少し小さめでも大丈夫です。</p>
+                                <span class="text-xs text-blue-100">16:07</span>
+                            </div>
+                            <img src="https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=40&h=40&fit=crop&crop=face" class="w-8 h-8 rounded-full">
+                        </div>
+                    </div>
+                    <div class="chat-message">
+                        <div class="flex items-start space-x-2">
+                            <img src="https://images.unsplash.com/photo-1494790108755-2616b612b416?w=40&h=40&fit=crop&crop=face" class="w-8 h-8 rounded-full">
+                            <div class="bg-gray-100 rounded-lg p-2 max-w-xs">
+                                <p class="text-sm">了解です！キャベツと人参をゲットしました 📸</p>
+                                <span class="text-xs text-gray-500">16:12</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex space-x-2">
+                    <input type="text" placeholder="メッセージを入力..." class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <button class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                    <button class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors">
+                        <i class="fas fa-camera"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Timeline -->
+        <div class="glass-effect rounded-2xl p-6 mt-8">
+            <h2 class="text-xl font-bold text-gray-900 mb-6">
+                <i class="fas fa-clock mr-2 text-orange-600"></i>活動タイムライン
+            </h2>
+            <div class="relative">
+                <div class="timeline-item relative pl-10 pb-6">
+                    <div class="absolute left-0 top-0 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                        <i class="fas fa-handshake text-white text-sm"></i>
+                    </div>
+                    <div class="bg-white/50 rounded-lg p-4">
+                        <h3 class="font-semibold text-gray-900">マッチング完了</h3>
+                        <p class="text-sm text-gray-600 mt-1">ヘルパーが作業を開始しました</p>
+                        <span class="text-xs text-gray-500">2025年1月15日 15:30</span>
+                    </div>
+                </div>
+                <div class="timeline-item relative pl-10 pb-6">
+                    <div class="absolute left-0 top-0 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                        <i class="fas fa-store text-white text-sm"></i>
+                    </div>
+                    <div class="bg-white/50 rounded-lg p-4">
+                        <h3 class="font-semibold text-gray-900">スーパー到着</h3>
+                        <p class="text-sm text-gray-600 mt-1">イオンスーパーに到着し、買い物を開始</p>
+                        <span class="text-xs text-gray-500">2025年1月15日 16:00</span>
+                    </div>
+                </div>
+                <div class="timeline-item relative pl-10 pb-6">
+                    <div class="absolute left-0 top-0 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center animate-pulse">
+                        <i class="fas fa-shopping-cart text-white text-sm"></i>
+                    </div>
+                    <div class="bg-white/50 rounded-lg p-4">
+                        <h3 class="font-semibold text-gray-900">買い物中</h3>
+                        <p class="text-sm text-gray-600 mt-1">野菜コーナーでキャベツ、人参を購入完了</p>
+                        <span class="text-xs text-gray-500">2025年1月15日 16:12 (進行中)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row gap-4 mt-8">
+            <button @click="completeStep()" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-3 px-6 rounded-lg font-semibold transition-all duration-200 hover:scale-105">
+                <i class="fas fa-check mr-2"></i>次のステップに進む
+            </button>
+            <button @click="reportIssue()" class="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-3 px-6 rounded-lg font-semibold transition-all duration-200 hover:scale-105">
+                <i class="fas fa-exclamation-triangle mr-2"></i>問題を報告
+            </button>
+            <button @click="contactSupport()" class="flex-1 bg-purple-500 hover:bg-purple-600 text-white py-3 px-6 rounded-lg font-semibold transition-all duration-200 hover:scale-105">
+                <i class="fas fa-headset mr-2"></i>サポートに連絡
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function taskProgress() {
+            return {
+                completeStep() {
+                    Swal.fire({
+                        title: '次のステップに進みますか？',
+                        text: '現在のステップを完了として次の段階に進みます。',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: '進む',
+                        cancelButtonText: 'キャンセル'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            toastr.success('ステップが完了しました！');
+                        }
+                    });
+                },
+                reportIssue() {
+                    Swal.fire({
+                        title: '問題を報告',
+                        input: 'textarea',
+                        inputPlaceholder: '発生した問題を詳しく説明してください...',
+                        showCancelButton: true,
+                        confirmButtonText: '報告する',
+                        cancelButtonText: 'キャンセル'
+                    }).then((result) => {
+                        if (result.isConfirmed && result.value) {
+                            toastr.info('問題が報告されました。サポートチームが確認します。');
+                        }
+                    });
+                },
+                emergencyContact() {
+                    Swal.fire({
+                        title: '緊急連絡',
+                        text: '緊急事態が発生しましたか？すぐにサポートチームに連絡します。',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: '緊急連絡する',
+                        cancelButtonText: 'キャンセル',
+                        confirmButtonColor: '#ef4444'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            toastr.error('緊急連絡を送信しました。サポートから連絡があります。');
+                        }
+                    });
+                },
+                contactSupport() {
+                    window.location.href = 'help.html';
+                }
+            }
+        }
+
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        }
+
+        // Auto-refresh timeline every 30 seconds
+        setInterval(() => {
+            // In real implementation, this would fetch updates from server
+            console.log('Checking for timeline updates...');
+        }, 30000);
+    </script>
+</body>
+</html>

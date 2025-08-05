@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ガイドツアー - TaskHelper</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.all.min.js"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .step-card {
+            transition: all 0.5s ease;
+            transform: translateY(20px);
+            opacity: 0;
+        }
+        .step-card.active {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        .progress-bar {
+            transition: width 0.5s ease;
+        }
+        .feature-demo {
+            position: relative;
+            overflow: hidden;
+        }
+        .feature-demo::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: rotate(45deg);
+            animation: shimmer 3s infinite;
+        }
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+        .tour-highlight {
+            animation: pulse 2s infinite;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.3);
+        }
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #3b82f6;
+            animation: confetti-fall 3s ease-in-out infinite;
+        }
+        @keyframes confetti-fall {
+            0% { transform: translateY(-100vh) rotateZ(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotateZ(360deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 min-h-screen">
+    <!-- Header -->
+    <header class="glass-effect shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-4">
+                    <a href="index.html" class="text-2xl font-bold text-indigo-600">
+                        <i class="fas fa-hands-helping mr-2"></i>TaskHelper
+                    </a>
+                    <div class="hidden md:flex items-center space-x-2 bg-purple-100 rounded-full px-4 py-2">
+                        <i class="fas fa-route text-purple-600"></i>
+                        <span class="text-sm font-medium text-purple-700">ガイドツアー</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button @click="skipTour()" class="text-gray-600 hover:text-gray-800 text-sm">
+                        スキップ
+                    </button>
+                    <button class="md:hidden" onclick="toggleMobileMenu()">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8" x-data="onboardingGuide()">
+        <!-- Welcome Section -->
+        <div class="text-center mb-12" x-show="currentStep === 0">
+            <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full mb-6">
+                <i class="fas fa-rocket text-3xl text-white"></i>
+            </div>
+            <h1 class="text-4xl font-bold text-gray-900 mb-4">TaskHelperへようこそ！</h1>
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
+                日本の近隣タスク支援サービスの使い方を、簡単なガイドツアーでご案内します。
+                わずか5分で、全ての機能を理解できます。
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button @click="startTour()" class="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-200 hover:scale-105">
+                    <i class="fas fa-play mr-2"></i>ツアーを開始
+                </button>
+                <button @click="skipTour()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-200 hover:scale-105">
+                    <i class="fas fa-forward mr-2"></i>スキップして開始
+                </button>
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="mb-8" x-show="currentStep > 0">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-semibold text-gray-900">進行状況</h2>
+                <span class="text-sm text-gray-600" x-text="`${currentStep} / ${totalSteps}`"></span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3">
+                <div class="progress-bar bg-gradient-to-r from-purple-500 to-blue-500 h-3 rounded-full" :style="`width: ${(currentStep / totalSteps) * 100}%`"></div>
+            </div>
+        </div>
+
+        <!-- Tour Steps -->
+        <div class="space-y-8">
+            <!-- Step 1: Account Types -->
+            <div class="step-card" :class="{ 'active': currentStep === 1 }" x-show="currentStep === 1">
+                <div class="glass-effect rounded-2xl p-8">
+                    <div class="text-center mb-8">
+                        <div class="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
+                            <i class="fas fa-users text-2xl text-green-600"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold text-gray-900 mb-2">1. アカウントの種類</h2>
+                        <p class="text-gray-600">TaskHelperには2つの利用方法があります</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="feature-demo bg-white rounded-xl p-6 border-2 border-blue-200">
+                            <div class="text-center">
+                                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <i class="fas fa-hand-holding-heart text-xl text-blue-600"></i>
+                                </div>
+                                <h3 class="text-xl font-semibold text-gray-900 mb-2">タスク依頼者</h3>
+                                <p class="text-gray-600 mb-4">忙しい日常のタスクを近隣の信頼できるヘルパーに依頼</p>
+                                <div class="space-y-2 text-sm text-left">
+                                    <div class="flex items-center space-x-2">
+                                        <i class="fas fa-check text-green-500"></i>
+                                        <span>買い物・掃除・配達の依頼</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <i class="fas fa-check text-green-500"></i>
+                                        <span>リアルタイム進行確認</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <i class="fas fa-check text-green-500"></i>
+                                        <span>安全な決済システム</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="feature-demo bg-white rounded-xl p-6 border-2 border-purple-200">
+                            <div class="text-center">
+                                <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <i class="fas fa-hands-helping text-xl text-purple-600"></i>
+                                </div>
+                                <h3 class="text-xl font-semibold text-gray-900 mb-2">ヘルパー</h3>
+                                <p class="text-gray-600 mb-4">空いた時間を活用して近隣の方をサポートし収入を得る</p>
+                                <div class="space-y-2 text-sm text-left">
+                                    <div class="flex items-center space-x-2">
+                                        <i class="fas fa-check text-green-500"></i>
+                                        <span>柔軟なスケジュール設定</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <i class="fas fa-check text-green-500"></i>
+                                        <span>スキルベースマッチング</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <i class="fas fa-check text-green-500"></i>
+                                        <span>実績に応じた報酬アップ</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: How to Request Tasks -->
+            <div class="step-card" :class="{ 'active': currentStep === 2 }" x-show="currentStep === 2">
+                <div class="glass-effect rounded-2xl p-8">
+                    <div class="text-center mb-8">
+                        <div class="inline-flex items-center justify-center w-16 h-16 bg-orange-100 rounded-full mb-4">
+                            <i class="fas fa-plus-circle text-2xl text-orange-600"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold text-gray-900 mb-2">2. タスクの依頼方法</h2>
+                        <p class="text-gray-600">簡単3ステップでタスクを依頼できます</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-gradient-to-r from-orange-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-4 text-white text-2xl font-bold">1</div>
+                            <h3 class="text-lg font-semibold mb-2">カテゴリを選択</h3>
+                            <div class="bg-white rounded-lg p-4 mb-4">
+                                <div class="grid grid-cols-2 gap-2 text-sm">
+                                    <div class="flex items-center space-x-2 p-2 bg-green-50 rounded">
+                                        <i class="fas fa-shopping-cart text-green-600"></i>
+                                        <span>買い物</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2 p-2 bg-blue-50 rounded">
+                                        <i class="fas fa-broom text-blue-600"></i>
+                                        <span>掃除</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2 p-2 bg-orange-50 rounded">
+                                        <i class="fas fa-truck text-orange-600"></i>
+                                        <span>配達</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2 p-2 bg-purple-50 rounded">
+                                        <i class="fas fa-paw text-purple-600"></i>
+                                        <span>ペット</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-600">5つの主要カテゴリから選択</p>
+                        </div>
+                        
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-gradient-to-r from-orange-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-4 text-white text-2xl font-bold">2</div>
+                            <h3 class="text-lg font-semibold mb-2">詳細を入力</h3>
+                            <div class="bg-white rounded-lg p-4 mb-4 text-left">
+                                <div class="space-y-2 text-sm">
+                                    <div class="flex items-start space-x-2">
+                                        <i class="fas fa-calendar-alt text-gray-400 mt-1"></i>
+                                        <span>希望日時の設定</span>
+                                    </div>
+                                    <div class="flex items-start space-x-2">
+                                        <i class="fas fa-map-marker-alt text-gray-400 mt-1"></i>
+                                        <span>場所・住所の指定</span>
+                                    </div>
+                                    <div class="flex items-start space-x-2">
+                                        <i class="fas fa-yen-sign text-gray-400 mt-1"></i>
+                                        <span>予算・報酬の設定</span>
+                                    </div>
+                                    <div class="flex items-start space-x-2">
+                                        <i class="fas fa-comment text-gray-400 mt-1"></i>
+                                        <span>特別な要望・注意事項</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-600">必要な情報を詳しく記入</p>
+                        </div>
+                        
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-gradient-to-r from-orange-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-4 text-white text-2xl font-bold">3</div>
+                            <h3 class="text-lg font-semibold mb-2">ヘルパーを選択</h3>
+                            <div class="bg-white rounded-lg p-4 mb-4">
+                                <div class="space-y-3">
+                                    <div class="flex items-center space-x-3 p-2 bg-gray-50 rounded">
+                                        <img src="https://images.unsplash.com/photo-1494790108755-2616b612b416?w=40&h=40&fit=crop&crop=face" class="w-8 h-8 rounded-full">
+                                        <div class="flex-1 text-left">
+                                            <div class="text-sm font-medium">田中さん</div>
+                                            <div class="text-xs text-gray-500">★4.9 (127件)</div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-3 p-2 bg-blue-50 rounded tour-highlight">
+                                        <img src="https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=40&h=40&fit=crop&crop=face" class="w-8 h-8 rounded-full">
+                                        <div class="flex-1 text-left">
+                                            <div class="text-sm font-medium">佐藤さん</div>
+                                            <div class="text-xs text-gray-500">★5.0 (89件)</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-600">評価とレビューを確認して選択</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Communication & Progress -->
+            <div class="step-card" :class="{ 'active': currentStep === 3 }" x-show="currentStep === 3">
+                <div class="glass-effect rounded-2xl p-8">
+                    <div class="text-center mb-8">
+                        <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
+                            <i class="fas fa-comments text-2xl text-blue-600"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold text-gray-900 mb-2">3. コミュニケーション＆進行管理</h2>
+                        <p class="text-gray-600">リアルタイムでタスクの進行状況を確認できます</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div class="bg-white rounded-xl p-6">
+                            <h3 class="text-lg font-semibold mb-4 flex items-center">
+                                <i class="fas fa-list-check mr-2 text-green-600"></i>
+                                進行チェックリスト
+                            </h3>
+                            <div class="space-y-3">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-check-circle text-green-500"></i>
+                                    <span class="line-through text-gray-500">1. マッチング完了</span>
+                                </div>
+                                <div class="flex items-center space-x-3 tour-highlight p-2 rounded">
+                                    <div class="w-4 h-4 border-2 border-blue-500 rounded animate-spin"></div>
+                                    <span class="font-medium text-blue-600">2. 買い物実行中</span>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-4 h-4 border-2 border-gray-300 rounded"></div>
+                                    <span class="text-gray-400">3. 購入確認</span>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-4 h-4 border-2 border-gray-300 rounded"></div>
+                                    <span class="text-gray-400">4. 配達完了</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl p-6">
+                            <h3 class="text-lg font-semibold mb-4 flex items-center">
+                                <i class="fas fa-comment-alt mr-2 text-purple-600"></i>
+                                リアルタイムメッセージ
+                            </h3>
+                            <div class="space-y-3 h-40 overflow-y-auto border rounded p-3 bg-gray-50">
+                                <div class="flex items-start space-x-2">
+                                    <img src="https://images.unsplash.com/photo-1494790108755-2616b612b416?w=32&h=32&fit=crop&crop=face" class="w-6 h-6 rounded-full">
+                                    <div class="bg-white rounded-lg p-2 text-sm max-w-xs">
+                                        <p>スーパーに到着しました！</p>
+                                        <span class="text-xs text-gray-500">15:30</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-start space-x-2 justify-end">
+                                    <div class="bg-blue-500 text-white rounded-lg p-2 text-sm max-w-xs">
+                                        <p>ありがとうございます！</p>
+                                        <span class="text-xs text-blue-100">15:32</span>
+                                    </div>
+                                    <img src="https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=32&h=32&fit=crop&crop=face" class="w-6 h-6 rounded-full">
+                                </div>
+                                <div class="flex items-start space-x-2">
+                                    <img src="https://images.unsplash.com/photo-1494790108755-2616b612b416?w=32&h=32&fit=crop&crop=face" class="w-6 h-6 rounded-full">
+                                    <div class="bg-white rounded-lg p-2 text-sm max-w-xs tour-highlight">
+                                        <p>写真を送ります 📸</p>
+                                        <span class="text-xs text-gray-500">15:35</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Safety & Trust -->
+            <div class="step-card" :class="{ 'active': currentStep === 4 }" x-show="currentStep === 4">
+                <div class="glass-effect rounded-2xl p-8">
+                    <div class="text-center mb-8">
+                        <div class="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-4">
+                            <i class="fas fa-shield-alt text-2xl text-red-600"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold text-gray-900 mb-2">4. 安全性と信頼システム</h2>
+                        <p class="text-gray-600">TaskHelperは安全で信頼できるサービスを提供します</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="text-center p-4 bg-white rounded-xl">
+                            <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <i class="fas fa-user-check text-xl text-green-600"></i>
+                            </div>
+                            <h3 class="font-semibold mb-2">身元確認</h3>
+                            <p class="text-sm text-gray-600">全ヘルパーの身元と経歴を厳格に審査</p>
+                        </div>
+                        
+                        <div class="text-center p-4 bg-white rounded-xl">
+                            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <i class="fas fa-star text-xl text-blue-600"></i>
+                            </div>
+                            <h3 class="font-semibold mb-2">評価システム</h3>
+                            <p class="text-sm text-gray-600">透明性のある相互評価とレビューシステム</p>
+                        </div>
+                        
+                        <div class="text-center p-4 bg-white rounded-xl">
+                            <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <i class="fas fa-lock text-xl text-purple-600"></i>
+                            </div>
+                            <h3 class="font-semibold mb-2">安全な決済</h3>
+                            <p class="text-sm text-gray-600">エスクロー決済でお金のトラブルを防止</p>
+                        </div>
+                        
+                        <div class="text-center p-4 bg-white rounded-xl">
+                            <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <i class="fas fa-headset text-xl text-orange-600"></i>
+                            </div>
+                            <h3 class="font-semibold mb-2">24/7サポート</h3>
+                            <p class="text-sm text-gray-600">いつでも利用できるカスタマーサポート</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 p-6 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl">
+                        <div class="flex items-start space-x-4">
+                            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-info-circle text-green-600"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-gray-900 mb-2">保険・保証について</h3>
+                                <p class="text-sm text-gray-600">
+                                    TaskHelperは全てのタスクに対して損害保険を適用しています。
+                                    万が一の事故や損害に対しても、適切な補償を提供いたします。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 5: Getting Started -->
+            <div class="step-card" :class="{ 'active': currentStep === 5 }" x-show="currentStep === 5">
+                <div class="glass-effect rounded-2xl p-8">
+                    <div class="text-center mb-8">
+                        <div class="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
+                            <i class="fas fa-rocket text-2xl text-green-600"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold text-gray-900 mb-2">5. さあ、始めましょう！</h2>
+                        <p class="text-gray-600">TaskHelperの使い方はもう完璧です。今すぐ始めてみましょう！</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                        <div class="bg-white rounded-xl p-6 text-center">
+                            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-plus text-2xl text-blue-600"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold mb-4">初回タスクを依頼</h3>
+                            <p class="text-gray-600 mb-6">身近なタスクを依頼して、TaskHelperの便利さを体験してください。</p>
+                            <button @click="createFirstTask()" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 hover:scale-105">
+                                <i class="fas fa-plus mr-2"></i>タスクを作成
+                            </button>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl p-6 text-center">
+                            <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-hands-helping text-2xl text-purple-600"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold mb-4">ヘルパーとして参加</h3>
+                            <p class="text-gray-600 mb-6">空いた時間を活用して、近隣の方をサポートしながら収入を得ましょう。</p>
+                            <button @click="becomeHelper()" class="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 hover:scale-105">
+                                <i class="fas fa-user-plus mr-2"></i>ヘルパー登録
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Tips -->
+                    <div class="bg-yellow-50 rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                            <i class="fas fa-lightbulb mr-2 text-yellow-600"></i>
+                            成功のための3つのコツ
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="flex items-start space-x-3">
+                                <div class="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                    <span class="text-white text-sm font-bold">1</span>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-sm">明確な依頼内容</h4>
+                                    <p class="text-xs text-gray-600">詳細で具体的な依頼内容を記載することで、より良いマッチングが期待できます。</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-3">
+                                <div class="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                    <span class="text-white text-sm font-bold">2</span>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-sm">積極的なコミュニケーション</h4>
+                                    <p class="text-xs text-gray-600">ヘルパーとの活発なやり取りで、お互いの期待を合わせましょう。</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-3">
+                                <div class="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                    <span class="text-white text-sm font-bold">3</span>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-sm">評価とフィードバック</h4>
+                                    <p class="text-xs text-gray-600">正直で建設的な評価は、コミュニティ全体の品質向上に貢献します。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="flex justify-between items-center mt-8" x-show="currentStep > 0">
+            <button @click="previousStep()" x-show="currentStep > 1" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-lg font-semibold transition-all duration-200 hover:scale-105">
+                <i class="fas fa-chevron-left mr-2"></i>前へ
+            </button>
+            <div class="flex-1"></div>
+            <button @click="nextStep()" x-show="currentStep < totalSteps" class="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 hover:scale-105">
+                次へ<i class="fas fa-chevron-right ml-2"></i>
+            </button>
+            <button @click="completeTour()" x-show="currentStep === totalSteps" class="bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-200 hover:scale-105">
+                <i class="fas fa-check mr-2"></i>ツアー完了
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function onboardingGuide() {
+            return {
+                currentStep: 0,
+                totalSteps: 5,
+                startTour() {
+                    this.currentStep = 1;
+                    toastr.info('ガイドツアーを開始します！');
+                },
+                nextStep() {
+                    if (this.currentStep < this.totalSteps) {
+                        this.currentStep++;
+                        if (this.currentStep === this.totalSteps) {
+                            this.createConfetti();
+                        }
+                    }
+                },
+                previousStep() {
+                    if (this.currentStep > 1) {
+                        this.currentStep--;
+                    }
+                },
+                skipTour() {
+                    Swal.fire({
+                        title: 'ツアーをスキップしますか？',
+                        text: '後でヘルプページからいつでもガイドを確認できます。',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'スキップ',
+                        cancelButtonText: 'キャンセル'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = 'task-list.html';
+                        }
+                    });
+                },
+                completeTour() {
+                    this.createConfetti();
+                    Swal.fire({
+                        title: 'ツアー完了！',
+                        text: 'TaskHelperの使い方をマスターしました。素晴らしいタスク体験を始めましょう！',
+                        icon: 'success',
+                        confirmButtonText: '開始する'
+                    }).then(() => {
+                        window.location.href = 'task-list.html';
+                    });
+                },
+                createFirstTask() {
+                    window.location.href = 'task-create.html';
+                },
+                becomeHelper() {
+                    window.location.href = 'helper-onboarding.html';
+                },
+                createConfetti() {
+                    const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
+                    for (let i = 0; i < 50; i++) {
+                        setTimeout(() => {
+                            const confetti = document.createElement('div');
+                            confetti.className = 'confetti';
+                            confetti.style.left = Math.random() * 100 + 'vw';
+                            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                            confetti.style.animationDelay = Math.random() * 3 + 's';
+                            confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                            document.body.appendChild(confetti);
+                            
+                            setTimeout(() => {
+                                confetti.remove();
+                            }, 5000);
+                        }, i * 50);
+                    }
+                }
+            }
+        }
+
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1378 @@
+<!DOCTYPE html>
+<html lang="ja" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>コンテンツ管理 - 管理者ダッシュボード | TaskHelper</title>
+  
+  <!-- CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- CSS Libraries -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  
+  <!-- Additional UI Libraries -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.1/sweetalert2.min.css" rel="stylesheet">
+  
+  <!-- Alpine.js -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  
+  <!-- Custom CSS -->
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .glass-effect {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .admin-header {
+      background: linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%);
+      border-bottom: 3px solid #047857;
+    }
+    
+    .moderation-card {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.75rem;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+    
+    .moderation-card:hover {
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      border-color: #10b981;
+      transform: translateY(-2px);
+    }
+    
+    .status-pending {
+      background: #fefbf2;
+      color: #d97706;
+      border: 1px solid #fed7aa;
+    }
+    
+    .status-approved {
+      background: #f0fdf4;
+      color: #16a34a;
+      border: 1px solid #bbf7d0;
+    }
+    
+    .status-rejected {
+      background: #fef2f2;
+      color: #dc2626;
+      border: 1px solid #fecaca;
+    }
+    
+    .status-flagged {
+      background: #fef3c7;
+      color: #d97706;
+      border: 1px solid #fed7aa;
+    }
+    
+    .priority-high {
+      border-left: 4px solid #dc2626;
+    }
+    
+    .priority-medium {
+      border-left: 4px solid #d97706;
+    }
+    
+    .priority-low {
+      border-left: 4px solid #16a34a;
+    }
+    
+    .content-type-task {
+      background: #eff6ff;
+      color: #1e40af;
+      border: 1px solid #bfdbfe;
+    }
+    
+    .content-type-review {
+      background: #f3e8ff;
+      color: #7c3aed;
+      border: 1px solid #e9d5ff;
+    }
+    
+    .content-type-profile {
+      background: #ecfdf5;
+      color: #059669;
+      border: 1px solid #a7f3d0;
+    }
+    
+    .content-type-message {
+      background: #fef3c7;
+      color: #d97706;
+      border: 1px solid #fed7aa;
+    }
+    
+    .action-button {
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+    }
+    
+    .action-approve {
+      background: #dcfce7;
+      color: #166534;
+      border-color: #bbf7d0;
+    }
+    
+    .action-approve:hover {
+      background: #bbf7d0;
+      transform: scale(1.05);
+    }
+    
+    .action-reject {
+      background: #fef2f2;
+      color: #dc2626;
+      border-color: #fecaca;
+    }
+    
+    .action-reject:hover {
+      background: #fecaca;
+      transform: scale(1.05);
+    }
+    
+    .action-flag {
+      background: #fefbf2;
+      color: #d97706;
+      border-color: #fed7aa;
+    }
+    
+    .action-flag:hover {
+      background: #fed7aa;
+      transform: scale(1.05);
+    }
+    
+    .stats-card {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(248, 250, 252, 0.9));
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+    
+    .filter-chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.5rem 1rem;
+      border-radius: 9999px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    
+    .filter-chip.active {
+      background: #10b981;
+      color: white;
+      transform: scale(1.05);
+    }
+    
+    .filter-chip:not(.active) {
+      background: #f8fafc;
+      color: #64748b;
+      border: 1px solid #e2e8f0;
+    }
+    
+    .filter-chip:not(.active):hover {
+      background: #f1f5f9;
+      border-color: #cbd5e1;
+    }
+    
+    .ai-suggestion {
+      background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+      border: 1px solid #bae6fd;
+      border-radius: 0.75rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .confidence-bar {
+      height: 4px;
+      background: #e5e7eb;
+      border-radius: 2px;
+      overflow: hidden;
+      margin-top: 0.5rem;
+    }
+    
+    .confidence-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.8s ease;
+    }
+    
+    .confidence-high { background: #10b981; }
+    .confidence-medium { background: #f59e0b; }
+    .confidence-low { background: #ef4444; }
+    
+    .content-preview {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    
+    .moderation-history {
+      border-left: 2px solid #e5e7eb;
+      padding-left: 1rem;
+      margin-left: 0.5rem;
+    }
+    
+    .history-item {
+      position: relative;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    
+    .history-item:last-child {
+      border-bottom: none;
+    }
+    
+    .history-dot {
+      position: absolute;
+      left: -1.375rem;
+      top: 0.25rem;
+      width: 0.75rem;
+      height: 0.75rem;
+      border-radius: 50%;
+      border: 2px solid white;
+      background: #6b7280;
+    }
+    
+    .history-dot.approved { background: #10b981; }
+    .history-dot.rejected { background: #ef4444; }
+    .history-dot.flagged { background: #f59e0b; }
+    
+    .bulk-actions {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: white;
+      border-radius: 1rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+      padding: 1rem;
+      border: 1px solid #e5e7eb;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+    
+    .bulk-actions.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    
+    .word-cloud {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    
+    .word-item {
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      background: #f3f4f6;
+      color: #374151;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+    
+    .word-item:hover {
+      background: #e5e7eb;
+      transform: scale(1.1);
+    }
+  </style>
+</head>
+
+<body class="bg-gradient-to-br from-green-50 via-white to-blue-50 min-h-screen">
+
+<!-- Navigation -->
+<nav class="bg-white shadow-sm fixed top-0 left-0 right-0 z-50">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex items-center h-16">
+      <!-- Logo -->
+      <div class="flex items-center space-x-2">
+        <i class="fas fa-hands-helping text-2xl text-blue-600" aria-hidden="true"></i>
+        <span class="text-xl font-bold text-gray-900">TaskHelper</span>
+        <span class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full font-medium">ADMIN</span>
+      </div>
+      
+      <!-- Desktop Menu (centered) -->
+      <div class="hidden md:flex items-center space-x-8 mx-auto">
+        <a href="admin-dashboard.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">ダッシュボード</a>
+        <a href="admin-users.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">ユーザー管理</a>
+        <a href="admin-disputes.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">分争解決</a>
+        <a href="admin-analytics.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">分析</a>
+        <a href="admin-content.html" class="text-green-600 font-medium focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">コンテンツ</a>
+      </div>
+      
+      <!-- Admin Actions -->
+      <div class="hidden md:flex items-center space-x-3">
+        <button class="text-gray-600 hover:text-gray-800 p-2 rounded-lg hover:bg-gray-100 transition-colors relative">
+          <i class="fas fa-bell"></i>
+          <span class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
+        </button>
+        <a href="index.html" class="border border-blue-600 text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-50 transition-colors">サイトに戻る</a>
+      </div>
+      
+      <!-- Mobile Menu Button -->
+      <div class="md:hidden ml-auto">
+        <button id="mobile-menu-button" class="text-gray-700 hover:text-blue-600 p-2 transition-all duration-300 ease-in-out" aria-expanded="false">
+          <svg class="w-6 h-6 transition-transform duration-300 ease-in-out" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path id="menu-icon" class="transition-opacity duration-300" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            <path id="close-icon" class="transition-opacity duration-300 opacity-0" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden md:hidden pb-4 transition-all duration-300 ease-in-out transform">
+      <div class="flex flex-col space-y-2">
+        <a href="admin-dashboard.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded">ダッシュボード</a>
+        <a href="admin-users.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded">ユーザー管理</a>
+        <a href="admin-disputes.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded">分争解決</a>
+        <a href="admin-analytics.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded">分析</a>
+        <a href="admin-content.html" class="block px-3 py-2 text-green-600 bg-green-50 rounded font-medium">コンテンツ</a>
+        <hr class="my-3">
+        <a href="index.html" class="block px-3 py-2 text-blue-600 hover:bg-blue-50 rounded">サイトに戻る</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<main class="min-h-screen pt-16" x-data="adminContentApp()">
+  
+  <!-- Header -->
+  <div class="admin-header text-white py-8">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold mb-2">コンテンツ管理</h1>
+          <p class="text-green-100">プラットフォーム上のコンテンツのモデレーションと管理</p>
+        </div>
+        <div class="flex items-center space-x-3">
+          <button @click="toggleAutoModeration()" 
+                  :class="autoModeration ? 'bg-white text-green-600' : 'bg-green-800 text-white'"
+                  class="px-4 py-2 rounded-lg font-semibold transition-colors">
+            <i class="fas fa-robot mr-2"></i>
+            <span x-text="autoModeration ? 'AI自動判定ON' : 'AI自動判定OFF'"></span>
+          </button>
+          <button @click="exportModerationReport()" class="bg-green-800 text-white px-4 py-2 rounded-lg hover:bg-green-900 transition-colors">
+            <i class="fas fa-file-alt mr-2"></i>
+            モデレーションレポート
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Overview -->
+  <div class="py-8">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
+        <div class="stats-card rounded-xl p-6 text-center">
+          <div class="text-3xl font-bold text-orange-600 mb-2" x-text="stats.pendingReview"></div>
+          <div class="text-gray-600 text-sm">審査待ち</div>
+          <div class="text-xs text-orange-600 mt-1">
+            <i class="fas fa-clock mr-1"></i>
+            要対応
+          </div>
+        </div>
+        <div class="stats-card rounded-xl p-6 text-center">
+          <div class="text-3xl font-bold text-green-600 mb-2" x-text="stats.approvedToday"></div>
+          <div class="text-gray-600 text-sm">本日承認</div>
+          <div class="text-xs text-green-600 mt-1">
+            <i class="fas fa-check mr-1"></i>
+            処理完了
+          </div>
+        </div>
+        <div class="stats-card rounded-xl p-6 text-center">
+          <div class="text-3xl font-bold text-red-600 mb-2" x-text="stats.rejectedToday"></div>
+          <div class="text-gray-600 text-sm">本日却下</div>
+          <div class="text-xs text-red-600 mt-1">
+            違反コンテンツ
+          </div>
+        </div>
+        <div class="stats-card rounded-xl p-6 text-center">
+          <div class="text-3xl font-bold text-blue-600 mb-2" x-text="stats.aiAccuracy + '%'"></div>
+          <div class="text-gray-600 text-sm">AI判定精度</div>
+          <div class="text-xs text-blue-600 mt-1">
+            機械学習モデル
+          </div>
+        </div>
+        <div class="stats-card rounded-xl p-6 text-center">
+          <div class="text-3xl font-bold text-purple-600 mb-2" x-text="stats.avgProcessingTime"></div>
+          <div class="text-gray-600 text-sm">平均処理時間</div>
+          <div class="text-xs text-purple-600 mt-1">
+            分（過去24時間）
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters and Search -->
+  <div class="max-w-7xl mx-auto px-4 mb-8">
+    <div class="glass-effect rounded-xl p-6">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+        
+        <!-- Search -->
+        <div class="flex items-center space-x-4">
+          <div class="relative">
+            <input type="text" x-model="searchQuery" @input="filterContent()" 
+                   placeholder="コンテンツID、ユーザー名で検索..." 
+                   class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 w-80">
+            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+          </div>
+          
+          <select x-model="filters.contentType" @change="filterContent()" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500">
+            <option value="">すべてのタイプ</option>
+            <option value="task">タスク投稿</option>
+            <option value="review">レビュー</option>
+            <option value="profile">プロフィール</option>
+            <option value="message">メッセージ</option>
+          </select>
+        </div>
+
+        <!-- Status Filters -->
+        <div class="flex flex-wrap gap-2">
+          <template x-for="status in statusFilters" :key="status.key">
+            <span @click="toggleStatusFilter(status.key)" 
+                  :class="activeStatusFilters.includes(status.key) ? 'filter-chip active' : 'filter-chip'">
+              <i :class="status.icon" class="mr-2"></i>
+              <span x-text="status.label"></span>
+            </span>
+          </template>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Moderation Insights -->
+  <div class="max-w-7xl mx-auto px-4 mb-8" x-show="autoModeration">
+    <div class="glass-effect rounded-xl p-6">
+      <h3 class="text-xl font-bold text-gray-900 mb-4">
+        <i class="fas fa-brain text-blue-600 mr-2"></i>
+        AI モデレーション洞察
+      </h3>
+      
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Today's AI Suggestions -->
+        <div>
+          <h4 class="text-lg font-semibold mb-3">本日のAI提案</h4>
+          <div class="space-y-3">
+            <template x-for="suggestion in aiSuggestions" :key="suggestion.id">
+              <div class="ai-suggestion">
+                <div class="flex items-start justify-between mb-2">
+                  <div class="flex items-center">
+                    <i :class="suggestion.icon" class="text-blue-600 mr-2"></i>
+                    <span class="font-medium text-sm" x-text="suggestion.type"></span>
+                  </div>
+                  <span class="text-xs text-gray-500" x-text="suggestion.confidence + '%信頼度'"></span>
+                </div>
+                <p class="text-sm text-gray-700" x-text="suggestion.description"></p>
+                <div class="confidence-bar">
+                  <div class="confidence-fill" 
+                       :class="suggestion.confidence >= 80 ? 'confidence-high' : (suggestion.confidence >= 60 ? 'confidence-medium' : 'confidence-low')"
+                       :style="`width: ${suggestion.confidence}%`"></div>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+        
+        <!-- Trending Keywords -->
+        <div>
+          <h4 class="text-lg font-semibold mb-3">注意キーワード</h4>
+          <div class="word-cloud">
+            <template x-for="word in trendingKeywords" :key="word.text">
+              <span class="word-item" 
+                    :style="`font-size: ${0.8 + word.weight * 0.4}rem`"
+                    x-text="word.text">
+              </span>
+            </template>
+          </div>
+        </div>
+        
+        <!-- Model Performance -->
+        <div>
+          <h4 class="text-lg font-semibold mb-3">モデル性能</h4>
+          <div class="space-y-4">
+            <div>
+              <div class="flex justify-between text-sm mb-1">
+                <span>精度</span>
+                <span x-text="modelPerformance.accuracy + '%'"></span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-green-500 h-2 rounded-full" :style="`width: ${modelPerformance.accuracy}%`"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-sm mb-1">
+                <span>適合率</span>
+                <span x-text="modelPerformance.precision + '%'"></span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-blue-500 h-2 rounded-full" :style="`width: ${modelPerformance.precision}%`"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-sm mb-1">
+                <span>再現率</span>
+                <span x-text="modelPerformance.recall + '%'"></span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-purple-500 h-2 rounded-full" :style="`width: ${modelPerformance.recall}%`"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Moderation Queue -->
+  <div class="max-w-7xl mx-auto px-4 pb-8">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-2xl font-bold text-gray-900">モデレーション キュー</h2>
+      <div class="flex items-center space-x-3">
+        <span class="text-sm text-gray-600">
+          <span x-text="filteredContent.length"></span> 件中 
+          <span x-text="Math.min(currentPage * itemsPerPage, filteredContent.length)"></span> 件を表示
+        </span>
+        <select x-model="sortBy" @change="sortContent()" class="px-3 py-1 border border-gray-300 rounded text-sm focus:ring-green-500 focus:border-green-500">
+          <option value="newest">新しい順</option>
+          <option value="oldest">古い順</option>
+          <option value="priority">優先度順</option>
+          <option value="type">タイプ順</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <template x-for="item in paginatedContent" :key="item.id">
+        <div class="moderation-card p-6" :class="`priority-${item.priority}`">
+          <div class="flex items-start justify-between mb-4">
+            <div class="flex-1">
+              <div class="flex items-center space-x-3 mb-2">
+                <span class="text-lg font-bold text-gray-900" x-text="`#${item.id}`"></span>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" 
+                      :class="`content-type-${item.type}`">
+                  <i :class="item.typeIcon" class="mr-1"></i>
+                  <span x-text="item.typeName"></span>
+                </span>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" 
+                      :class="`status-${item.status}`">
+                  <span x-text="getStatusText(item.status)"></span>
+                </span>
+              </div>
+              
+              <h3 class="text-lg font-semibold text-gray-900 mb-2" x-text="item.title"></h3>
+              
+              <div class="flex items-center space-x-4 text-sm text-gray-500 mb-3">
+                <div class="flex items-center">
+                  <i class="fas fa-user mr-1"></i>
+                  <span x-text="item.author"></span>
+                </div>
+                <div class="flex items-center">
+                  <i class="fas fa-clock mr-1"></i>
+                  <span x-text="getTimeAgo(item.createdAt)"></span>
+                </div>
+                <div x-show="item.reportCount > 0" class="flex items-center text-red-600">
+                  <i class="fas fa-flag mr-1"></i>
+                  <span x-text="item.reportCount + ' 件の報告'"></span>
+                </div>
+              </div>
+              
+              <!-- Content Preview -->
+              <div class="content-preview mb-4">
+                <p class="text-sm text-gray-700" x-text="item.content"></p>
+              </div>
+              
+              <!-- AI Analysis -->
+              <div x-show="item.aiAnalysis" class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-sm font-medium text-blue-900">
+                    <i class="fas fa-robot mr-1"></i>
+                    AI分析結果
+                  </span>
+                  <span class="text-xs text-blue-600" x-text="item.aiAnalysis?.confidence + '%信頼度'"></span>
+                </div>
+                <p class="text-sm text-blue-800" x-text="item.aiAnalysis?.recommendation"></p>
+                <div class="flex space-x-2 mt-2">
+                  <template x-for="tag in item.aiAnalysis?.tags || []" :key="tag">
+                    <span class="px-2 py-1 bg-blue-200 text-blue-800 rounded-full text-xs" x-text="tag"></span>
+                  </template>
+                </div>
+              </div>
+              
+              <!-- Action Buttons -->
+              <div class="flex items-center justify-between">
+                <div class="flex space-x-2">
+                  <button @click="moderateContent(item, 'approve')" 
+                          x-show="item.status === 'pending'"
+                          class="action-button action-approve">
+                    <i class="fas fa-check mr-1"></i>承認
+                  </button>
+                  <button @click="moderateContent(item, 'reject')" 
+                          x-show="item.status === 'pending'"
+                          class="action-button action-reject">
+                    <i class="fas fa-times mr-1"></i>却下
+                  </button>
+                  <button @click="flagContent(item)" 
+                          class="action-button action-flag">
+                    <i class="fas fa-flag mr-1"></i>フラグ
+                  </button>
+                </div>
+                
+                <div class="flex space-x-2">
+                  <button @click="viewContentDetail(item)" class="text-gray-600 hover:text-gray-800 p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                  <button @click="viewModerationHistory(item)" class="text-gray-600 hover:text-gray-800 p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                    <i class="fas fa-history"></i>
+                  </button>
+                  <div class="relative" x-data="{ open: false }">
+                    <button @click="open = !open" class="text-gray-600 hover:text-gray-800 p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                      <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                    <div x-show="open" @click.away="open = false" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 border border-gray-200">
+                      <div class="py-1">
+                        <button @click="assignModerator(item); open = false" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                          <i class="fas fa-user-plus mr-2"></i>モデレーター割当
+                        </button>
+                        <button @click="addNote(item); open = false" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                          <i class="fas fa-sticky-note mr-2"></i>メモ追加
+                        </button>
+                        <button @click="contactUser(item); open = false" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                          <i class="fas fa-envelope mr-2"></i>ユーザーに連絡
+                        </button>
+                        <hr class="my-1">
+                        <button @click="escalateContent(item); open = false" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                          <i class="fas fa-exclamation-triangle mr-2"></i>エスカレート
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Selection Checkbox -->
+            <div class="ml-4">
+              <input type="checkbox" :value="item.id" @change="toggleSelection(item.id, $event)" 
+                     class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+            </div>
+          </div>
+        </div>
+      </template>
+    </div>
+    
+    <!-- Pagination -->
+    <div class="flex items-center justify-center mt-8">
+      <button @click="currentPage > 1 && (currentPage--)" 
+              :disabled="currentPage === 1"
+              class="px-4 py-2 border border-gray-300 rounded-l-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <template x-for="page in visiblePages" :key="page">
+        <button @click="currentPage = page" 
+                :class="currentPage === page ? 'bg-green-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'"
+                class="px-4 py-2 border-t border-b border-gray-300"
+                x-text="page">
+        </button>
+      </template>
+      <button @click="currentPage < totalPages && (currentPage++)" 
+              :disabled="currentPage === totalPages"
+              class="px-4 py-2 border border-gray-300 rounded-r-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Bulk Actions Panel -->
+  <div class="bulk-actions" :class="selectedItems.length > 0 ? 'show' : ''">
+    <div class="flex items-center space-x-4">
+      <span class="text-sm text-gray-700">
+        <span x-text="selectedItems.length"></span> 件選択中
+      </span>
+      <div class="flex space-x-2">
+        <button @click="bulkModerate('approve')" class="action-button action-approve">
+          <i class="fas fa-check mr-1"></i>一括承認
+        </button>
+        <button @click="bulkModerate('reject')" class="action-button action-reject">
+          <i class="fas fa-times mr-1"></i>一括却下
+        </button>
+        <button @click="bulkFlag()" class="action-button action-flag">
+          <i class="fas fa-flag mr-1"></i>一括フラグ
+        </button>
+      </div>
+      <button @click="selectedItems = []" class="text-gray-400 hover:text-gray-600">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  </div>
+</main>
+
+<!-- Content Detail Modal -->
+<div x-show="showDetailModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" style="display: none;">
+  <div class="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto" @click.away="showDetailModal = false">
+    <div class="p-6">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-2xl font-bold text-gray-900">コンテンツ詳細</h3>
+        <button @click="showDetailModal = false" class="text-gray-400 hover:text-gray-600">
+          <i class="fas fa-times text-xl"></i>
+        </button>
+      </div>
+      
+      <div x-show="selectedContent" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Content Info -->
+        <div class="lg:col-span-2">
+          <div class="space-y-6">
+            <!-- Content -->
+            <div>
+              <h4 class="text-lg font-semibold mb-3">コンテンツ内容</h4>
+              <div class="bg-gray-50 rounded-lg p-4">
+                <h5 class="font-medium mb-2" x-text="selectedContent?.title"></h5>
+                <p class="text-gray-700" x-text="selectedContent?.content"></p>
+              </div>
+            </div>
+            
+            <!-- Moderation History -->
+            <div x-show="selectedContent?.history?.length > 0">
+              <h4 class="text-lg font-semibold mb-3">モデレーション履歴</h4>
+              <div class="moderation-history">
+                <template x-for="event in selectedContent?.history || []" :key="event.id">
+                  <div class="history-item">
+                    <div class="history-dot" :class="event.action"></div>
+                    <div class="flex items-center justify-between mb-1">
+                      <span class="font-medium text-sm" x-text="event.action"></span>
+                      <span class="text-xs text-gray-500" x-text="formatDate(event.timestamp)"></span>
+                    </div>
+                    <p class="text-sm text-gray-600" x-text="event.note"></p>
+                    <div class="text-xs text-gray-500 mt-1">
+                      担当者: <span x-text="event.moderator"></span>
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Sidebar -->
+        <div>
+          <div class="space-y-4">
+            <!-- Basic Info -->
+            <div class="bg-gray-50 rounded-lg p-4">
+              <h4 class="font-semibold mb-3">基本情報</h4>
+              <div class="space-y-2 text-sm">
+                <div class="flex justify-between">
+                  <span>ID:</span>
+                  <span x-text="selectedContent?.id"></span>
+                </div>
+                <div class="flex justify-between">
+                  <span>タイプ:</span>
+                  <span x-text="selectedContent?.typeName"></span>
+                </div>
+                <div class="flex justify-between">
+                  <span>作成者:</span>
+                  <span x-text="selectedContent?.author"></span>
+                </div>
+                <div class="flex justify-between">
+                  <span>作成日時:</span>
+                  <span x-text="formatDate(selectedContent?.createdAt)"></span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="space-y-2">
+              <button @click="moderateContent(selectedContent, 'approve')" 
+                      class="w-full action-button action-approve">
+                <i class="fas fa-check mr-2"></i>承認
+              </button>
+              <button @click="moderateContent(selectedContent, 'reject')" 
+                      class="w-full action-button action-reject">
+                <i class="fas fa-times mr-2"></i>却下
+              </button>
+              <button @click="flagContent(selectedContent)" 
+                      class="w-full action-button action-flag">
+                <i class="fas fa-flag mr-2"></i>フラグ設定
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript Libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.1/sweetalert2.all.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Mobile menu functionality
+  const mobileMenuButton = document.getElementById('mobile-menu-button');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const menuIcon = document.getElementById('menu-icon');
+  const closeIcon = document.getElementById('close-icon');
+  
+  if (mobileMenuButton && mobileMenu) {
+    mobileMenuButton.addEventListener('click', function() {
+      const isExpanded = this.getAttribute('aria-expanded') === 'true';
+      this.setAttribute('aria-expanded', !isExpanded);
+      mobileMenu.classList.toggle('hidden');
+      
+      // Toggle menu/close icons
+      if (menuIcon && closeIcon) {
+        menuIcon.classList.toggle('opacity-0');
+        closeIcon.classList.toggle('opacity-0');
+      }
+    });
+    
+    // Close menu when clicking links
+    mobileMenu.addEventListener('click', function(event) {
+      if (event.target.tagName === 'A') {
+        mobileMenu.classList.add('hidden');
+        mobileMenuButton.setAttribute('aria-expanded', 'false');
+        if (menuIcon && closeIcon) {
+          menuIcon.classList.remove('opacity-0');
+          closeIcon.classList.add('opacity-0');
+        }
+      }
+    });
+  }
+});
+
+// Admin Content App using Alpine.js
+function adminContentApp() {
+  return {
+    // Data
+    searchQuery: '',
+    autoModeration: true,
+    showDetailModal: false,
+    selectedContent: null,
+    selectedItems: [],
+    currentPage: 1,
+    itemsPerPage: 10,
+    sortBy: 'newest',
+    
+    // Filters
+    filters: {
+      contentType: '',
+      priority: ''
+    },
+    
+    activeStatusFilters: [],
+    
+    statusFilters: [
+      { key: 'pending', label: '審査待ち', icon: 'fas fa-clock' },
+      { key: 'approved', label: '承認済み', icon: 'fas fa-check' },
+      { key: 'rejected', label: '却下', icon: 'fas fa-times' },
+      { key: 'flagged', label: 'フラグ付き', icon: 'fas fa-flag' }
+    ],
+    
+    // Mock data
+    allContent: [],
+    filteredContent: [],
+    
+    stats: {
+      pendingReview: 47,
+      approvedToday: 156,
+      rejectedToday: 23,
+      aiAccuracy: 94,
+      avgProcessingTime: 12
+    },
+    
+    aiSuggestions: [
+      {
+        id: 1,
+        type: 'スパム検出',
+        icon: 'fas fa-shield-alt',
+        description: '同一ユーザーからの類似投稿が検出されました',
+        confidence: 87
+      },
+      {
+        id: 2,
+        type: '不適切言語',
+        icon: 'fas fa-exclamation-triangle',
+        description: '攻撃的な表現が含まれている可能性があります',
+        confidence: 76
+      },
+      {
+        id: 3,
+        type: '偽情報',
+        icon: 'fas fa-info-circle',
+        description: '事実確認が必要な内容が含まれています',
+        confidence: 92
+      }
+    ],
+    
+    trendingKeywords: [
+      { text: 'スパム', weight: 0.9 },
+      { text: '不適切', weight: 0.7 },
+      { text: '報告', weight: 0.6 },
+      { text: '違反', weight: 0.8 },
+      { text: '問題', weight: 0.5 }
+    ],
+    
+    modelPerformance: {
+      accuracy: 94,
+      precision: 89,
+      recall: 92
+    },
+    
+    init() {
+      this.generateMockContent();
+      this.filterContent();
+    },
+    
+    generateMockContent() {
+      const titles = [
+        '部屋の掃除をお願いします',
+        '買い物代行サービス',
+        'ペットのお世話を手伝います',
+        '配達のお手伝い',
+        '家具の組み立て作業',
+        '庭の草取り作業',
+        'パソコンの設定サポート',
+        '引越し荷物の運搬'
+      ];
+      
+      const contentTypes = [
+        { key: 'task', name: 'タスク投稿', icon: 'fas fa-tasks' },
+        { key: 'review', name: 'レビュー', icon: 'fas fa-star' },
+        { key: 'profile', name: 'プロフィール', icon: 'fas fa-user' },
+        { key: 'message', name: 'メッセージ', icon: 'fas fa-envelope' }
+      ];
+      
+      const statuses = ['pending', 'approved', 'rejected', 'flagged'];
+      const priorities = ['high', 'medium', 'low'];
+      const users = ['田中太郎', '佐藤花子', '山田一郎', '鈴木美咲', '高橋健一'];
+      
+      this.allContent = titles.map((title, index) => {
+        const contentType = contentTypes[Math.floor(Math.random() * contentTypes.length)];
+        const createdAt = new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000);
+        const status = statuses[Math.floor(Math.random() * statuses.length)];
+        
+        return {
+          id: 2025001 + index,
+          title: title,
+          content: `${title}に関する詳細な説明です。サービスの内容や条件について記載されています。`,
+          type: contentType.key,
+          typeName: contentType.name,
+          typeIcon: contentType.icon,
+          status: status,
+          priority: priorities[Math.floor(Math.random() * priorities.length)],
+          author: users[Math.floor(Math.random() * users.length)],
+          createdAt: createdAt.toISOString(),
+          reportCount: Math.floor(Math.random() * 5),
+          aiAnalysis: {
+            confidence: Math.floor(Math.random() * 30) + 70,
+            recommendation: status === 'pending' ? 'このコンテンツは適切と判断されます' : '要注意コンテンツの可能性があります',
+            tags: ['安全', '適切']
+          },
+          history: this.generateModerationHistory()
+        };
+      });
+    },
+    
+    generateModerationHistory() {
+      const actions = ['created', 'reviewed', 'approved', 'flagged'];
+      const moderators = ['管理者A', '管理者B', 'システム'];
+      
+      return actions.slice(0, Math.floor(Math.random() * 3) + 1).map((action, index) => ({
+        id: index + 1,
+        action: action,
+        note: `${action}処理を実行しました`,
+        moderator: moderators[Math.floor(Math.random() * moderators.length)],
+        timestamp: new Date(Date.now() - (actions.length - index) * 60 * 60 * 1000).toISOString()
+      }));
+    },
+    
+    // Filtering and sorting
+    filterContent() {
+      let filtered = [...this.allContent];
+      
+      // Text search
+      if (this.searchQuery) {
+        const query = this.searchQuery.toLowerCase();
+        filtered = filtered.filter(content => 
+          content.id.toString().includes(query) ||
+          content.title.toLowerCase().includes(query) ||
+          content.author.toLowerCase().includes(query)
+        );
+      }
+      
+      // Content type filter
+      if (this.filters.contentType) {
+        filtered = filtered.filter(content => content.type === this.filters.contentType);
+      }
+      
+      // Status filters
+      if (this.activeStatusFilters.length > 0) {
+        filtered = filtered.filter(content => this.activeStatusFilters.includes(content.status));
+      }
+      
+      this.filteredContent = filtered;
+      this.sortContent();
+    },
+    
+    sortContent() {
+      this.filteredContent.sort((a, b) => {
+        switch (this.sortBy) {
+          case 'newest':
+            return new Date(b.createdAt) - new Date(a.createdAt);
+          case 'oldest':
+            return new Date(a.createdAt) - new Date(b.createdAt);
+          case 'priority':
+            const priorityOrder = { high: 3, medium: 2, low: 1 };
+            return priorityOrder[b.priority] - priorityOrder[a.priority];
+          case 'type':
+            return a.typeName.localeCompare(b.typeName);
+          default:
+            return 0;
+        }
+      });
+      this.currentPage = 1;
+    },
+    
+    toggleStatusFilter(status) {
+      const index = this.activeStatusFilters.indexOf(status);
+      if (index > -1) {
+        this.activeStatusFilters.splice(index, 1);
+      } else {
+        this.activeStatusFilters.push(status);
+      }
+      this.filterContent();
+    },
+    
+    // Pagination
+    get totalPages() {
+      return Math.ceil(this.filteredContent.length / this.itemsPerPage);
+    },
+    
+    get paginatedContent() {
+      const start = (this.currentPage - 1) * this.itemsPerPage;
+      return this.filteredContent.slice(start, start + this.itemsPerPage);
+    },
+    
+    get visiblePages() {
+      const pages = [];
+      const start = Math.max(1, this.currentPage - 2);
+      const end = Math.min(this.totalPages, this.currentPage + 2);
+      
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+      
+      return pages;
+    },
+    
+    // Actions
+    moderateContent(content, action) {
+      const actionText = action === 'approve' ? '承認' : '却下';
+      
+      Swal.fire({
+        title: `コンテンツ${actionText}`,
+        text: `コンテンツ #${content.id} を${actionText}しますか？`,
+        icon: action === 'approve' ? 'question' : 'warning',
+        showCancelButton: true,
+        confirmButtonText: actionText,
+        cancelButtonText: 'キャンセル',
+        confirmButtonColor: action === 'approve' ? '#10b981' : '#dc2626'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          content.status = action === 'approve' ? 'approved' : 'rejected';
+          
+          // Add to history
+          content.history.push({
+            id: content.history.length + 1,
+            action: action === 'approve' ? 'approved' : 'rejected',
+            note: `コンテンツを${actionText}しました`,
+            moderator: '管理者A',
+            timestamp: new Date().toISOString()
+          });
+          
+          toastr.success(`コンテンツ #${content.id} を${actionText}しました`);
+        }
+      });
+    },
+    
+    flagContent(content) {
+      Swal.fire({
+        title: 'コンテンツフラグ',
+        input: 'textarea',
+        inputLabel: 'フラグ理由',
+        inputPlaceholder: 'フラグを設定する理由を入力してください...',
+        showCancelButton: true,
+        confirmButtonText: 'フラグ設定',
+        cancelButtonText: 'キャンセル',
+        confirmButtonColor: '#d97706'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          content.status = 'flagged';
+          
+          // Add to history
+          content.history.push({
+            id: content.history.length + 1,
+            action: 'flagged',
+            note: result.value || 'フラグが設定されました',
+            moderator: '管理者A',
+            timestamp: new Date().toISOString()
+          });
+          
+          toastr.warning(`コンテンツ #${content.id} にフラグを設定しました`);
+        }
+      });
+    },
+    
+    viewContentDetail(content) {
+      this.selectedContent = content;
+      this.showDetailModal = true;
+    },
+    
+    viewModerationHistory(content) {
+      this.viewContentDetail(content);
+    },
+    
+    toggleSelection(contentId, event) {
+      if (event.target.checked) {
+        this.selectedItems.push(contentId);
+      } else {
+        const index = this.selectedItems.indexOf(contentId);
+        if (index > -1) {
+          this.selectedItems.splice(index, 1);
+        }
+      }
+    },
+    
+    bulkModerate(action) {
+      if (this.selectedItems.length === 0) {
+        toastr.warning('コンテンツを選択してください');
+        return;
+      }
+      
+      const actionText = action === 'approve' ? '承認' : '却下';
+      
+      Swal.fire({
+        title: `一括${actionText}`,
+        text: `選択した${this.selectedItems.length}件のコンテンツを${actionText}しますか？`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: actionText,
+        cancelButtonText: 'キャンセル',
+        confirmButtonColor: action === 'approve' ? '#10b981' : '#dc2626'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.selectedItems.forEach(id => {
+            const content = this.allContent.find(c => c.id === id);
+            if (content) {
+              content.status = action === 'approve' ? 'approved' : 'rejected';
+            }
+          });
+          
+          toastr.success(`${this.selectedItems.length}件のコンテンツを${actionText}しました`);
+          this.selectedItems = [];
+        }
+      });
+    },
+    
+    bulkFlag() {
+      if (this.selectedItems.length === 0) {
+        toastr.warning('コンテンツを選択してください');
+        return;
+      }
+      
+      Swal.fire({
+        title: '一括フラグ設定',
+        input: 'textarea',
+        inputLabel: 'フラグ理由',
+        inputPlaceholder: 'フラグを設定する理由を入力してください...',
+        showCancelButton: true,
+        confirmButtonText: 'フラグ設定',
+        cancelButtonText: 'キャンセル',
+        confirmButtonColor: '#d97706'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.selectedItems.forEach(id => {
+            const content = this.allContent.find(c => c.id === id);
+            if (content) {
+              content.status = 'flagged';
+            }
+          });
+          
+          toastr.warning(`${this.selectedItems.length}件のコンテンツにフラグを設定しました`);
+          this.selectedItems = [];
+        }
+      });
+    },
+    
+    toggleAutoModeration() {
+      this.autoModeration = !this.autoModeration;
+      if (this.autoModeration) {
+        toastr.success('AI自動モデレーションを有効にしました');
+      } else {
+        toastr.info('AI自動モデレーションを無効にしました');
+      }
+    },
+    
+    exportModerationReport() {
+      // Generate CSV data
+      const headers = ['ID', 'タイトル', 'タイプ', 'ステータス', '作成者', '作成日時', '報告数'];
+      const rows = this.filteredContent.map(content => [
+        content.id,
+        content.title,
+        content.typeName,
+        this.getStatusText(content.status),
+        content.author,
+        this.formatDate(content.createdAt),
+        content.reportCount
+      ]);
+      
+      const csv = [headers, ...rows]
+        .map(row => row.map(field => `"${field}"`).join(','))
+        .join('\n');
+      
+      // Download CSV
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', 'moderation_report.csv');
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toastr.success('モデレーションレポートをエクスポートしました');
+    },
+    
+    assignModerator(content) {
+      const moderators = ['管理者A', '管理者B', '管理者C', '上級管理者'];
+      
+      const options = moderators.map(mod => `<option value="${mod}">${mod}</option>`).join('');
+      
+      Swal.fire({
+        title: 'モデレーター割り当て',
+        html: `
+          <div class="text-left">
+            <label class="block text-sm font-medium text-gray-700 mb-2">担当者を選択してください</label>
+            <select id="moderator" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+              <option value="">選択してください</option>
+              ${options}
+            </select>
+          </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: '割り当て',
+        cancelButtonText: 'キャンセル',
+        confirmButtonColor: '#10b981'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          const moderator = document.getElementById('moderator').value;
+          if (moderator) {
+            toastr.success(`コンテンツ #${content.id} を${moderator}に割り当てました`);
+          }
+        }
+      });
+    },
+    
+    addNote(content) {
+      Swal.fire({
+        title: 'メモ追加',
+        input: 'textarea',
+        inputLabel: 'メモ',
+        inputPlaceholder: 'このコンテンツに関するメモを入力してください...',
+        showCancelButton: true,
+        confirmButtonText: '追加',
+        cancelButtonText: 'キャンセル',
+        confirmButtonColor: '#10b981'
+      }).then((result) => {
+        if (result.isConfirmed && result.value) {
+          toastr.success(`コンテンツ #${content.id} にメモを追加しました`);
+        }
+      });
+    },
+    
+    contactUser(content) {
+      toastr.info(`${content.author}にメッセージを送信しました`);
+    },
+    
+    escalateContent(content) {
+      Swal.fire({
+        title: 'コンテンツエスカレート',
+        text: `コンテンツ #${content.id} を上級管理者にエスカレートしますか？`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'エスカレート',
+        cancelButtonText: 'キャンセル',
+        confirmButtonColor: '#dc2626'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          toastr.warning(`コンテンツ #${content.id} をエスカレートしました`);
+        }
+      });
+    },
+    
+    // Utility functions
+    getStatusText(status) {
+      const statusMap = {
+        'pending': '審査待ち',
+        'approved': '承認済み',
+        'rejected': '却下',
+        'flagged': 'フラグ付き'
+      };
+      return statusMap[status] || status;
+    },
+    
+    getTimeAgo(dateString) {
+      const now = new Date();
+      const date = new Date(dateString);
+      const diffInMinutes = Math.floor((now - date) / (1000 * 60));
+      
+      if (diffInMinutes < 60) return `${diffInMinutes}分前`;
+      if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}時間前`;
+      return `${Math.floor(diffInMinutes / 1440)}日前`;
+    },
+    
+    formatDate(dateString) {
+      return new Date(dateString).toLocaleString('ja-JP');
+    }
+  }
+}
+
+// Configure Toastr
+toastr.options = {
+  "closeButton": true,
+  "progressBar": true,
+  "positionClass": "toast-top-right",
+  "timeOut": "4000"
+};
+</script>
+
+</body>
+</html>

@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="ja" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>プライバシーポリシー - TaskHelper | 近所の信頼できる代行サービス</title>
+  
+  <!-- CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- CSS Libraries -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  
+  <!-- Additional UI Libraries -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.1/sweetalert2.min.css" rel="stylesheet">
+  
+  <!-- Alpine.js -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  
+  <!-- Custom CSS -->
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .glass-effect {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .section-card {
+      transition: all 0.3s ease;
+    }
+    
+    .section-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .toc-item {
+      transition: all 0.3s ease;
+      border-left: 3px solid transparent;
+    }
+    
+    .toc-item:hover {
+      border-left-color: #2563eb;
+      background: rgba(37, 99, 235, 0.05);
+    }
+    
+    .toc-item.active {
+      border-left-color: #2563eb;
+      background: rgba(37, 99, 235, 0.1);
+      color: #2563eb;
+    }
+    
+    .section-heading {
+      position: relative;
+      scroll-margin-top: 100px;
+    }
+    
+    .section-heading::before {
+      content: '';
+      position: absolute;
+      left: -1rem;
+      top: 0.5rem;
+      width: 4px;
+      height: 1.5rem;
+      background: #2563eb;
+      border-radius: 2px;
+    }
+    
+    .highlight-box {
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(16, 185, 129, 0.1));
+      border-left: 4px solid #2563eb;
+    }
+    
+    .warning-box {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(239, 68, 68, 0.1));
+      border-left: 4px solid #f59e0b;
+    }
+    
+    .info-box {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(147, 51, 234, 0.1));
+      border-left: 4px solid #3b82f6;
+    }
+  </style>
+</head>
+
+<body class="bg-gradient-to-br from-blue-50 via-white to-green-50 min-h-screen">
+
+<!-- Navigation -->
+<nav class="bg-white shadow-sm fixed top-0 left-0 right-0 z-50">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex items-center h-16">
+      <!-- Logo -->
+      <div class="flex items-center space-x-2">
+        <i class="fas fa-hands-helping text-2xl text-blue-600" aria-hidden="true"></i>
+        <span class="text-xl font-bold text-gray-900">TaskHelper</span>
+      </div>
+      
+      <!-- Desktop Menu (centered) -->
+      <div class="hidden md:flex items-center space-x-8 mx-auto">
+        <a href="index.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">ホーム</a>
+        <a href="task-list.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">依頼一覧</a>
+        <a href="task-create.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">依頼投稿</a>
+        <a href="profile.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">プロフィール</a>
+        <a href="my-tasks.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">マイタスク</a>
+      </div>
+      
+      <!-- Auth Buttons -->
+      <div class="hidden md:flex items-center space-x-3">
+        <a href="login.html" class="border border-blue-600 text-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-blue-50 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">ログイン</a>
+        <a href="register.html" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">始める</a>
+      </div>
+      
+      <!-- Mobile Menu Button -->
+      <div class="md:hidden ml-auto">
+        <button id="mobile-menu-button" class="text-gray-700 hover:text-blue-600 p-2 transition-all duration-300 ease-in-out" aria-expanded="false">
+          <svg class="w-6 h-6 transition-transform duration-300 ease-in-out" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path id="menu-icon" class="transition-opacity duration-300" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            <path id="close-icon" class="transition-opacity duration-300 opacity-0" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden md:hidden pb-4 transition-all duration-300 ease-in-out transform">
+      <div class="flex flex-col space-y-2">
+        <a href="index.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">ホーム</a>
+        <a href="task-list.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">依頼一覧</a>
+        <a href="task-create.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">依頼投稿</a>
+        <a href="profile.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">プロフィール</a>
+        <a href="my-tasks.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">マイタスク</a>
+        <hr class="my-3">
+        <div class="flex gap-2 justify-center">
+          <a href="login.html" class="border border-blue-600 text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-50 text-center transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">ログイン</a>
+          <a href="register.html" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 text-center transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">始める</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-12" x-data="privacyPolicyApp()">
+  
+  <!-- Header -->
+  <div class="text-center mb-12">
+    <h1 class="text-4xl font-bold text-gray-900 mb-4">
+      <i class="fas fa-shield-alt text-blue-600 mr-4"></i>
+      プライバシーポリシー
+    </h1>
+    <p class="text-lg text-gray-600 mb-6">
+      TaskHelperにおける個人情報の取り扱いについて
+    </p>
+    <div class="text-sm text-gray-500">
+      最終更新日: 2025年1月4日
+    </div>
+  </div>
+
+  <div class="lg:grid lg:grid-cols-4 lg:gap-8">
+    
+    <!-- Table of Contents (Sidebar) -->
+    <div class="lg:col-span-1 mb-8 lg:mb-0">
+      <div class="glass-effect rounded-2xl p-6 shadow-lg sticky top-24">
+        <h2 class="text-lg font-bold text-gray-900 mb-4">目次</h2>
+        <nav class="space-y-2">
+          <a href="#overview" class="toc-item block px-3 py-2 rounded-lg text-sm transition-all duration-200" 
+             :class="activeSection === 'overview' ? 'active' : 'text-gray-700 hover:text-blue-600'">
+            1. 概要
+          </a>
+          <a href="#information-collection" class="toc-item block px-3 py-2 rounded-lg text-sm transition-all duration-200"
+             :class="activeSection === 'information-collection' ? 'active' : 'text-gray-700 hover:text-blue-600'">
+            2. 収集する情報
+          </a>
+          <a href="#information-use" class="toc-item block px-3 py-2 rounded-lg text-sm transition-all duration-200"
+             :class="activeSection === 'information-use' ? 'active' : 'text-gray-700 hover:text-blue-600'">
+            3. 情報の利用目的
+          </a>
+          <a href="#information-sharing" class="toc-item block px-3 py-2 rounded-lg text-sm transition-all duration-200"
+             :class="activeSection === 'information-sharing' ? 'active' : 'text-gray-700 hover:text-blue-600'">
+            4. 情報の共有
+          </a>
+          <a href="#data-security" class="toc-item block px-3 py-2 rounded-lg text-sm transition-all duration-200"
+             :class="activeSection === 'data-security' ? 'active' : 'text-gray-700 hover:text-blue-600'">
+            5. データセキュリティ
+          </a>
+          <a href="#user-rights" class="toc-item block px-3 py-2 rounded-lg text-sm transition-all duration-200"
+             :class="activeSection === 'user-rights' ? 'active' : 'text-gray-700 hover:text-blue-600'">
+            6. ユーザーの権利
+          </a>
+          <a href="#cookies" class="toc-item block px-3 py-2 rounded-lg text-sm transition-all duration-200"
+             :class="activeSection === 'cookies' ? 'active' : 'text-gray-700 hover:text-blue-600'">
+            7. Cookieの使用
+          </a>
+          <a href="#policy-changes" class="toc-item block px-3 py-2 rounded-lg text-sm transition-all duration-200"
+             :class="activeSection === 'policy-changes' ? 'active' : 'text-gray-700 hover:text-blue-600'">
+            8. ポリシーの変更
+          </a>
+          <a href="#contact" class="toc-item block px-3 py-2 rounded-lg text-sm transition-all duration-200"
+             :class="activeSection === 'contact' ? 'active' : 'text-gray-700 hover:text-blue-600'">
+            9. お問い合わせ
+          </a>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="lg:col-span-3 space-y-8">
+      
+      <!-- Overview Section -->
+      <section id="overview" class="section-card glass-effect rounded-2xl p-8 shadow-lg">
+        <h2 class="section-heading text-2xl font-bold text-gray-900 mb-6">1. 概要</h2>
+        
+        <div class="highlight-box p-6 rounded-lg mb-6">
+          <div class="flex items-start">
+            <i class="fas fa-info-circle text-blue-600 mr-3 mt-1"></i>
+            <div>
+              <h3 class="font-semibold text-gray-900 mb-2">基本方針</h3>
+              <p class="text-gray-700">
+                TaskHelper（以下「当サービス」）は、ユーザーの皆様のプライバシーを尊重し、個人情報の保護に最大限の注意を払っています。
+                本プライバシーポリシーは、当サービスがどのような個人情報を収集し、どのように利用・保護するかについて説明しています。
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="prose prose-gray max-w-none">
+          <p class="text-gray-700 leading-relaxed mb-4">
+            当サービスをご利用いただく際は、本プライバシーポリシーの内容をご確認いただき、同意いただいた上でご利用ください。
+            本ポリシーは、個人情報保護法その他の関連法令に従って策定されています。
+          </p>
+          
+          <p class="text-gray-700 leading-relaxed">
+            TaskHelperは、近所の助け合いを促進するプラットフォームとして、ユーザー間の信頼関係を重視しています。
+            そのため、適切な情報管理と透明性の確保に努めています。
+          </p>
+        </div>
+      </section>
+
+      <!-- Information Collection Section -->
+      <section id="information-collection" class="section-card glass-effect rounded-2xl p-8 shadow-lg">
+        <h2 class="section-heading text-2xl font-bold text-gray-900 mb-6">2. 収集する情報</h2>
+        
+        <div class="space-y-6">
+          <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-3">2.1 アカウント情報</h3>
+            <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+              <li>氏名（ニックネーム可）</li>
+              <li>メールアドレス</li>
+              <li>電話番号</li>
+              <li>住所（市区町村レベル）</li>
+              <li>プロフィール画像</li>
+              <li>自己紹介文</li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-3">2.2 サービス利用情報</h3>
+            <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+              <li>投稿した依頼内容</li>
+              <li>応募履歴</li>
+              <li>メッセージのやり取り</li>
+              <li>評価・レビュー</li>
+              <li>支払い情報（決済代行会社経由）</li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-3">2.3 技術的情報</h3>
+            <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+              <li>IPアドレス</li>
+              <li>ブラウザ情報</li>
+              <li>デバイス情報</li>
+              <li>アクセスログ</li>
+              <li>Cookie情報</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Information Use Section -->
+      <section id="information-use" class="section-card glass-effect rounded-2xl p-8 shadow-lg">
+        <h2 class="section-heading text-2xl font-bold text-gray-900 mb-6">3. 情報の利用目的</h2>
+        
+        <div class="grid md:grid-cols-2 gap-6">
+          <div class="space-y-4">
+            <h3 class="text-lg font-semibold text-gray-900">3.1 サービス提供のため</h3>
+            <ul class="list-disc list-inside space-y-2 text-gray-700 text-sm">
+              <li>アカウント管理</li>
+              <li>依頼とヘルパーのマッチング</li>
+              <li>メッセージ機能の提供</li>
+              <li>決済処理の管理</li>
+              <li>評価・レビューシステム</li>
+            </ul>
+          </div>
+          
+          <div class="space-y-4">
+            <h3 class="text-lg font-semibold text-gray-900">3.2 サービス向上のため</h3>
+            <ul class="list-disc list-inside space-y-2 text-gray-700 text-sm">
+              <li>サービス利用状況の分析</li>
+              <li>新機能の開発</li>
+              <li>不具合の修正</li>
+              <li>セキュリティの向上</li>
+              <li>カスタマーサポート</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="info-box p-6 rounded-lg mt-6">
+          <div class="flex items-start">
+            <i class="fas fa-lightbulb text-blue-600 mr-3 mt-1"></i>
+            <div>
+              <h3 class="font-semibold text-gray-900 mb-2">適正利用の監視</h3>
+              <p class="text-gray-700 text-sm">
+                安全なサービス提供のため、不正利用や規約違反の監視・防止目的でも情報を利用します。
+                これにより、すべてのユーザーに安心してご利用いただける環境を維持しています。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Information Sharing Section -->
+      <section id="information-sharing" class="section-card glass-effect rounded-2xl p-8 shadow-lg">
+        <h2 class="section-heading text-2xl font-bold text-gray-900 mb-6">4. 情報の共有</h2>
+        
+        <div class="warning-box p-6 rounded-lg mb-6">
+          <div class="flex items-start">
+            <i class="fas fa-exclamation-triangle text-yellow-600 mr-3 mt-1"></i>
+            <div>
+              <h3 class="font-semibold text-gray-900 mb-2">重要な原則</h3>
+              <p class="text-gray-700">
+                TaskHelperは、法令に基づく場合やユーザーの同意がある場合を除き、個人情報を第三者に提供することはありません。
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-6">
+          <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-3">4.1 ユーザー間での情報共有</h3>
+            <p class="text-gray-700 mb-3">
+              マッチング成立時、以下の情報が相手方に表示されます：
+            </p>
+            <ul class="list-disc list-inside space-y-1 text-gray-700 ml-4">
+              <li>ニックネーム</li>
+              <li>プロフィール画像</li>
+              <li>評価・レビュー</li>
+              <li>連絡先（お互いの同意後）</li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-3">4.2 第三者への提供</h3>
+            <div class="space-y-3 text-sm">
+              <div class="flex">
+                <span class="font-medium text-gray-900 w-20">決済:</span>
+                <span class="text-gray-700">決済代行会社（Stripe等）への必要最小限の情報提供</span>
+              </div>
+              <div class="flex">
+                <span class="font-medium text-gray-900 w-20">法的要請:</span>
+                <span class="text-gray-700">裁判所の命令や法執行機関からの要請</span>
+              </div>
+              <div class="flex">
+                <span class="font-medium text-gray-900 w-20">緊急時:</span>
+                <span class="text-gray-700">生命、身体または財産の保護のため緊急かつやむを得ない場合</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Data Security Section -->
+      <section id="data-security" class="section-card glass-effect rounded-2xl p-8 shadow-lg">
+        <h2 class="section-heading text-2xl font-bold text-gray-900 mb-6">5. データセキュリティ</h2>
+        
+        <div class="grid md:grid-cols-2 gap-6">
+          <div class="space-y-4">
+            <div class="flex items-center mb-3">
+              <i class="fas fa-lock text-green-600 mr-3"></i>
+              <h3 class="text-lg font-semibold text-gray-900">技術的保護措置</h3>
+            </div>
+            <ul class="list-disc list-inside space-y-2 text-gray-700 text-sm">
+              <li>SSL/TLS暗号化通信</li>
+              <li>データベースの暗号化</li>
+              <li>ファイアウォールによる保護</li>
+              <li>定期的なセキュリティ監査</li>
+              <li>不正アクセス検知システム</li>
+            </ul>
+          </div>
+          
+          <div class="space-y-4">
+            <div class="flex items-center mb-3">
+              <i class="fas fa-users text-blue-600 mr-3"></i>
+              <h3 class="text-lg font-semibold text-gray-900">人的・物理的保護措置</h3>
+            </div>
+            <ul class="list-disc list-inside space-y-2 text-gray-700 text-sm">
+              <li>従業員への定期的な教育</li>
+              <li>アクセス権限の厳格な管理</li>
+              <li>データセンターの物理的セキュリティ</li>
+              <li>機密保持契約の締結</li>
+              <li>インシデント対応体制</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="highlight-box p-6 rounded-lg mt-6">
+          <div class="flex items-start">
+            <i class="fas fa-shield-alt text-blue-600 mr-3 mt-1"></i>
+            <div>
+              <h3 class="font-semibold text-gray-900 mb-2">継続的な改善</h3>
+              <p class="text-gray-700">
+                セキュリティ技術の進歩に合わせて、保護措置を継続的に見直し・改善しています。
+                万が一のセキュリティインシデントに備えて、迅速な対応体制も整備しています。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- User Rights Section -->
+      <section id="user-rights" class="section-card glass-effect rounded-2xl p-8 shadow-lg">
+        <h2 class="section-heading text-2xl font-bold text-gray-900 mb-6">6. ユーザーの権利</h2>
+        
+        <div class="space-y-6">
+          <div class="grid md:grid-cols-3 gap-6">
+            <div class="text-center p-4 border border-gray-200 rounded-lg">
+              <i class="fas fa-eye text-blue-600 text-2xl mb-3"></i>
+              <h3 class="font-semibold text-gray-900 mb-2">開示請求</h3>
+              <p class="text-sm text-gray-600">保有する個人情報の開示を請求できます</p>
+            </div>
+            
+            <div class="text-center p-4 border border-gray-200 rounded-lg">
+              <i class="fas fa-edit text-green-600 text-2xl mb-3"></i>
+              <h3 class="font-semibold text-gray-900 mb-2">訂正・削除</h3>
+              <p class="text-sm text-gray-600">間違った情報の訂正や削除を請求できます</p>
+            </div>
+            
+            <div class="text-center p-4 border border-gray-200 rounded-lg">
+              <i class="fas fa-ban text-red-600 text-2xl mb-3"></i>
+              <h3 class="font-semibold text-gray-900 mb-2">利用停止</h3>
+              <p class="text-sm text-gray-600">個人情報の利用停止を請求できます</p>
+            </div>
+          </div>
+
+          <div class="info-box p-6 rounded-lg">
+            <h3 class="font-semibold text-gray-900 mb-3">権利行使の方法</h3>
+            <div class="space-y-2 text-sm">
+              <div class="flex">
+                <span class="font-medium text-gray-900 w-16">連絡先:</span>
+                <span class="text-gray-700">help@taskhelper.jp または設定ページから</span>
+              </div>
+              <div class="flex">
+                <span class="font-medium text-gray-900 w-16">本人確認:</span>
+                <span class="text-gray-700">身分証明書による本人確認が必要な場合があります</span>
+              </div>
+              <div class="flex">
+                <span class="font-medium text-gray-900 w-16">回答期間:</span>
+                <span class="text-gray-700">原則として1ヶ月以内に回答いたします</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <div class="flex items-start">
+              <i class="fas fa-info-circle text-yellow-600 mr-3 mt-1"></i>
+              <div class="text-sm">
+                <h4 class="font-semibold text-gray-900 mb-1">ご注意</h4>
+                <p class="text-gray-700">
+                  一部の情報については、サービス提供やセキュリティ確保のため、削除や利用停止ができない場合があります。
+                  詳細については個別にご相談ください。
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Cookies Section -->
+      <section id="cookies" class="section-card glass-effect rounded-2xl p-8 shadow-lg">
+        <h2 class="section-heading text-2xl font-bold text-gray-900 mb-6">7. Cookieの使用</h2>
+        
+        <div class="space-y-6">
+          <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-3">7.1 Cookieとは</h3>
+            <p class="text-gray-700">
+              Cookieは、ウェブサイトがユーザーのブラウザに保存する小さなテキストファイルです。
+              当サービスでは、より良いユーザー体験を提供するためにCookieを使用しています。
+            </p>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-3">7.2 使用目的</h3>
+            <div class="grid md:grid-cols-2 gap-4">
+              <div>
+                <h4 class="font-medium text-gray-900 mb-2">必須Cookie</h4>
+                <ul class="list-disc list-inside space-y-1 text-sm text-gray-700">
+                  <li>ログイン状態の維持</li>
+                  <li>セキュリティ機能</li>
+                  <li>設定の保存</li>
+                </ul>
+              </div>
+              <div>
+                <h4 class="font-medium text-gray-900 mb-2">分析Cookie</h4>
+                <ul class="list-disc list-inside space-y-1 text-sm text-gray-700">
+                  <li>利用統計の収集</li>
+                  <li>サービス改善のための分析</li>
+                  <li>パフォーマンス測定</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-3">7.3 Cookie設定の管理</h3>
+            <p class="text-gray-700 mb-3">
+              ブラウザの設定でCookieを無効にすることができますが、一部機能が正常に動作しない場合があります。
+            </p>
+            <div class="bg-gray-50 rounded-lg p-4">
+              <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-700">Cookie設定を管理</span>
+                <button @click="showCookieSettings = true" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition-colors">
+                  設定を開く
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Policy Changes Section -->
+      <section id="policy-changes" class="section-card glass-effect rounded-2xl p-8 shadow-lg">
+        <h2 class="section-heading text-2xl font-bold text-gray-900 mb-6">8. ポリシーの変更</h2>
+        
+        <div class="space-y-4">
+          <p class="text-gray-700">
+            当サービスは、法令の変更やサービスの改善に伴い、本プライバシーポリシーを変更する場合があります。
+            重要な変更については、事前にユーザーの皆様にお知らせいたします。
+          </p>
+
+          <div class="highlight-box p-6 rounded-lg">
+            <h3 class="font-semibold text-gray-900 mb-3">変更時の通知方法</h3>
+            <ul class="list-disc list-inside space-y-2 text-gray-700">
+              <li>サービス内での通知</li>
+              <li>登録メールアドレスへの連絡</li>
+              <li>ウェブサイトでの公表</li>
+            </ul>
+          </div>
+
+          <div class="text-sm text-gray-600 bg-gray-50 p-4 rounded-lg">
+            <p>
+              <strong>現在のバージョン:</strong> v2.1<br>
+              <strong>最終更新日:</strong> 2025年1月4日<br>
+              <strong>施行日:</strong> 2025年1月15日
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Contact Section -->
+      <section id="contact" class="section-card glass-effect rounded-2xl p-8 shadow-lg">
+        <h2 class="section-heading text-2xl font-bold text-gray-900 mb-6">9. お問い合わせ</h2>
+        
+        <div class="space-y-6">
+          <p class="text-gray-700">
+            本プライバシーポリシーに関するご質問や個人情報の取り扱いについてのお問い合わせは、
+            以下の方法でご連絡ください。
+          </p>
+
+          <div class="grid md:grid-cols-2 gap-6">
+            <div class="border border-gray-200 rounded-lg p-6">
+              <h3 class="font-semibold text-gray-900 mb-4">一般的なお問い合わせ</h3>
+              <div class="space-y-3 text-sm">
+                <div class="flex items-center">
+                  <i class="fas fa-envelope text-blue-600 mr-3"></i>
+                  <span>privacy@taskhelper.jp</span>
+                </div>
+                <div class="flex items-center">
+                  <i class="fas fa-globe text-blue-600 mr-3"></i>
+                  <a href="help.html" class="text-blue-600 hover:text-blue-700">ヘルプセンター</a>
+                </div>
+                <div class="flex items-center">
+                  <i class="fas fa-cog text-blue-600 mr-3"></i>
+                  <a href="settings.html" class="text-blue-600 hover:text-blue-700">設定ページ</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="border border-gray-200 rounded-lg p-6">
+              <h3 class="font-semibold text-gray-900 mb-4">個人情報保護管理者</h3>
+              <div class="space-y-2 text-sm">
+                <div><strong>氏名:</strong> 田中 太郎</div>
+                <div><strong>部署:</strong> 法務・コンプライアンス部</div>
+                <div><strong>連絡先:</strong> dpo@taskhelper.jp</div>
+                <div><strong>受付時間:</strong> 平日 9:00-18:00</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="warning-box p-6 rounded-lg">
+            <div class="flex items-start">
+              <i class="fas fa-clock text-yellow-600 mr-3 mt-1"></i>
+              <div>
+                <h3 class="font-semibold text-gray-900 mb-2">回答時期について</h3>
+                <p class="text-gray-700 text-sm">
+                  お問い合わせの内容により回答までに時間をいただく場合があります。
+                  個人情報の開示請求等については、法定期間内（原則1ヶ月以内）に回答いたします。
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Cookie Settings Modal -->
+  <div x-show="showCookieSettings" x-cloak class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4">
+      <h3 class="text-xl font-bold text-gray-900 mb-4">Cookie設定</h3>
+      
+      <div class="space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="font-medium text-gray-900">必須Cookie</div>
+            <div class="text-sm text-gray-600">サービス利用に必要</div>
+          </div>
+          <input type="checkbox" checked disabled class="rounded">
+        </div>
+        
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="font-medium text-gray-900">分析Cookie</div>
+            <div class="text-sm text-gray-600">利用統計の取得</div>
+          </div>
+          <input type="checkbox" x-model="cookieSettings.analytics" class="rounded">
+        </div>
+      </div>
+      
+      <div class="flex space-x-3 mt-6">
+        <button @click="showCookieSettings = false" class="flex-1 border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50">
+          キャンセル
+        </button>
+        <button @click="saveCookieSettings()" class="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">
+          保存
+        </button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Footer -->
+<footer class="bg-gray-900 text-white py-12">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+      <!-- Brand Section -->
+      <div class="col-span-2 md:col-span-1">
+        <div class="flex items-center space-x-2 mb-4">
+          <i class="fas fa-hands-helping text-2xl text-blue-500"></i>
+          <span class="text-xl font-bold">TaskHelper</span>
+        </div>
+        <p class="text-gray-400 text-sm leading-relaxed">
+          近所の信頼できる代行サービスで、<br>
+          あなたの時間をより価値のあることに。
+        </p>
+      </div>
+      
+      <!-- Services Section -->
+      <div>
+        <h3 class="font-semibold mb-4">サービス</h3>
+        <ul class="space-y-2 text-sm">
+          <li><a href="task-list.html?category=shopping" class="text-gray-400 hover:text-white transition-colors">買い物代行</a></li>
+          <li><a href="task-list.html?category=cleaning" class="text-gray-400 hover:text-white transition-colors">掃除・整理</a></li>
+          <li><a href="task-list.html?category=delivery" class="text-gray-400 hover:text-white transition-colors">配送・引越し</a></li>
+          <li><a href="task-list.html?category=petcare" class="text-gray-400 hover:text-white transition-colors">ペットケア</a></li>
+          <li><a href="task-list.html?category=repairs" class="text-gray-400 hover:text-white transition-colors">修理・メンテナンス</a></li>
+        </ul>
+      </div>
+      
+      <!-- Support Section -->
+      <div>
+        <h3 class="font-semibold mb-4">サポート</h3>
+        <ul class="space-y-2 text-sm">
+          <li><a href="help.html" class="text-gray-400 hover:text-white transition-colors">ヘルプセンター</a></li>
+          <li><a href="#" class="text-gray-400 hover:text-white transition-colors">お問い合わせ</a></li>
+          <li><a href="terms.html" class="text-gray-400 hover:text-white transition-colors">利用規約</a></li>
+          <li><a href="privacy-policy.html" class="text-blue-400 font-medium">プライバシーポリシー</a></li>
+        </ul>
+      </div>
+      
+      <!-- Follow Section -->
+      <div>
+        <h3 class="font-semibold mb-4">フォロー</h3>
+        <div class="flex space-x-4">
+          <a href="#" class="text-gray-400 hover:text-white transition-colors">
+            <i class="fab fa-twitter text-xl"></i>
+          </a>
+          <a href="#" class="text-gray-400 hover:text-white transition-colors">
+            <i class="fab fa-facebook text-xl"></i>
+          </a>
+          <a href="#" class="text-gray-400 hover:text-white transition-colors">
+            <i class="fab fa-instagram text-xl"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+    
+    <div class="border-t border-gray-800 mt-8 pt-8 text-center">
+      <p class="text-gray-400 text-sm" lang="ja">
+        &copy; 2025 TaskHelper. All rights reserved.
+      </p>
+    </div>
+  </div>
+</footer>
+
+<!-- JavaScript Libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.1/sweetalert2.all.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Mobile menu functionality
+  const mobileMenuButton = document.getElementById('mobile-menu-button');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const menuIcon = document.getElementById('menu-icon');
+  const closeIcon = document.getElementById('close-icon');
+  
+  if (mobileMenuButton && mobileMenu) {
+    mobileMenuButton.addEventListener('click', function() {
+      const isExpanded = this.getAttribute('aria-expanded') === 'true';
+      this.setAttribute('aria-expanded', !isExpanded);
+      mobileMenu.classList.toggle('hidden');
+      
+      // Toggle menu/close icons
+      if (menuIcon && closeIcon) {
+        menuIcon.classList.toggle('opacity-0');
+        closeIcon.classList.toggle('opacity-0');
+      }
+    });
+    
+    // Close menu when clicking links
+    mobileMenu.addEventListener('click', function(event) {
+      if (event.target.tagName === 'A') {
+        mobileMenu.classList.add('hidden');
+        mobileMenuButton.setAttribute('aria-expanded', 'false');
+        if (menuIcon && closeIcon) {
+          menuIcon.classList.remove('opacity-0');
+          closeIcon.classList.add('opacity-0');
+        }
+      }
+    });
+  }
+
+  // Smooth scrolling for anchor links
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      e.preventDefault();
+      const target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        target.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    });
+  });
+});
+
+// Privacy Policy App using Alpine.js
+function privacyPolicyApp() {
+  return {
+    activeSection: 'overview',
+    showCookieSettings: false,
+    cookieSettings: {
+      analytics: true
+    },
+
+    init() {
+      // Set up intersection observer for section highlighting
+      const sections = document.querySelectorAll('section[id]');
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            this.activeSection = entry.target.id;
+          }
+        });
+      }, {
+        rootMargin: '-20% 0% -80% 0%'
+      });
+
+      sections.forEach(section => {
+        observer.observe(section);
+      });
+    },
+
+    saveCookieSettings() {
+      // Save cookie settings
+      localStorage.setItem('cookieSettings', JSON.stringify(this.cookieSettings));
+      this.showCookieSettings = false;
+      toastr.success('Cookie設定を保存しました');
+    }
+  }
+}
+
+// Configure Toastr
+toastr.options = {
+  "closeButton": true,
+  "progressBar": true,
+  "positionClass": "toast-top-right",
+  "timeOut": "4000"
+};
+</script>
+
+<style>
+[x-cloak] { display: none !important; }
+</style>
+
+</body>
+</html>

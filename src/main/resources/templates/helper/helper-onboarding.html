@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="ja" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ヘルパー登録 - TaskHelper</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.1/sweetalert2.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.1/sweetalert2.all.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .step-indicator {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            color: #6b7280;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .step-indicator.active {
+            background: #2563eb;
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        .step-indicator.completed {
+            background: #10b981;
+            color: white;
+        }
+        
+        .step-indicator::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 100%;
+            width: 60px;
+            height: 2px;
+            background: #e5e7eb;
+            transform: translateY(-50%);
+            z-index: -1;
+        }
+        
+        .step-indicator:last-child::after {
+            display: none;
+        }
+        
+        .step-indicator.completed::after {
+            background: #10b981;
+        }
+
+        .form-section {
+            display: none;
+        }
+        
+        .form-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .file-upload-area {
+            border: 2px dashed #d1d5db;
+            transition: all 0.3s ease;
+        }
+        
+        .file-upload-area:hover,
+        .file-upload-area.dragover {
+            border-color: #2563eb;
+            background: rgba(37, 99, 235, 0.05);
+        }
+
+        .skill-tag {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .skill-tag:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .skill-tag.selected {
+            background: #2563eb;
+            color: white;
+            border-color: #2563eb;
+        }
+
+        .verification-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .verification-status.pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .verification-status.verified {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .verification-status.rejected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .earning-estimate {
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            border: 1px solid #0ea5e9;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #f3f4f6;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #2563eb, #1d4ed8);
+            transition: width 0.5s ease;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-white to-green-50 min-h-screen">
+<!-- Navigation -->
+<nav class="bg-white shadow-sm fixed top-0 left-0 right-0 z-50">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex items-center h-16">
+      <!-- Logo -->
+      <div class="flex items-center space-x-2">
+        <i class="fas fa-hands-helping text-2xl text-blue-600" aria-hidden="true"></i>
+        <span class="text-xl font-bold text-gray-900">TaskHelper</span>
+      </div>
+      
+      <!-- Desktop Menu (centered) -->
+      <div class="hidden md:flex items-center space-x-8 mx-auto">
+        <a href="index.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">ホーム</a>
+        <a href="task-list.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">依頼一覧</a>
+        <a href="task-create.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">依頼投稿</a>
+        <a href="profile.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">プロフィール</a>
+        <a href="my-tasks.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">マイタスク</a>
+      </div>
+      
+      <!-- Auth Buttons -->
+      <div class="hidden md:flex items-center space-x-3">
+        <a href="login.html" class="border border-blue-600 text-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-blue-50 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">ログイン</a>
+        <a href="register.html" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">始める</a>
+      </div>
+      
+      <!-- Mobile Menu Button -->
+      <div class="md:hidden ml-auto">
+        <button id="mobile-menu-button" class="text-gray-700 hover:text-blue-600 p-2 transition-all duration-300 ease-in-out" aria-expanded="false">
+          <svg class="w-6 h-6 transition-transform duration-300 ease-in-out" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path id="menu-icon" class="transition-opacity duration-300" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            <path id="close-icon" class="transition-opacity duration-300 opacity-0" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden md:hidden pb-4 transition-all duration-300 ease-in-out transform">
+      <div class="flex flex-col space-y-2">
+        <a href="index.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">ホーム</a>
+        <a href="task-list.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">依頼一覧</a>
+        <a href="task-create.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">依頼投稿</a>
+        <a href="profile.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">プロフィール</a>
+        <a href="my-tasks.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">マイタスク</a>
+        <hr class="my-3">
+        <div class="flex gap-2 justify-center">
+          <a href="login.html" class="border border-blue-600 text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-50 text-center transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">ログイン</a>
+          <a href="register.html" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 text-center transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">始める</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-8" x-data="onboardingApp()">
+        <!-- Page Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-4">
+                <i class="fas fa-user-plus text-green-600 mr-3"></i>
+                ヘルパー登録
+            </h1>
+            <p class="text-gray-600 max-w-2xl mx-auto">
+                TaskHelperでヘルパーとして活動するための登録プロセスです。
+                安全で信頼できるサービス提供のため、身元確認と技術認証を行います。
+            </p>
+        </div>
+
+        <!-- Progress Steps -->
+        <div class="mb-8">
+            <div class="flex items-center justify-center space-x-4 mb-6">
+                <template x-for="(step, index) in steps" :key="index">
+                    <div class="flex items-center">
+                        <div class="step-indicator"
+                             :class="{
+                                 'active': currentStep === index,
+                                 'completed': currentStep > index
+                             }">
+                            <i x-show="currentStep > index" class="fas fa-check"></i>
+                            <span x-show="currentStep <= index" x-text="index + 1"></span>
+                        </div>
+                    </div>
+                </template>
+            </div>
+            
+            <!-- Progress Bar -->
+            <div class="progress-bar mb-4">
+                <div class="progress-fill" :style="`width: ${((currentStep + 1) / steps.length) * 100}%`"></div>
+            </div>
+            
+            <div class="text-center">
+                <h2 class="text-xl font-semibold text-gray-900 mb-2" x-text="steps[currentStep].title"></h2>
+                <p class="text-gray-600" x-text="steps[currentStep].description"></p>
+            </div>
+        </div>
+
+        <!-- Form Sections -->
+        <div class="glass-effect rounded-2xl p-8 shadow-lg">
+            <!-- Step 1: Personal Information -->
+            <div class="form-section" :class="{ 'active': currentStep === 0 }">
+                <div class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">姓</label>
+                            <input type="text" 
+                                   x-model="formData.lastName"
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                   placeholder="山田">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">名</label>
+                            <input type="text" 
+                                   x-model="formData.firstName"
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                   placeholder="太郎">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">電話番号</label>
+                            <input type="tel" 
+                                   x-model="formData.phone"
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                   placeholder="090-1234-5678">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">生年月日</label>
+                            <input type="date" 
+                                   x-model="formData.birthDate"
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">住所</label>
+                        <input type="text" 
+                               x-model="formData.address"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               placeholder="東京都渋谷区神宮前1-1-1">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">自己紹介</label>
+                        <textarea x-model="formData.bio"
+                                  rows="4"
+                                  class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                                  placeholder="あなたの経験やスキルについて教えてください..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Identity Verification -->
+            <div class="form-section" :class="{ 'active': currentStep === 1 }">
+                <div class="space-y-6">
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+                        <div class="flex items-center">
+                            <i class="fas fa-shield-alt text-yellow-600 mr-3"></i>
+                            <div>
+                                <h3 class="font-semibold text-yellow-800">身元確認について</h3>
+                                <p class="text-yellow-700 text-sm mt-1">
+                                    安全なサービス提供のため、政府発行の身分証明書による本人確認が必要です。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">身分証明書の種類</label>
+                        <select x-model="formData.idType"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">選択してください</option>
+                            <option value="license">運転免許証</option>
+                            <option value="passport">パスポート</option>
+                            <option value="mynumber">マイナンバーカード</option>
+                            <option value="insurance">健康保険証</option>
+                        </select>
+                    </div>
+
+                    <!-- File Upload Areas -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">身分証明書（表面）</label>
+                            <div class="file-upload-area rounded-xl p-8 text-center cursor-pointer"
+                                 @click="$refs.frontIdFile.click()"
+                                 @dragover.prevent="$event.currentTarget.classList.add('dragover')"
+                                 @dragleave="$event.currentTarget.classList.remove('dragover')"
+                                 @drop.prevent="handleFileUpload($event, 'frontId')">
+                                <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-3"></i>
+                                <p class="text-gray-600 mb-2">ファイルをドロップするかクリックして選択</p>
+                                <p class="text-xs text-gray-500">JPG, PNG形式（最大10MB）</p>
+                                <input type="file" 
+                                       x-ref="frontIdFile" 
+                                       @change="handleFileUpload($event, 'frontId')"
+                                       accept="image/*" 
+                                       class="hidden">
+                            </div>
+                            <div x-show="formData.frontId" class="mt-2">
+                                <div class="verification-status pending">
+                                    <i class="fas fa-clock mr-1"></i>
+                                    確認中
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">身分証明書（裏面）</label>
+                            <div class="file-upload-area rounded-xl p-8 text-center cursor-pointer"
+                                 @click="$refs.backIdFile.click()"
+                                 @dragover.prevent="$event.currentTarget.classList.add('dragover')"
+                                 @dragleave="$event.currentTarget.classList.remove('dragover')"
+                                 @drop.prevent="handleFileUpload($event, 'backId')">
+                                <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-3"></i>
+                                <p class="text-gray-600 mb-2">ファイルをドロップするかクリックして選択</p>
+                                <p class="text-xs text-gray-500">JPG, PNG形式（最大10MB）</p>
+                                <input type="file" 
+                                       x-ref="backIdFile" 
+                                       @change="handleFileUpload($event, 'backId')"
+                                       accept="image/*" 
+                                       class="hidden">
+                            </div>
+                            <div x-show="formData.backId" class="mt-2">
+                                <div class="verification-status pending">
+                                    <i class="fas fa-clock mr-1"></i>
+                                    確認中
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Emergency Contact -->
+                    <div class="border-t pt-6">
+                        <h3 class="font-semibold text-gray-900 mb-4">緊急連絡先</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">緊急連絡先（氏名）</label>
+                                <input type="text" 
+                                       x-model="formData.emergencyContactName"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                       placeholder="緊急連絡先の氏名">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">緊急連絡先（電話番号）</label>
+                                <input type="tel" 
+                                       x-model="formData.emergencyContactPhone"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                       placeholder="090-1234-5678">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Skills & Certifications -->
+            <div class="form-section" :class="{ 'active': currentStep === 2 }">
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-4">提供可能なサービス</label>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                            <template x-for="skill in availableSkills" :key="skill.id">
+                                <div class="skill-tag border-2 border-gray-200 rounded-xl p-4 text-center"
+                                     :class="{ 'selected': formData.skills.includes(skill.id) }"
+                                     @click="toggleSkill(skill.id)">
+                                    <div class="w-12 h-12 mx-auto mb-2 rounded-xl flex items-center justify-center"
+                                         :style="`background: ${skill.color}20; color: ${skill.color}`">
+                                        <i :class="skill.icon" class="text-lg"></i>
+                                    </div>
+                                    <h4 class="font-medium text-sm" x-text="skill.name"></h4>
+                                    <p class="text-xs text-gray-600 mt-1" x-text="skill.description"></p>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- Experience Level -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-4">経験レベル</label>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <template x-for="level in experienceLevels" :key="level.value">
+                                <div class="border-2 rounded-xl p-4 cursor-pointer transition-all duration-200"
+                                     :class="formData.experienceLevel === level.value ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'"
+                                     @click="formData.experienceLevel = level.value">
+                                    <div class="text-center">
+                                        <div class="w-16 h-16 mx-auto mb-3 rounded-full flex items-center justify-center"
+                                             :style="`background: ${level.color}20; color: ${level.color}`">
+                                            <i :class="level.icon" class="text-2xl"></i>
+                                        </div>
+                                        <h4 class="font-semibold mb-1" x-text="level.title"></h4>
+                                        <p class="text-sm text-gray-600" x-text="level.description"></p>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- Certifications -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">資格・認定証（任意）</label>
+                        <div class="file-upload-area rounded-xl p-6 text-center cursor-pointer"
+                             @click="$refs.certificationFile.click()">
+                            <i class="fas fa-certificate text-2xl text-gray-400 mb-2"></i>
+                            <p class="text-gray-600 mb-1">関連する資格証明書をアップロード</p>
+                            <p class="text-xs text-gray-500">PDF, JPG, PNG形式（最大10MB）</p>
+                            <input type="file" 
+                                   x-ref="certificationFile" 
+                                   @change="handleFileUpload($event, 'certifications')"
+                                   accept="image/*,.pdf" 
+                                   multiple
+                                   class="hidden">
+                        </div>
+                        <div x-show="formData.certifications.length > 0" class="mt-4">
+                            <h4 class="font-medium text-gray-900 mb-2">アップロード済み</h4>
+                            <template x-for="cert in formData.certifications" :key="cert.name">
+                                <div class="flex items-center justify-between bg-gray-50 rounded-lg p-3 mb-2">
+                                    <span class="text-sm" x-text="cert.name"></span>
+                                    <div class="verification-status pending">
+                                        <i class="fas fa-clock mr-1"></i>
+                                        確認中
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Availability & Rates -->
+            <div class="form-section" :class="{ 'active': currentStep === 3 }">
+                <div class="space-y-6">
+                    <!-- Availability -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-4">稼働可能時間</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm text-gray-600 mb-2">平日</label>
+                                <div class="flex space-x-2">
+                                    <select x-model="formData.availability.weekdays.start"
+                                            class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        <template x-for="hour in hours" :key="hour">
+                                            <option :value="hour" x-text="hour + ':00'"></option>
+                                        </template>
+                                    </select>
+                                    <span class="flex items-center text-gray-500">〜</span>
+                                    <select x-model="formData.availability.weekdays.end"
+                                            class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        <template x-for="hour in hours" :key="hour">
+                                            <option :value="hour" x-text="hour + ':00'"></option>
+                                        </template>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm text-gray-600 mb-2">休日</label>
+                                <div class="flex space-x-2">
+                                    <select x-model="formData.availability.weekends.start"
+                                            class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        <template x-for="hour in hours" :key="hour">
+                                            <option :value="hour" x-text="hour + ':00'"></option>
+                                        </template>
+                                    </select>
+                                    <span class="flex items-center text-gray-500">〜</span>
+                                    <select x-model="formData.availability.weekends.end"
+                                            class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        <template x-for="hour in hours" :key="hour">
+                                            <option :value="hour" x-text="hour + ':00'"></option>
+                                        </template>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hourly Rates -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-4">希望時給設定</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <template x-for="skill in availableSkills.filter(s => formData.skills.includes(s.id))" :key="skill.id">
+                                <div class="border border-gray-200 rounded-xl p-4">
+                                    <div class="flex items-center mb-3">
+                                        <div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3"
+                                             :style="`background: ${skill.color}20; color: ${skill.color}`">
+                                            <i :class="skill.icon"></i>
+                                        </div>
+                                        <h4 class="font-medium" x-text="skill.name"></h4>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-gray-600">¥</span>
+                                        <input type="number" 
+                                               x-model="formData.rates[skill.id]"
+                                               class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                               :placeholder="skill.suggestedRate">
+                                        <span class="text-gray-600">/ 時間</span>
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-2">
+                                        推奨時給: ¥<span x-text="skill.suggestedRate"></span> - ¥<span x-text="skill.suggestedRate + 500"></span>
+                                    </p>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- Earning Estimate -->
+                    <div class="earning-estimate rounded-xl p-6">
+                        <h3 class="font-semibold text-gray-900 mb-4">
+                            <i class="fas fa-calculator text-blue-600 mr-2"></i>
+                            予想収益シミュレーション
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="text-center">
+                                <h4 class="text-2xl font-bold text-gray-900" x-text="'¥' + calculateEarnings('weekly').toLocaleString()"></h4>
+                                <p class="text-sm text-gray-600">週収入（10時間）</p>
+                            </div>
+                            <div class="text-center">
+                                <h4 class="text-2xl font-bold text-gray-900" x-text="'¥' + calculateEarnings('monthly').toLocaleString()"></h4>
+                                <p class="text-sm text-gray-600">月収入（40時間）</p>
+                            </div>
+                            <div class="text-center">
+                                <h4 class="text-2xl font-bold text-gray-900" x-text="'¥' + calculateEarnings('yearly').toLocaleString()"></h4>
+                                <p class="text-sm text-gray-600">年収入（480時間）</p>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-600 mt-4 text-center">
+                            ※ 実際の収入は需要やスキルによって変動します
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 5: Review & Submit -->
+            <div class="form-section" :class="{ 'active': currentStep === 4 }">
+                <div class="space-y-6">
+                    <div class="text-center mb-8">
+                        <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-check-circle text-green-600 text-3xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 mb-2">登録内容の確認</h3>
+                        <p class="text-gray-600">以下の内容で登録申請を行います。</p>
+                    </div>
+
+                    <!-- Summary Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Personal Info -->
+                        <div class="border border-gray-200 rounded-xl p-6">
+                            <h4 class="font-semibold text-gray-900 mb-4">
+                                <i class="fas fa-user text-blue-600 mr-2"></i>
+                                基本情報
+                            </h4>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">氏名</span>
+                                    <span x-text="formData.lastName + ' ' + formData.firstName"></span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">電話番号</span>
+                                    <span x-text="formData.phone"></span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">住所</span>
+                                    <span x-text="formData.address" class="text-right max-w-[60%]"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Skills -->
+                        <div class="border border-gray-200 rounded-xl p-6">
+                            <h4 class="font-semibold text-gray-900 mb-4">
+                                <i class="fas fa-tools text-green-600 mr-2"></i>
+                                スキル・資格
+                            </h4>
+                            <div class="space-y-2">
+                                <template x-for="skillId in formData.skills" :key="skillId">
+                                    <div class="flex items-center">
+                                        <i :class="availableSkills.find(s => s.id === skillId)?.icon" 
+                                           class="mr-2 text-sm"
+                                           :style="`color: ${availableSkills.find(s => s.id === skillId)?.color}`"></i>
+                                        <span class="text-sm" x-text="availableSkills.find(s => s.id === skillId)?.name"></span>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- Availability -->
+                        <div class="border border-gray-200 rounded-xl p-6">
+                            <h4 class="font-semibold text-gray-900 mb-4">
+                                <i class="fas fa-clock text-purple-600 mr-2"></i>
+                                稼働時間
+                            </h4>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">平日</span>
+                                    <span x-text="formData.availability.weekdays.start + ':00 - ' + formData.availability.weekdays.end + ':00'"></span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">休日</span>
+                                    <span x-text="formData.availability.weekends.start + ':00 - ' + formData.availability.weekends.end + ':00'"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Verification Status -->
+                        <div class="border border-gray-200 rounded-xl p-6">
+                            <h4 class="font-semibold text-gray-900 mb-4">
+                                <i class="fas fa-shield-alt text-yellow-600 mr-2"></i>
+                                確認状況
+                            </h4>
+                            <div class="space-y-3">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-600">身分証明書</span>
+                                    <div class="verification-status pending">
+                                        <i class="fas fa-clock mr-1"></i>
+                                        審査中
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-600">緊急連絡先</span>
+                                    <div class="verification-status verified">
+                                        <i class="fas fa-check mr-1"></i>
+                                        確認済み
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Terms & Conditions -->
+                    <div class="border border-gray-200 rounded-xl p-6">
+                        <div class="flex items-start space-x-3">
+                            <input type="checkbox" 
+                                   x-model="formData.agreeToTerms"
+                                   class="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                            <div class="text-sm">
+                                <p class="text-gray-900 mb-2">
+                                    <a href="#" class="text-blue-600 hover:underline">利用規約</a>、
+                                    <a href="#" class="text-blue-600 hover:underline">プライバシーポリシー</a>、
+                                    <a href="#" class="text-blue-600 hover:underline">ヘルパー規約</a>に同意します。
+                                </p>
+                                <p class="text-gray-600">
+                                    また、身元確認の結果によっては登録が承認されない場合があることを理解しています。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="flex justify-between mt-8 pt-6 border-t border-gray-200">
+                <button x-show="currentStep > 0"
+                        @click="previousStep()"
+                        class="px-6 py-3 border border-gray-300 rounded-xl font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    前へ
+                </button>
+                
+                <div x-show="currentStep === 0"></div>
+
+                <button x-show="currentStep < steps.length - 1"
+                        @click="nextStep()"
+                        class="px-6 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 hover:scale-105 transition-all duration-200">
+                    次へ
+                    <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+
+                <button x-show="currentStep === steps.length - 1"
+                        @click="submitApplication()"
+                        :disabled="!formData.agreeToTerms"
+                        class="px-8 py-3 bg-green-600 text-white rounded-xl font-medium hover:bg-green-700 hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i class="fas fa-paper-plane mr-2"></i>
+                    申請を提出
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-16">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-4">サービス</h3>
+                    <ul class="space-y-2">
+                        <li><a href="task-list.html" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">依頼一覧</a></li>
+                        <li><a href="task-create.html" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">依頼投稿</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">ヘルパー登録</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">料金プラン</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-4">サポート</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">ヘルプセンター</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">安全ガイド</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">お問い合わせ</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">よくある質問</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-4">会社情報</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">会社概要</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">採用情報</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">プレスリリース</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">パートナー</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-gray-900 mb-4">法的事項</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">利用規約</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">プライバシー</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">特定商取引法</a></li>
+                        <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">資金決済法</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-200 pt-8 mt-8">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <div class="flex items-center space-x-3 mb-4 md:mb-0">
+                        <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-green-600 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-hands-helping text-white text-sm"></i>
+                        </div>
+                        <span class="font-bold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">TaskHelper</span>
+                    </div>
+                    <p class="text-gray-500 text-sm">&copy; 2025 TaskHelper. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu functionality
+        document.addEventListener('DOMContentLoaded', function() {
+          const mobileMenuButton = document.getElementById('mobile-menu-button');
+          const mobileMenu = document.getElementById('mobile-menu');
+          const menuIcon = document.getElementById('menu-icon');
+          const closeIcon = document.getElementById('close-icon');
+
+          mobileMenuButton.addEventListener('click', function() {
+            const isExpanded = mobileMenuButton.getAttribute('aria-expanded') === 'true';
+            
+            mobileMenuButton.setAttribute('aria-expanded', !isExpanded);
+            mobileMenu.classList.toggle('hidden');
+            
+            if (!isExpanded) {
+              menuIcon.classList.add('opacity-0');
+              closeIcon.classList.remove('opacity-0');
+            } else {
+              menuIcon.classList.remove('opacity-0');
+              closeIcon.classList.add('opacity-0');
+            }
+          });
+        });
+
+        // Onboarding App using Alpine.js
+        function onboardingApp() {
+            return {
+                currentStep: 0,
+                steps: [
+                    {
+                        title: '基本情報',
+                        description: '氏名、連絡先、住所などの基本情報を入力してください'
+                    },
+                    {
+                        title: '身元確認',
+                        description: '身分証明書をアップロードして本人確認を行います'
+                    },
+                    {
+                        title: 'スキル・資格',
+                        description: '提供可能なサービスと経験レベルを選択してください'
+                    },
+                    {
+                        title: '稼働条件',
+                        description: '稼働可能時間と希望時給を設定してください'
+                    },
+                    {
+                        title: '確認・提出',
+                        description: '入力内容を確認して申請を提出してください'
+                    }
+                ],
+                formData: {
+                    lastName: '',
+                    firstName: '',
+                    phone: '',
+                    birthDate: '',
+                    address: '',
+                    bio: '',
+                    idType: '',
+                    frontId: null,
+                    backId: null,
+                    emergencyContactName: '',
+                    emergencyContactPhone: '',
+                    skills: [],
+                    experienceLevel: '',
+                    certifications: [],
+                    availability: {
+                        weekdays: { start: 9, end: 18 },
+                        weekends: { start: 10, end: 16 }
+                    },
+                    rates: {},
+                    agreeToTerms: false
+                },
+                availableSkills: [
+                    {
+                        id: 'shopping',
+                        name: '買い物代行',
+                        description: '食材・日用品の購入',
+                        icon: 'fas fa-shopping-cart',
+                        color: '#10b981',
+                        suggestedRate: 1500
+                    },
+                    {
+                        id: 'cleaning',
+                        name: '掃除・整理',
+                        description: '住居・オフィス清掃',
+                        icon: 'fas fa-broom',
+                        color: '#3b82f6',
+                        suggestedRate: 1800
+                    },
+                    {
+                        id: 'delivery',
+                        name: '配送・引越し',
+                        description: '荷物配送・引越し手伝い',
+                        icon: 'fas fa-truck',
+                        color: '#f59e0b',
+                        suggestedRate: 2000
+                    },
+                    {
+                        id: 'pets',
+                        name: 'ペットケア',
+                        description: '散歩・ペットシッター',
+                        icon: 'fas fa-paw',
+                        color: '#8b5cf6',
+                        suggestedRate: 1600
+                    },
+                    {
+                        id: 'repairs',
+                        name: '修理・メンテナンス',
+                        description: '家具組立・小修理',
+                        icon: 'fas fa-tools',
+                        color: '#ef4444',
+                        suggestedRate: 2500
+                    },
+                    {
+                        id: 'elderly',
+                        name: '高齢者サポート',
+                        description: '買い物・通院付き添い',
+                        icon: 'fas fa-heart',
+                        color: '#ec4899',
+                        suggestedRate: 1700
+                    }
+                ],
+                experienceLevels: [
+                    {
+                        value: 'beginner',
+                        title: '初心者',
+                        description: '経験は少ないがやる気十分',
+                        icon: 'fas fa-seedling',
+                        color: '#10b981'
+                    },
+                    {
+                        value: 'intermediate',
+                        title: '経験者',
+                        description: '1-3年の実務経験あり',
+                        icon: 'fas fa-user-tie',
+                        color: '#3b82f6'
+                    },
+                    {
+                        value: 'expert',
+                        title: 'エキスパート',
+                        description: '3年以上のプロ経験',
+                        icon: 'fas fa-crown',
+                        color: '#f59e0b'
+                    }
+                ],
+                hours: Array.from({ length: 24 }, (_, i) => i),
+
+                nextStep() {
+                    if (this.validateCurrentStep()) {
+                        if (this.currentStep < this.steps.length - 1) {
+                            this.currentStep++;
+                        }
+                    }
+                },
+
+                previousStep() {
+                    if (this.currentStep > 0) {
+                        this.currentStep--;
+                    }
+                },
+
+                validateCurrentStep() {
+                    switch (this.currentStep) {
+                        case 0:
+                            if (!this.formData.lastName || !this.formData.firstName || !this.formData.phone || !this.formData.address) {
+                                toastr.error('必須項目を入力してください');
+                                return false;
+                            }
+                            break;
+                        case 1:
+                            if (!this.formData.idType || !this.formData.frontId) {
+                                toastr.error('身分証明書をアップロードしてください');
+                                return false;
+                            }
+                            break;
+                        case 2:
+                            if (this.formData.skills.length === 0) {
+                                toastr.error('少なくとも一つのスキルを選択してください');
+                                return false;
+                            }
+                            if (!this.formData.experienceLevel) {
+                                toastr.error('経験レベルを選択してください');
+                                return false;
+                            }
+                            break;
+                        case 3:
+                            const hasRates = this.formData.skills.some(skillId => this.formData.rates[skillId] > 0);
+                            if (!hasRates) {
+                                toastr.error('希望時給を入力してください');
+                                return false;
+                            }
+                            break;
+                    }
+                    return true;
+                },
+
+                toggleSkill(skillId) {
+                    const index = this.formData.skills.indexOf(skillId);
+                    if (index > -1) {
+                        this.formData.skills.splice(index, 1);
+                        delete this.formData.rates[skillId];
+                    } else {
+                        this.formData.skills.push(skillId);
+                        const skill = this.availableSkills.find(s => s.id === skillId);
+                        this.formData.rates[skillId] = skill.suggestedRate;
+                    }
+                },
+
+                handleFileUpload(event, field) {
+                    const files = event.target.files || event.dataTransfer.files;
+                    if (files.length > 0) {
+                        if (field === 'certifications') {
+                            for (let file of files) {
+                                this.formData.certifications.push({
+                                    name: file.name,
+                                    size: file.size,
+                                    type: file.type
+                                });
+                            }
+                        } else {
+                            this.formData[field] = {
+                                name: files[0].name,
+                                size: files[0].size,
+                                type: files[0].type
+                            };
+                        }
+                        toastr.success('ファイルがアップロードされました');
+                    }
+                },
+
+                calculateEarnings(period) {
+                    const averageRate = this.formData.skills.reduce((sum, skillId) => {
+                        return sum + (this.formData.rates[skillId] || 0);
+                    }, 0) / Math.max(this.formData.skills.length, 1);
+
+                    switch (period) {
+                        case 'weekly':
+                            return Math.round(averageRate * 10);
+                        case 'monthly':
+                            return Math.round(averageRate * 40);
+                        case 'yearly':
+                            return Math.round(averageRate * 480);
+                        default:
+                            return 0;
+                    }
+                },
+
+                submitApplication() {
+                    if (!this.formData.agreeToTerms) {
+                        toastr.error('利用規約に同意してください');
+                        return;
+                    }
+
+                    Swal.fire({
+                        title: '申請を提出しています...',
+                        text: '少々お待ちください',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        showConfirmButton: false,
+                        willOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    // Simulate API call
+                    setTimeout(() => {
+                        Swal.fire({
+                            icon: 'success',
+                            title: '申請が完了しました！',
+                            html: `
+                                <p class="mb-4">ヘルパー登録申請を受け付けました。</p>
+                                <div class="bg-blue-50 rounded-lg p-4 text-left">
+                                    <h4 class="font-semibold text-blue-900 mb-2">次のステップ</h4>
+                                    <ul class="text-blue-800 text-sm space-y-1">
+                                        <li>• 身元確認：1-2営業日</li>
+                                        <li>• 書類審査：2-3営業日</li>
+                                        <li>• 承認通知：メールでお知らせ</li>
+                                    </ul>
+                                </div>
+                            `,
+                            confirmButtonColor: '#2563eb',
+                            confirmButtonText: 'マイページへ'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = 'profile.html';
+                            }
+                        });
+                    }, 2000);
+                }
+            }
+        }
+
+        // Toastr configuration
+        toastr.options = {
+            "closeButton": true,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "timeOut": "3000"
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="ja" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>設定 - TaskHelper | 近所の信頼できる代行サービス</title>
+  
+  <!-- CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- CSS Libraries -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  
+  <!-- Additional UI Libraries -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.1/sweetalert2.min.css" rel="stylesheet">
+  
+  <!-- Alpine.js -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  
+  <!-- Custom CSS -->
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .glass-effect {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .setting-card {
+      transition: all 0.3s ease;
+    }
+    
+    .setting-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 48px;
+      height: 24px;
+    }
+    
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 24px;
+    }
+    
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+    
+    input:checked + .slider {
+      background-color: #2563eb;
+    }
+    
+    input:checked + .slider:before {
+      transform: translateX(24px);
+    }
+    
+    .tab-button {
+      transition: all 0.3s ease;
+    }
+    
+    .tab-button.active {
+      background: #2563eb;
+      color: white;
+      transform: translateY(-1px);
+    }
+    
+    .setting-section {
+      border-left: 4px solid transparent;
+      transition: all 0.3s ease;
+    }
+    
+    .setting-section:hover {
+      border-left-color: #2563eb;
+      background: rgba(37, 99, 235, 0.02);
+    }
+  </style>
+</head>
+
+<body class="bg-gradient-to-br from-blue-50 via-white to-green-50 min-h-screen">
+
+<!-- Navigation -->
+<nav class="bg-white shadow-sm fixed top-0 left-0 right-0 z-50">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex items-center h-16">
+      <!-- Logo -->
+      <div class="flex items-center space-x-2">
+        <i class="fas fa-hands-helping text-2xl text-blue-600" aria-hidden="true"></i>
+        <span class="text-xl font-bold text-gray-900">TaskHelper</span>
+      </div>
+      
+      <!-- Desktop Menu (centered) -->
+      <div class="hidden md:flex items-center space-x-8 mx-auto">
+        <a href="index.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">ホーム</a>
+        <a href="task-list.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">依頼一覧</a>
+        <a href="task-create.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">依頼投稿</a>
+        <a href="profile.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">プロフィール</a>
+        <a href="my-tasks.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">マイタスク</a>
+      </div>
+      
+      <!-- Auth Buttons -->
+      <div class="hidden md:flex items-center space-x-3">
+        <a href="login.html" class="border border-blue-600 text-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-blue-50 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">ログイン</a>
+        <a href="register.html" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">始める</a>
+      </div>
+      
+      <!-- Mobile Menu Button -->
+      <div class="md:hidden ml-auto">
+        <button id="mobile-menu-button" class="text-gray-700 hover:text-blue-600 p-2 transition-all duration-300 ease-in-out" aria-expanded="false">
+          <svg class="w-6 h-6 transition-transform duration-300 ease-in-out" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path id="menu-icon" class="transition-opacity duration-300" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            <path id="close-icon" class="transition-opacity duration-300 opacity-0" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden md:hidden pb-4 transition-all duration-300 ease-in-out transform">
+      <div class="flex flex-col space-y-2">
+        <a href="index.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">ホーム</a>
+        <a href="task-list.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">依頼一覧</a>
+        <a href="task-create.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">依頼投稿</a>
+        <a href="profile.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">プロフィール</a>
+        <a href="my-tasks.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">マイタスク</a>
+        <hr class="my-3">
+        <div class="flex gap-2 justify-center">
+          <a href="login.html" class="border border-blue-600 text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-50 text-center transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">ログイン</a>
+          <a href="register.html" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 text-center transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">始める</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-8" x-data="settingsApp()">
+  <!-- Page Header -->
+  <div class="mb-8">
+    <div class="flex items-center mb-4">
+      <a href="profile.html" class="text-blue-600 hover:text-blue-700 mr-4">
+        <i class="fas fa-arrow-left"></i>
+      </a>
+      <h1 class="text-3xl font-bold text-gray-900">
+        <i class="fas fa-cog text-blue-600 mr-3"></i>
+        設定
+      </h1>
+    </div>
+    <p class="text-gray-600">アカウント設定と通知設定を管理できます</p>
+  </div>
+
+  <!-- Settings Tabs -->
+  <div class="mb-8">
+    <div class="flex space-x-2 overflow-x-auto">
+      <button @click="activeTab = 'account'" 
+              class="tab-button px-6 py-3 rounded-lg font-medium whitespace-nowrap"
+              :class="activeTab === 'account' ? 'active' : 'bg-white text-gray-700 hover:bg-gray-50'">
+        <i class="fas fa-user mr-2"></i>アカウント
+      </button>
+      <button @click="activeTab = 'notifications'" 
+              class="tab-button px-6 py-3 rounded-lg font-medium whitespace-nowrap"
+              :class="activeTab === 'notifications' ? 'active' : 'bg-white text-gray-700 hover:bg-gray-50'">
+        <i class="fas fa-bell mr-2"></i>通知
+      </button>
+      <button @click="activeTab = 'privacy'" 
+              class="tab-button px-6 py-3 rounded-lg font-medium whitespace-nowrap"
+              :class="activeTab === 'privacy' ? 'active' : 'bg-white text-gray-700 hover:bg-gray-50'">
+        <i class="fas fa-shield-alt mr-2"></i>プライバシー
+      </button>
+      <button @click="activeTab = 'security'" 
+              class="tab-button px-6 py-3 rounded-lg font-medium whitespace-nowrap"
+              :class="activeTab === 'security' ? 'active' : 'bg-white text-gray-700 hover:bg-gray-50'">
+        <i class="fas fa-lock mr-2"></i>セキュリティ
+      </button>
+    </div>
+  </div>
+
+  <!-- Account Settings -->
+  <div x-show="activeTab === 'account'" class="space-y-6">
+    <!-- Personal Information -->
+    <div class="setting-card glass-effect rounded-2xl p-6 shadow-lg">
+      <h2 class="text-xl font-bold text-gray-900 mb-4">
+        <i class="fas fa-id-card text-blue-600 mr-2"></i>
+        個人情報
+      </h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">名前</label>
+          <input type="text" x-model="settings.name" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">メールアドレス</label>
+          <input type="email" x-model="settings.email" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">電話番号</label>
+          <input type="tel" x-model="settings.phone" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">住所</label>
+          <input type="text" x-model="settings.address" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+        </div>
+      </div>
+      
+      <div class="mt-6">
+        <label class="block text-sm font-medium text-gray-700 mb-2">自己紹介</label>
+        <textarea x-model="settings.bio" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="自分について簡単に紹介してください..."></textarea>
+      </div>
+    </div>
+
+    <!-- Account Type -->
+    <div class="setting-card glass-effect rounded-2xl p-6 shadow-lg">
+      <h2 class="text-xl font-bold text-gray-900 mb-4">
+        <i class="fas fa-user-tag text-blue-600 mr-2"></i>
+        アカウントタイプ
+      </h2>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="p-4 border-2 rounded-lg" :class="settings.accountType === 'user' ? 'border-blue-500 bg-blue-50' : 'border-gray-200'">
+          <label class="flex items-center cursor-pointer">
+            <input type="radio" x-model="settings.accountType" value="user" class="text-blue-600 focus:ring-blue-500">
+            <div class="ml-3">
+              <div class="font-medium text-gray-900">依頼者</div>
+              <div class="text-sm text-gray-600">タスクを依頼する</div>
+            </div>
+          </label>
+        </div>
+        <div class="p-4 border-2 rounded-lg" :class="settings.accountType === 'helper' ? 'border-blue-500 bg-blue-50' : 'border-gray-200'">
+          <label class="flex items-center cursor-pointer">
+            <input type="radio" x-model="settings.accountType" value="helper" class="text-blue-600 focus:ring-blue-500">
+            <div class="ml-3">
+              <div class="font-medium text-gray-900">ヘルパー</div>
+              <div class="text-sm text-gray-600">タスクを手伝う</div>
+            </div>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Settings -->
+  <div x-show="activeTab === 'notifications'" class="space-y-6">
+    <div class="setting-card glass-effect rounded-2xl p-6 shadow-lg">
+      <h2 class="text-xl font-bold text-gray-900 mb-4">
+        <i class="fas fa-bell text-blue-600 mr-2"></i>
+        通知設定
+      </h2>
+      
+      <div class="space-y-6">
+        <div class="setting-section p-4 rounded-lg">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="font-medium text-gray-900">新しい依頼通知</h3>
+              <p class="text-sm text-gray-600">新しい依頼が投稿された時に通知を受け取る</p>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" x-model="settings.notifications.newTasks">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+        
+        <div class="setting-section p-4 rounded-lg">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="font-medium text-gray-900">応募通知</h3>
+              <p class="text-sm text-gray-600">自分の依頼に応募があった時に通知を受け取る</p>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" x-model="settings.notifications.applications">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+        
+        <div class="setting-section p-4 rounded-lg">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="font-medium text-gray-900">メッセージ通知</h3>
+              <p class="text-sm text-gray-600">新しいメッセージを受信した時に通知を受け取る</p>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" x-model="settings.notifications.messages">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+        
+        <div class="setting-section p-4 rounded-lg">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="font-medium text-gray-900">評価通知</h3>
+              <p class="text-sm text-gray-600">新しい評価やレビューを受け取った時に通知を受け取る</p>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" x-model="settings.notifications.reviews">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+        
+        <div class="setting-section p-4 rounded-lg">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="font-medium text-gray-900">支払い通知</h3>
+              <p class="text-sm text-gray-600">支払い関連の通知を受け取る</p>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" x-model="settings.notifications.payments">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Privacy Settings -->
+  <div x-show="activeTab === 'privacy'" class="space-y-6">
+    <div class="setting-card glass-effect rounded-2xl p-6 shadow-lg">
+      <h2 class="text-xl font-bold text-gray-900 mb-4">
+        <i class="fas fa-shield-alt text-blue-600 mr-2"></i>
+        プライバシー設定
+      </h2>
+      
+      <div class="space-y-6">
+        <div class="setting-section p-4 rounded-lg">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="font-medium text-gray-900">プロフィール公開</h3>
+              <p class="text-sm text-gray-600">他のユーザーにプロフィールを公開する</p>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" x-model="settings.privacy.publicProfile">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+        
+        <div class="setting-section p-4 rounded-lg">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="font-medium text-gray-900">連絡先表示</h3>
+              <p class="text-sm text-gray-600">マッチング時に連絡先を表示する</p>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" x-model="settings.privacy.showContact">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+        
+        <div class="setting-section p-4 rounded-lg">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="font-medium text-gray-900">活動履歴表示</h3>
+              <p class="text-sm text-gray-600">他のユーザーに活動履歴を表示する</p>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" x-model="settings.privacy.showActivity">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+        
+        <div class="setting-section p-4 rounded-lg">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="font-medium text-gray-900">評価表示</h3>
+              <p class="text-sm text-gray-600">他のユーザーに評価とレビューを表示する</p>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" x-model="settings.privacy.showRatings">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Security Settings -->
+  <div x-show="activeTab === 'security'" class="space-y-6">
+    <div class="setting-card glass-effect rounded-2xl p-6 shadow-lg">
+      <h2 class="text-xl font-bold text-gray-900 mb-4">
+        <i class="fas fa-lock text-blue-600 mr-2"></i>
+        セキュリティ設定
+      </h2>
+      
+      <div class="space-y-6">
+        <!-- Change Password -->
+        <div class="setting-section p-4 rounded-lg">
+          <h3 class="font-medium text-gray-900 mb-3">パスワード変更</h3>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">現在のパスワード</label>
+              <input type="password" x-model="settings.security.currentPassword" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">新しいパスワード</label>
+              <input type="password" x-model="settings.security.newPassword" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">新しいパスワード（確認）</label>
+              <input type="password" x-model="settings.security.confirmPassword" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            <button @click="changePassword()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+              パスワードを変更
+            </button>
+          </div>
+        </div>
+        
+        <!-- Two-Factor Authentication -->
+        <div class="setting-section p-4 rounded-lg">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h3 class="font-medium text-gray-900">二段階認証</h3>
+              <p class="text-sm text-gray-600">アカウントのセキュリティを強化する</p>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" x-model="settings.security.twoFactor">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div x-show="settings.security.twoFactor" class="mt-4">
+            <button class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors">
+              <i class="fas fa-qrcode mr-2"></i>
+              QRコードを表示
+            </button>
+          </div>
+        </div>
+        
+        <!-- Login History -->
+        <div class="setting-section p-4 rounded-lg">
+          <h3 class="font-medium text-gray-900 mb-3">ログイン履歴</h3>
+          <div class="space-y-3">
+            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div class="flex items-center">
+                <i class="fas fa-desktop text-gray-400 mr-3"></i>
+                <div>
+                  <div class="font-medium text-sm">Windows PC</div>
+                  <div class="text-xs text-gray-600">東京, 日本</div>
+                </div>
+              </div>
+              <div class="text-sm text-gray-600">現在のセッション</div>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div class="flex items-center">
+                <i class="fas fa-mobile-alt text-gray-400 mr-3"></i>
+                <div>
+                  <div class="font-medium text-sm">iPhone</div>
+                  <div class="text-xs text-gray-600">東京, 日本</div>
+                </div>
+              </div>
+              <div class="text-sm text-gray-600">2時間前</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Save Button -->
+  <div class="flex justify-end space-x-4">
+    <button @click="resetSettings()" class="border border-gray-300 text-gray-700 px-8 py-3 rounded-lg hover:bg-gray-50 transition-colors">
+      リセット
+    </button>
+    <button @click="saveSettings()" class="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 hover:scale-105 transition-all duration-200">
+      <i class="fas fa-save mr-2"></i>
+      設定を保存
+    </button>
+  </div>
+</main>
+
+<!-- Footer -->
+<footer class="bg-gray-900 text-white py-12">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+      <!-- Brand Section -->
+      <div class="col-span-2 md:col-span-1">
+        <div class="flex items-center space-x-2 mb-4">
+          <i class="fas fa-hands-helping text-2xl text-blue-500"></i>
+          <span class="text-xl font-bold">TaskHelper</span>
+        </div>
+        <p class="text-gray-400 text-sm leading-relaxed">
+          近所の信頼できる代行サービスで、<br>
+          あなたの時間をより価値のあることに。
+        </p>
+      </div>
+      
+      <!-- Services Section -->
+      <div>
+        <h3 class="font-semibold mb-4">サービス</h3>
+        <ul class="space-y-2 text-sm">
+          <li><a href="task-list.html?category=shopping" class="text-gray-400 hover:text-white transition-colors">買い物代行</a></li>
+          <li><a href="task-list.html?category=cleaning" class="text-gray-400 hover:text-white transition-colors">掃除・整理</a></li>
+          <li><a href="task-list.html?category=delivery" class="text-gray-400 hover:text-white transition-colors">配送・引越し</a></li>
+          <li><a href="task-list.html?category=petcare" class="text-gray-400 hover:text-white transition-colors">ペットケア</a></li>
+          <li><a href="task-list.html?category=repairs" class="text-gray-400 hover:text-white transition-colors">修理・メンテナンス</a></li>
+        </ul>
+      </div>
+      
+      <!-- Support Section -->
+      <div>
+        <h3 class="font-semibold mb-4">サポート</h3>
+        <ul class="space-y-2 text-sm">
+          <li><a href="help.html" class="text-gray-400 hover:text-white transition-colors">ヘルプセンター</a></li>
+          <li><a href="#" class="text-gray-400 hover:text-white transition-colors">お問い合わせ</a></li>
+          <li><a href="terms.html" class="text-gray-400 hover:text-white transition-colors">利用規約</a></li>
+          <li><a href="privacy-policy.html" class="text-gray-400 hover:text-white transition-colors">プライバシーポリシー</a></li>
+        </ul>
+      </div>
+      
+      <!-- Follow Section -->
+      <div>
+        <h3 class="font-semibold mb-4">フォロー</h3>
+        <div class="flex space-x-4">
+          <a href="#" class="text-gray-400 hover:text-white transition-colors">
+            <i class="fab fa-twitter text-xl"></i>
+          </a>
+          <a href="#" class="text-gray-400 hover:text-white transition-colors">
+            <i class="fab fa-facebook text-xl"></i>
+          </a>
+          <a href="#" class="text-gray-400 hover:text-white transition-colors">
+            <i class="fab fa-instagram text-xl"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+    
+    <div class="border-t border-gray-800 mt-8 pt-8 text-center">
+      <p class="text-gray-400 text-sm" lang="ja">
+        &copy; 2025 TaskHelper. All rights reserved.
+      </p>
+    </div>
+  </div>
+</footer>
+
+<!-- JavaScript Libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.1/sweetalert2.all.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Mobile menu functionality
+  const mobileMenuButton = document.getElementById('mobile-menu-button');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const menuIcon = document.getElementById('menu-icon');
+  const closeIcon = document.getElementById('close-icon');
+  
+  if (mobileMenuButton && mobileMenu) {
+    mobileMenuButton.addEventListener('click', function() {
+      const isExpanded = this.getAttribute('aria-expanded') === 'true';
+      this.setAttribute('aria-expanded', !isExpanded);
+      mobileMenu.classList.toggle('hidden');
+      
+      // Toggle menu/close icons
+      if (menuIcon && closeIcon) {
+        menuIcon.classList.toggle('opacity-0');
+        closeIcon.classList.toggle('opacity-0');
+      }
+    });
+    
+    // Close menu when clicking links
+    mobileMenu.addEventListener('click', function(event) {
+      if (event.target.tagName === 'A') {
+        mobileMenu.classList.add('hidden');
+        mobileMenuButton.setAttribute('aria-expanded', 'false');
+        if (menuIcon && closeIcon) {
+          menuIcon.classList.remove('opacity-0');
+          closeIcon.classList.add('opacity-0');
+        }
+      }
+    });
+  }
+});
+
+// Settings App using Alpine.js
+function settingsApp() {
+  return {
+    activeTab: 'account',
+    settings: {
+      name: '田中太郎',
+      email: 'tanaka@example.com',
+      phone: '090-1234-5678',
+      address: '東京都渋谷区',
+      bio: 'よろしくお願いします。',
+      accountType: 'user',
+      notifications: {
+        newTasks: true,
+        applications: true,
+        messages: true,
+        reviews: true,
+        payments: true
+      },
+      privacy: {
+        publicProfile: true,
+        showContact: true,
+        showActivity: false,
+        showRatings: true
+      },
+      security: {
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+        twoFactor: false
+      }
+    },
+    
+    saveSettings() {
+      // Save settings logic
+      toastr.success('設定が保存されました');
+    },
+    
+    resetSettings() {
+      Swal.fire({
+        title: '設定をリセットしますか？',
+        text: '変更内容が失われます',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#2563eb',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'リセット',
+        cancelButtonText: 'キャンセル'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // Reset settings logic
+          toastr.info('設定がリセットされました');
+        }
+      });
+    },
+    
+    changePassword() {
+      if (this.settings.security.newPassword !== this.settings.security.confirmPassword) {
+        toastr.error('新しいパスワードが一致しません');
+        return;
+      }
+      
+      if (this.settings.security.newPassword.length < 8) {
+        toastr.error('パスワードは8文字以上で入力してください');
+        return;
+      }
+      
+      // Change password logic
+      toastr.success('パスワードが変更されました');
+      this.settings.security.currentPassword = '';
+      this.settings.security.newPassword = '';
+      this.settings.security.confirmPassword = '';
+    }
+  }
+}
+
+// Configure Toastr
+toastr.options = {
+  "closeButton": true,
+  "progressBar": true,
+  "positionClass": "toast-top-right",
+  "timeOut": "4000"
+};
+</script>
+
+</body>
+</html>

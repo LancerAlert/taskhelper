@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="ja" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>依頼詳細 - TaskHelper | 近所の信頼できる代行サービス</title>
+  
+  <!-- CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Suppress Tailwind CDN production warning for development
+    if (typeof tailwind !== 'undefined') {
+      tailwind.config = {
+        corePlugins: {
+          preflight: false,
+        }
+      };
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- CSS Libraries -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  
+  <!-- Additional UI Libraries -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.1/sweetalert2.min.css" rel="stylesheet">
+  
+  <!-- Custom CSS -->
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    
+    a {
+      text-decoration: none;
+    }
+    
+    a:hover {
+      text-decoration: none;
+    }
+    
+    :root {
+      --glass-bg: rgba(255, 255, 255, 0.25);
+      --glass-border: rgba(255, 255, 255, 0.18);
+      --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.1);
+      --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+    
+    .glass-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--shadow-soft);
+    }
+    
+    .gradient-bg {
+      background: var(--gradient-primary);
+    }
+    
+    .status-badge {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    
+    .image-gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+    }
+    
+    .image-item {
+      aspect-ratio: 1;
+      overflow: hidden;
+      border-radius: 1rem;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+    
+    .image-item:hover {
+      transform: scale(1.05) rotate(1deg);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+    
+    .tab-button {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      outline: none;
+      border: none;
+      background: none;
+    }
+    
+    .tab-button:focus {
+      outline: none;
+      box-shadow: none;
+    }
+    
+    .tab-button:active {
+      outline: none;
+      box-shadow: none;
+    }
+    
+    .tab-button.active {
+      background: var(--gradient-primary);
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    }
+    
+    .tab-button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.5s;
+    }
+    
+    .tab-button:hover::before {
+      left: 100%;
+    }
+    
+    .floating-action {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      z-index: 1000;
+      background: var(--gradient-secondary);
+      width: 4rem;
+      height: 4rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 25px rgba(245, 87, 108, 0.4);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .floating-action:hover {
+      transform: scale(1.1) rotate(10deg);
+      box-shadow: 0 12px 35px rgba(245, 87, 108, 0.6);
+    }
+    
+    .card-modern {
+      background: white;
+      border-radius: 1.5rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .card-modern:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+    
+    .progress-bar {
+      height: 0.5rem;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      border-radius: 0.25rem;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .progress-bar::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+      animation: shimmer 2s infinite;
+    }
+    
+    @keyframes shimmer {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+    
+    .pulse-animation {
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: .8;
+      }
+    }
+    
+    .bounce-in {
+      animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+    
+    @keyframes bounceIn {
+      0% {
+        transform: scale(0.3);
+        opacity: 0;
+      }
+      50% {
+        transform: scale(1.05);
+      }
+      70% {
+        transform: scale(0.9);
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+    
+    .slide-up {
+      animation: slideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    @keyframes slideUp {
+      0% {
+        transform: translateY(30px);
+        opacity: 0;
+      }
+      100% {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+    
+    .modern-button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none !important;
+      border-radius: 0.75rem;
+      color: white;
+      font-weight: 600;
+      padding: 0.75rem 1.5rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .modern-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+    }
+    
+    .modern-button:active {
+      transform: translateY(0);
+    }
+    
+    .modern-button::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+    
+    .modern-button:active::after {
+      width: 300px;
+      height: 300px;
+    }
+    
+    .neumorphism {
+      background: #f0f0f3;
+      border-radius: 1rem;
+      box-shadow: 3px 3px 6px #d1d1d4, -3px -3px 6px #ffffff;
+    }
+    
+    .neumorphism-inset {
+      background: #f0f0f3;
+      border-radius: 1rem;
+      box-shadow: inset 6px 6px 12px #d1d1d4, inset -6px -6px 12px #ffffff;
+    }
+  </style>
+</head>
+
+<body class="font-sans bg-gray-50 text-gray-900">
+
+<!-- Navigation -->
+<nav class="bg-white shadow-sm fixed top-0 left-0 right-0 z-50">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex items-center h-16">
+      <!-- Logo -->
+      <div class="flex items-center space-x-2">
+        <i class="fas fa-hands-helping text-2xl text-blue-600" aria-hidden="true"></i>
+        <span class="text-xl font-bold text-gray-900">TaskHelper</span>
+      </div>
+      
+      <!-- Desktop Menu (centered) -->
+      <div class="hidden md:flex items-center space-x-8 mx-auto">
+        <a href="index.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">ホーム</a>
+        <a href="task-list.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">依頼一覧</a>
+        <a href="task-create.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">依頼投稿</a>
+        <a href="profile.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">プロフィール</a>
+        <a href="my-tasks.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">マイタスク</a>
+      </div>
+      
+      <!-- Auth Buttons -->
+      <div class="hidden md:flex items-center space-x-3">
+        <a href="login.html" class="border border-blue-600 text-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-blue-50 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300" style="border: 1px solid #2563eb !important;">ログイン</a>
+        <a href="register.html" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">始める</a>
+      </div>
+      
+      <!-- Mobile Menu Button -->
+      <div class="md:hidden ml-auto">
+        <button id="mobile-menu-button" class="text-gray-700 hover:text-blue-600 p-2 transition-all duration-300 ease-in-out" aria-expanded="false">
+          <svg class="w-6 h-6 transition-transform duration-300 ease-in-out" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path id="menu-icon" class="transition-opacity duration-300" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            <path id="close-icon" class="transition-opacity duration-300 opacity-0" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden md:hidden pb-4 transition-all duration-300 ease-in-out transform">
+      <div class="flex flex-col space-y-2">
+        <a href="index.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">ホーム</a>
+        <a href="task-list.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">依頼一覧</a>
+        <a href="task-create.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">依頼投稿</a>
+        <a href="profile.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">プロフィール</a>
+        <a href="my-tasks.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">マイタスク</a>
+        <hr class="my-3">
+        <div class="flex gap-2 justify-center">
+          <a href="login.html" class="border border-blue-600 text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-50 text-center transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300" style="border: 1px solid #2563eb !important;">ログイン</a>
+          <a href="register.html" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 text-center transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">始める</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Modern Hero Section -->
+<section class="gradient-bg pt-20 pb-12">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center text-white slide-up">
+      <h1 class="text-5xl font-bold mb-4">依頼詳細</h1>
+      <p class="text-xl opacity-90 max-w-2xl mx-auto">お近くの代行依頼の詳細をご確認ください</p>
+    </div>
+  </div>
+</section>
+
+<!-- Main Content -->
+<section class="pb-12 pt-8">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <!-- Modern Breadcrumb -->
+    <nav class="mb-12 bounce-in" aria-label="Breadcrumb">
+      <ol class="flex items-center justify-center space-x-8 text-lg bg-gradient-to-r from-white via-blue-50 to-white rounded-3xl px-10 py-5 border border-blue-100">
+        <li class="flex items-center">
+          <a href="index.html" class="flex items-center space-x-2 hover:text-blue-600 transition-all duration-300 hover:scale-110 font-semibold group">
+            <span class="text-2xl group-hover:animate-bounce">🏠</span>
+            <span>ホーム</span>
+          </a>
+        </li>
+        <li class="flex items-center">
+          <i class="fas fa-chevron-right text-blue-400 text-lg animate-pulse"></i>
+        </li>
+        <li class="flex items-center">
+          <a href="task-list.html" class="flex items-center space-x-2 hover:text-blue-600 transition-all duration-300 hover:scale-110 font-semibold group">
+            <span class="text-2xl group-hover:animate-bounce">📋</span>
+            <span>依頼一覧</span>
+          </a>
+        </li>
+        <li class="flex items-center">
+          <i class="fas fa-chevron-right text-blue-400 text-lg animate-pulse"></i>
+        </li>
+        <li class="flex items-center space-x-2 text-blue-600 font-bold">
+          <span class="text-2xl animate-pulse">👁️</span>
+          <span>依頼詳細</span>
+        </li>
+      </ol>
+    </nav>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      
+      <!-- Main Content -->
+      <div class="lg:col-span-2">
+        
+        <!-- Modern Task Header -->
+        <div class="card-modern p-8 mb-8 slide-up">
+          <div class="flex items-start justify-between mb-6 flex-wrap gap-4">
+            <div class="flex items-start space-x-6">
+              <div class="w-20 h-20 bg-gradient-to-br from-green-400 to-green-600 rounded-2xl flex items-center justify-center bounce-in flex-shrink-0">
+                <i class="fas fa-shopping-cart text-white text-3xl"></i>
+              </div>
+              <div class="flex-1 pt-1">
+                <span class="status-badge bg-green-100/80 text-green-700 px-4 py-2 rounded-full text-sm font-semibold">✨ 新規</span>
+                <h1 class="text-3xl font-bold text-gray-900 mt-4 leading-tight">買い物代行をお願いします</h1>
+                <div class="flex items-center space-x-2 mt-3">
+                  <i class="fas fa-clock text-gray-400"></i>
+                  <p class="text-gray-600 relative-time" data-time="2025-08-03T10:00:00">2時間前に投稿</p>
+                </div>
+              </div>
+            </div>
+            <div class="flex space-x-3">
+              <button class="w-12 h-12 rounded-lg border border-black bg-gray-100 hover:bg-gray-200 hover:scale-105 transition-all duration-300 focus:outline-none group flex items-center justify-center">
+                <i class="fas fa-heart text-gray-400 group-hover:text-red-500 transition-colors"></i>
+              </button>
+              <button class="w-12 h-12 rounded-lg border border-black bg-gray-100 hover:bg-gray-200 hover:scale-105 transition-all duration-300 focus:outline-none group flex items-center justify-center">
+                <i class="fas fa-share-alt text-gray-400 group-hover:text-blue-500 transition-colors"></i>
+              </button>
+            </div>
+          </div>
+          
+          <!-- Modern Task Details -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="glass-card p-5 rounded-2xl hover:scale-105 transition-all duration-300">
+              <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                  <span class="text-2xl">📍</span>
+                </div>
+                <div>
+                  <p class="text-sm text-gray-600 font-medium">場所</p>
+                  <p class="font-bold text-lg">渋谷区恵比寿</p>
+                </div>
+              </div>
+            </div>
+            <div class="glass-card p-5 rounded-2xl hover:scale-105 transition-all duration-300">
+              <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                  <span class="text-2xl">💰</span>
+                </div>
+                <div>
+                  <p class="text-sm text-gray-600 font-medium">報酬</p>
+                  <p class="font-bold text-lg text-green-600">¥3,000</p>
+                </div>
+              </div>
+            </div>
+            <div class="glass-card p-5 rounded-2xl hover:scale-105 transition-all duration-300">
+              <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                  <span class="text-2xl">⏰</span>
+                </div>
+                <div>
+                  <p class="text-sm text-gray-600 font-medium">希望日時</p>
+                  <p class="font-bold text-lg">明日 午前中</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Modern Tags -->
+          <div class="flex flex-wrap gap-3 mb-6">
+            <span class="bg-gradient-to-r from-red-400 to-red-500 text-white px-4 py-2 rounded-full text-sm font-semibold pulse-animation">🚨 緊急</span>
+            <span class="bg-gradient-to-r from-blue-400 to-blue-500 text-white px-4 py-2 rounded-full text-sm font-semibold">🚗 車必須</span>
+            <span class="bg-gradient-to-r from-gray-400 to-gray-500 text-white px-4 py-2 rounded-full text-sm font-semibold">🛒 買い物</span>
+          </div>
+          
+        </div>
+        
+        <!-- Modern Tab Navigation -->
+        <div class="card-modern mb-8 slide-up">
+          <div class="p-2 bg-gray-50 rounded-2xl mb-6">
+            <nav class="flex space-x-2" aria-label="Tabs">
+              <button class="tab-button active flex-1 py-4 px-6 rounded-xl font-semibold text-sm transition-all duration-300" data-tab="description">
+                📝 依頼内容
+              </button>
+              <button class="tab-button flex-1 py-4 px-6 rounded-xl font-semibold text-sm transition-all duration-300" data-tab="location">
+                🗺️ 場所・地図
+              </button>
+              <button class="tab-button flex-1 py-4 px-6 rounded-xl font-semibold text-sm transition-all duration-300" data-tab="applications">
+                👥 応募状況 <span class="bg-blue-500 text-white px-2 py-1 rounded-full text-xs ml-2 bounce-in">3</span>
+              </button>
+            </nav>
+          </div>
+          
+          <!-- Tab Content -->
+          <div class="p-6">
+            
+            <!-- Description Tab -->
+            <div id="description-tab" class="tab-content">
+              <h3 class="text-lg font-semibold mb-4">詳細説明</h3>
+              <div class="prose prose-blue max-w-none">
+                <p class="text-gray-700 leading-relaxed mb-4">
+                  スーパーでの食材購入をお願いします。重いものもあるので車でお越しいただける方を希望します。
+                  以下のリストに従って購入していただき、レシートと一緒にお渡しください。
+                </p>
+                
+                <h4 class="font-semibold text-gray-900 mb-3">購入リスト</h4>
+                <ul class="list-disc list-inside space-y-2 text-gray-700 mb-6">
+                  <li>お米 5kg（無洗米希望）</li>
+                  <li>卵 1パック</li>
+                  <li>牛乳 1L</li>
+                  <li>食パン 1斤</li>
+                  <li>野菜類（キャベツ、にんじん、玉ねぎ）</li>
+                  <li>肉類（鶏もも肉 500g）</li>
+                </ul>
+                
+                <h4 class="font-semibold text-gray-900 mb-3">追加情報</h4>
+                <ul class="list-disc list-inside space-y-2 text-gray-700 mb-6">
+                  <li>予算は5,000円程度で予定しています</li>
+                  <li>重いお米があるため、車でのお越しをお願いします</li>
+                  <li>可能であれば、新鮮な野菜を選んでいただけると嬉しいです</li>
+                  <li>アレルギー等はございませんので、お任せします</li>
+                </ul>
+                
+                <!-- Images -->
+                <h4 class="font-semibold text-gray-900 mb-3">参考画像</h4>
+                <div class="image-gallery mb-6">
+                  <div class="image-item bg-gray-200 flex items-center justify-center">
+                    <i class="fas fa-image text-gray-400 text-2xl"></i>
+                  </div>
+                  <div class="image-item bg-gray-200 flex items-center justify-center">
+                    <i class="fas fa-image text-gray-400 text-2xl"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Location Tab -->
+            <div id="location-tab" class="tab-content hidden">
+              <h3 class="text-lg font-semibold mb-4">場所・アクセス</h3>
+              
+              <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                <h4 class="font-semibold text-gray-900 mb-2">詳細住所</h4>
+                <p class="text-gray-700 mb-4">東京都渋谷区恵比寿南1-1-1</p>
+                
+                <h4 class="font-semibold text-gray-900 mb-2">最寄り駅</h4>
+                <p class="text-gray-700 mb-4">JR恵比寿駅から徒歩5分</p>
+                
+                <h4 class="font-semibold text-gray-900 mb-2">駐車場</h4>
+                <p class="text-gray-700">近隣にコインパーキングあり（駐車料金は依頼者負担）</p>
+              </div>
+              
+              <!-- Map Placeholder -->
+              <div class="bg-gray-200 rounded-lg h-64 flex items-center justify-center">
+                <div class="text-center">
+                  <i class="fas fa-map-marked-alt text-gray-400 text-3xl mb-2"></i>
+                  <p class="text-gray-500">地図を表示</p>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Applications Tab -->
+            <div id="applications-tab" class="tab-content hidden">
+              <h3 class="text-lg font-semibold mb-4">応募状況（3件）</h3>
+              
+              <!-- Application Item -->
+              <div class="border border-gray-200 rounded-lg p-4 mb-4">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                      <i class="fas fa-user text-blue-600"></i>
+                    </div>
+                    <div>
+                      <h4 class="font-semibold">田中 太郎</h4>
+                      <div class="flex items-center space-x-2 text-sm text-gray-600">
+                        <span class="flex items-center">
+                          <i class="fas fa-star text-yellow-400 mr-1"></i>
+                          4.8
+                        </span>
+                        <span>•</span>
+                        <span>完了実績 23件</span>
+                      </div>
+                    </div>
+                  </div>
+                  <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">応募中</span>
+                </div>
+                <p class="text-gray-700 mt-3 text-sm">
+                  車での移動が可能です。食材の選び方には自信があります。よろしくお願いいたします。
+                </p>
+                <div class="flex space-x-2 mt-3">
+                  <button class="px-6 py-2.5 bg-blue-600 text-white rounded-lg border border-blue-600 text-sm font-semibold hover:bg-blue-700 hover:scale-105 transition-all duration-300">
+                    詳細を見る
+                  </button>
+                  <button class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-all duration-200">
+                    メッセージ
+                  </button>
+                </div>
+              </div>
+              
+              <!-- Application Item -->
+              <div class="border border-gray-200 rounded-lg p-4 mb-4">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-pink-100 rounded-full flex items-center justify-center">
+                      <i class="fas fa-user text-pink-600"></i>
+                    </div>
+                    <div>
+                      <h4 class="font-semibold">佐藤 花子</h4>
+                      <div class="flex items-center space-x-2 text-sm text-gray-600">
+                        <span class="flex items-center">
+                          <i class="fas fa-star text-yellow-400 mr-1"></i>
+                          4.9
+                        </span>
+                        <span>•</span>
+                        <span>完了実績 45件</span>
+                      </div>
+                    </div>
+                  </div>
+                  <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">応募中</span>
+                </div>
+                <p class="text-gray-700 mt-3 text-sm">
+                  恵比寿エリアに住んでおり、地理に詳しいです。新鮮な食材選びを心がけています。
+                </p>
+                <div class="flex space-x-2 mt-3">
+                  <button class="px-6 py-2.5 bg-blue-600 text-white rounded-lg border border-blue-600 text-sm font-semibold hover:bg-blue-700 hover:scale-105 transition-all duration-300">
+                    詳細を見る
+                  </button>
+                  <button class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-all duration-200">
+                    メッセージ
+                  </button>
+                </div>
+              </div>
+              
+              <!-- Application Item -->
+              <div class="border border-gray-200 rounded-lg p-4">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                      <i class="fas fa-user text-green-600"></i>
+                    </div>
+                    <div>
+                      <h4 class="font-semibold">鈴木 一郎</h4>
+                      <div class="flex items-center space-x-2 text-sm text-gray-600">
+                        <span class="flex items-center">
+                          <i class="fas fa-star text-yellow-400 mr-1"></i>
+                          4.7
+                        </span>
+                        <span>•</span>
+                        <span>完了実績 31件</span>
+                      </div>
+                    </div>
+                  </div>
+                  <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">応募中</span>
+                </div>
+                <p class="text-gray-700 mt-3 text-sm">
+                  買い物代行の経験が豊富です。時間厳守でお受けいたします。
+                </p>
+                <div class="flex space-x-2 mt-3">
+                  <button class="px-6 py-2.5 bg-blue-600 text-white rounded-lg border border-blue-600 text-sm font-semibold hover:bg-blue-700 hover:scale-105 transition-all duration-300">
+                    詳細を見る
+                  </button>
+                  <button class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-all duration-200">
+                    メッセージ
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Sidebar -->
+      <div class="lg:col-span-1">
+        
+        <!-- Modern Requester Profile -->
+        <div class="card-modern p-8 mb-8 slide-up">
+          <h3 class="text-xl font-bold mb-6 flex items-center">
+            👤 依頼者情報
+          </h3>
+          
+          <div class="flex items-center space-x-4 mb-6">
+            <div class="w-16 h-16 bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl flex items-center justify-center bounce-in">
+              <i class="fas fa-user text-white text-2xl"></i>
+            </div>
+            <div>
+              <h4 class="font-bold text-lg">山田 太郎</h4>
+              <div class="flex items-center space-x-3 text-sm">
+                <span class="flex items-center bg-yellow-50 px-2 py-1 rounded-full">
+                  <i class="fas fa-star text-yellow-500 mr-1"></i>
+                  <span class="font-semibold">4.6</span>
+                </span>
+                <span class="text-gray-400">•</span>
+                <span class="bg-blue-50 px-2 py-1 rounded-full font-medium">依頼実績 12件</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="space-y-4 mb-6">
+            <div class="glass-card p-3 rounded-xl flex items-center">
+              <i class="fas fa-map-marker-alt text-blue-500 mr-3"></i>
+              <span class="font-medium">渋谷区在住</span>
+            </div>
+            <div class="glass-card p-3 rounded-xl flex items-center">
+              <i class="fas fa-calendar-alt text-purple-500 mr-3"></i>
+              <span class="font-medium">登録日: 2024年3月</span>
+            </div>
+            <div class="glass-card p-3 rounded-xl flex items-center">
+              <i class="fas fa-check-circle text-green-500 mr-3"></i>
+              <span class="font-medium text-green-600">本人確認済み</span>
+            </div>
+          </div>
+          
+          <button class="modern-button w-full mb-4">
+            💬 事前お問い合わせ
+          </button>
+          
+          <button class="w-full py-3 px-4 rounded-lg border border-black font-semibold hover:scale-105 transition-all duration-300 focus:outline-none">
+            👁️ プロフィールを見る
+          </button>
+        </div>
+        
+        <!-- Modern Apply Section -->
+        <div class="card-modern p-8 mb-8 slide-up">
+          <h3 class="text-xl font-bold mb-6 flex items-center">
+            💼 この依頼に応募
+          </h3>
+          
+          <div class="space-y-5 mb-8">
+            <div class="glass-card p-4 rounded-xl flex justify-between items-center">
+              <span class="font-medium">💰 報酬</span>
+              <span class="text-2xl font-bold text-green-600">¥3,000</span>
+            </div>
+            <div class="glass-card p-4 rounded-xl flex justify-between items-center">
+              <span class="font-medium">📊 手数料 (10%)</span>
+              <span class="text-red-600 font-semibold">-¥300</span>
+            </div>
+            <div class="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-xl border border-blue-200">
+              <div class="flex justify-between items-center">
+                <span class="font-bold text-lg">🎉 受取金額</span>
+                <span class="text-2xl font-bold text-blue-600">¥2,700</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="space-y-3">
+            <button id="applyBtn" class="modern-button w-full mb-2 text-lg py-4">
+              <i class="fas fa-paper-plane mr-2"></i>
+              応募する
+            </button>
+            
+            <button id="contactBtn" class="w-full border-2 border-blue-600 text-blue-600 py-3 px-4 rounded-xl font-semibold hover:bg-blue-50 hover:scale-105 transition-all duration-300 text-lg">
+              <i class="fas fa-comment mr-2"></i>
+              依頼者と連絡
+            </button>
+          </div>
+          
+          <p class="text-sm text-gray-600 text-center bg-blue-50 p-3 rounded-xl mt-4">
+            💬 応募前に質問や相談をしたい場合は「依頼者と連絡」ボタンをご利用ください
+          </p>
+        </div>
+        
+        <!-- Modern Similar Tasks -->
+        <div class="card-modern p-8 slide-up">
+          <h3 class="text-xl font-bold mb-6 flex items-center">
+            🔍 類似の依頼
+          </h3>
+          
+          <div class="space-y-4">
+            <!-- Modern Similar Task Item -->
+            <div class="glass-card p-4 rounded-xl hover:scale-105 transition-all duration-300 cursor-pointer">
+              <div class="flex items-center space-x-3 mb-2">
+                <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                  <i class="fas fa-shopping-cart text-green-600 text-sm"></i>
+                </div>
+                <h4 class="font-semibold text-sm">薬局での買い物代行</h4>
+              </div>
+              <p class="text-xs text-gray-600 mb-2">港区赤坂 • ¥2,500</p>
+              <span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-medium">新規</span>
+            </div>
+            
+            <!-- Modern Similar Task Item -->
+            <div class="glass-card p-4 rounded-xl hover:scale-105 transition-all duration-300 cursor-pointer">
+              <div class="flex items-center space-x-3 mb-2">
+                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                  <i class="fas fa-broom text-blue-600 text-sm"></i>
+                </div>
+                <h4 class="font-semibold text-sm">アパートの掃除</h4>
+              </div>
+              <p class="text-xs text-gray-600 mb-2">新宿区西新宿 • ¥5,000</p>
+              <span class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-xs font-medium">進行中</span>
+            </div>
+            
+            <!-- Modern Similar Task Item -->
+            <div class="glass-card p-4 rounded-xl hover:scale-105 transition-all duration-300 cursor-pointer">
+              <div class="flex items-center space-x-3 mb-2">
+                <div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                  <i class="fas fa-truck text-orange-600 text-sm"></i>
+                </div>
+                <h4 class="font-semibold text-sm">荷物の配送</h4>
+              </div>
+              <p class="text-xs text-gray-600 mb-2">港区六本木 • ¥4,000</p>
+              <span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-medium">新規</span>
+            </div>
+          </div>
+          
+          <a href="task-list.html" class="block text-center text-blue-600 hover:text-blue-700 text-sm font-medium mt-4 transition-colors">
+            すべての依頼を見る →
+          </a>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Floating Action Button -->
+<div class="floating-action" id="scrollToTop">
+  <i class="fas fa-arrow-up text-white text-xl"></i>
+</div>
+
+<!-- Footer -->
+<footer class="bg-gray-900 text-white py-12">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+      <!-- Brand Section -->
+      <div>
+        <div class="flex items-center space-x-2 mb-4">
+          <i class="fas fa-hands-helping text-2xl text-blue-500" aria-hidden="true"></i>
+          <span class="text-xl font-bold">TaskHelper</span>
+        </div>
+        <p class="text-gray-400">近所の方々と一緒に信頼できる代行サービス</p>
+      </div>
+      
+      <!-- Services Section -->
+      <div>
+        <h4 class="font-semibold mb-4">サービス</h4>
+        <ul class="space-y-2 text-gray-400">
+          <li><a href="task-list.html?category=shopping" class="hover:text-white transition-colors">買い物代行</a></li>
+          <li><a href="task-list.html?category=cleaning" class="hover:text-white transition-colors">清掃サービス</a></li>
+          <li><a href="task-list.html?category=delivery" class="hover:text-white transition-colors">配達・運搬</a></li>
+          <li><a href="task-list.html?category=petcare" class="hover:text-white transition-colors">ペットケア</a></li>
+        </ul>
+      </div>
+      
+      <!-- Support Section -->
+      <div>
+        <h4 class="font-semibold mb-4">サポート</h4>
+        <ul class="space-y-2 text-gray-400">
+          <li><a href="#" class="hover:text-white transition-colors">ヘルプセンター</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">お問い合わせ</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">利用規約</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">プライバシーポリシー</a></li>
+        </ul>
+      </div>
+      
+      <!-- Follow Section -->
+      <div>
+        <h4 class="font-semibold mb-4">フォロー</h4>
+        <div class="flex space-x-4">
+          <a href="#" class="text-gray-400 hover:text-white transition-colors" aria-label="Twitter">
+            <i class="fab fa-twitter text-xl"></i>
+          </a>
+          <a href="#" class="text-gray-400 hover:text-white transition-colors" aria-label="Facebook">
+            <i class="fab fa-facebook text-xl"></i>
+          </a>
+          <a href="#" class="text-gray-400 hover:text-white transition-colors" aria-label="Instagram">
+            <i class="fab fa-instagram text-xl"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Copyright Section -->
+    <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+      <p>&copy; 2025 <span lang="en">TaskHelper</span>. <span lang="en">All rights reserved</span>.</p>
+    </div>
+  </div>
+</footer>
+
+<!-- JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.1/sweetalert2.all.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize relative time display
+  updateRelativeTimes();
+  setInterval(updateRelativeTimes, 60000); // Update every minute
+  
+  // Mobile menu toggle
+  const mobileMenuButton = document.getElementById('mobile-menu-button');
+  const mobileMenu = document.getElementById('mobile-menu');
+  
+  if (mobileMenuButton && mobileMenu) {
+    mobileMenuButton.addEventListener('click', function() {
+      const isHidden = mobileMenu.classList.contains('hidden');
+      if (isHidden) {
+        mobileMenu.classList.remove('hidden');
+        mobileMenuButton.setAttribute('aria-expanded', 'true');
+      } else {
+        mobileMenu.classList.add('hidden');
+        mobileMenuButton.setAttribute('aria-expanded', 'false');
+      }
+      
+      // Toggle menu/close icons
+      const menuIcon = document.getElementById('menu-icon');
+      const closeIcon = document.getElementById('close-icon');
+      if (menuIcon && closeIcon) {
+        menuIcon.classList.toggle('opacity-0');
+        closeIcon.classList.toggle('opacity-0');
+      }
+    });
+  }
+  
+  // Tab functionality
+  const tabButtons = document.querySelectorAll('.tab-button');
+  const tabContents = document.querySelectorAll('.tab-content');
+  
+  tabButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const targetTab = this.dataset.tab;
+      
+      // Update active tab button
+      tabButtons.forEach(btn => {
+        btn.classList.remove('active');
+        btn.classList.add('text-gray-500');
+        btn.classList.remove('text-white');
+      });
+      
+      this.classList.add('active');
+      this.classList.remove('text-gray-500', 'text-blue-600');
+      this.classList.add('text-white');
+      
+      // Update tab content
+      tabContents.forEach(content => {
+        content.classList.add('hidden');
+      });
+      
+      const targetContent = document.getElementById(targetTab + '-tab');
+      if (targetContent) {
+        targetContent.classList.remove('hidden');
+      }
+    });
+  });
+  
+  // Contact button functionality
+  const contactBtn = document.getElementById('contactBtn');
+  if (contactBtn) {
+    contactBtn.addEventListener('click', function() {
+      const taskId = 'task_shopping_001'; // 実際の環境では URL パラメータから 取得
+      const conversationId = 'conv_' + Math.random().toString(36).substr(2, 9);
+      window.location.href = `messages.html?conversation=${conversationId}&task=${taskId}&action=contact`;
+    });
+  }
+  
+  // Apply button functionality
+  const applyBtn = document.getElementById('applyBtn');
+  if (applyBtn) {
+    applyBtn.addEventListener('click', function() {
+      Swal.fire({
+        title: 'この依頼に応募しますか？',
+        text: '応募後、依頼者とメッセージでやり取りができます。',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#2563eb',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: '応募する',
+        cancelButtonText: 'キャンセル'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          Swal.fire({
+            title: '応募完了！',
+            text: '依頼への応募が完了しました。依頼者とメッセージでやり取りを開始しましょう。',
+            icon: 'success',
+            confirmButtonColor: '#2563eb',
+            confirmButtonText: 'メッセージへ',
+            showCancelButton: true,
+            cancelButtonText: '後で'
+          }).then((messageResult) => {
+            if (messageResult.isConfirmed) {
+              // メッセージ ページで 新しい 会話を 開始
+              const taskId = 'task_' + Math.random().toString(36).substr(2, 9);
+              const conversationId = 'conv_' + Math.random().toString(36).substr(2, 9);
+              window.location.href = `messages.html?conversation=${conversationId}&task=${taskId}&action=new`;
+            }
+          });
+        }
+      });
+    });
+  }
+  
+  // Favorite functionality
+  document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('fa-heart')) {
+      e.preventDefault();
+      
+      const heartIcon = e.target;
+      if (heartIcon.classList.contains('text-gray-400')) {
+        heartIcon.classList.remove('text-gray-400');
+        heartIcon.classList.add('text-red-400');
+        if (typeof toastr !== 'undefined') {
+          toastr.success('お気に入りに追加しました');
+        }
+      } else {
+        heartIcon.classList.remove('text-red-400');
+        heartIcon.classList.add('text-gray-400');
+        if (typeof toastr !== 'undefined') {
+          toastr.info('お気に入りから削除しました');
+        }
+      }
+    }
+  });
+  
+  // Share functionality
+  document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('fa-share-alt')) {
+      e.preventDefault();
+      
+      if (navigator.share) {
+        navigator.share({
+          title: '買い物代行をお願いします - TaskHelper',
+          text: 'この依頼をチェックしてみてください',
+          url: window.location.href
+        });
+      } else {
+        // Fallback for browsers that don't support navigator.share
+        if (typeof toastr !== 'undefined') {
+          toastr.info('URLがクリップボードにコピーされました');
+        }
+        navigator.clipboard.writeText(window.location.href);
+      }
+    }
+  });
+  
+  // Toastr configuration
+  if (typeof toastr !== 'undefined') {
+    toastr.options = {
+      closeButton: true,
+      debug: false,
+      newestOnTop: true,
+      progressBar: true,
+      positionClass: 'toast-top-right',
+      preventDuplicates: false,
+      onclick: null,
+      showDuration: '300',
+      hideDuration: '1000',
+      timeOut: '3000',
+      extendedTimeOut: '1000',
+      showEasing: 'swing',
+      hideEasing: 'linear',
+      showMethod: 'fadeIn',
+      hideMethod: 'fadeOut'
+    };
+  }
+  
+  // Floating Action Button (Scroll to Top)
+  const scrollToTopBtn = document.getElementById('scrollToTop');
+  
+  // Show/hide button based on scroll position
+  window.addEventListener('scroll', function() {
+    if (window.pageYOffset > 300) {
+      scrollToTopBtn.style.opacity = '1';
+      scrollToTopBtn.style.visibility = 'visible';
+    } else {
+      scrollToTopBtn.style.opacity = '0';
+      scrollToTopBtn.style.visibility = 'hidden';
+    }
+  });
+  
+  // Smooth scroll to top when clicked
+  scrollToTopBtn.addEventListener('click', function() {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  });
+  
+  // Initialize floating button as hidden
+  scrollToTopBtn.style.opacity = '0';
+  scrollToTopBtn.style.visibility = 'hidden';
+  scrollToTopBtn.style.transition = 'all 0.3s ease';
+  
+  // Add intersection observer for animations
+  const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+  };
+  
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('animate-in');
+      }
+    });
+  }, observerOptions);
+  
+  // Observe all cards for scroll animations
+  document.querySelectorAll('.card-modern, .glass-card').forEach(card => {
+    observer.observe(card);
+  });
+  
+  // Function to update relative times
+  function updateRelativeTimes() {
+    const timeElements = document.querySelectorAll('.relative-time');
+    const now = new Date();
+    
+    timeElements.forEach(element => {
+      const timeStr = element.getAttribute('data-time');
+      if (timeStr) {
+        const time = new Date(timeStr);
+        const diff = Math.floor((now - time) / 1000); // difference in seconds
+        
+        let relativeTime;
+        if (diff < 60) {
+          relativeTime = 'たった今';
+        } else if (diff < 3600) {
+          const minutes = Math.floor(diff / 60);
+          relativeTime = `${minutes}分前に投稿`;
+        } else if (diff < 86400) {
+          const hours = Math.floor(diff / 3600);
+          relativeTime = `${hours}時間前に投稿`;
+        } else if (diff < 2592000) { // 30 days
+          const days = Math.floor(diff / 86400);
+          relativeTime = `${days}日前に投稿`;
+        } else {
+          // For very old posts, show actual date
+          const year = time.getFullYear();
+          const month = time.getMonth() + 1;
+          const day = time.getDate();
+          relativeTime = `${year}年${month}月${day}日に投稿`;
+        }
+        
+        element.textContent = relativeTime;
+      }
+    });
+  }
+});
+</script>
+
+</body>
+</html>

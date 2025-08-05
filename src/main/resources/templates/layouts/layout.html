@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ja" class="scroll-smooth"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title layout:title-pattern="${title}">TaskHelper - 近所の信頼できる代行サービス</title>
+  
+  <!-- CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Suppress Tailwind CDN production warning for development
+    tailwind.config = {
+      theme: {
+        extend: {
+          animation: {
+            // Smooth, elegant animations
+            'fade-in-smooth': 'fadeInSmooth 0.8s ease-out',
+            'slide-up-gentle': 'slideUpGentle 0.7s ease-out',
+            'scale-in-soft': 'scaleInSoft 0.6s ease-out',
+            'float-subtle': 'floatSubtle 4s ease-in-out infinite',
+            'glow-pulse': 'glowPulse 2s ease-in-out infinite',
+            'slide-in-left': 'slideInLeft 0.8s ease-out',
+            'slide-in-right': 'slideInRight 0.8s ease-out',
+            'bounce-gentle': 'bounceGentle 0.8s ease-out',
+          },
+          keyframes: {
+            fadeInSmooth: {
+              '0%': { opacity: '0', transform: 'translateY(20px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' }
+            },
+            slideUpGentle: {
+              '0%': { opacity: '0', transform: 'translateY(30px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' }
+            },
+            scaleInSoft: {
+              '0%': { opacity: '0', transform: 'scale(0.9)' },
+              '100%': { opacity: '1', transform: 'scale(1)' }
+            },
+            floatSubtle: {
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-10px)' }
+            },
+            glowPulse: {
+              '0%, 100%': { boxShadow: '0 0 20px rgba(59, 130, 246, 0.3)' },
+              '50%': { boxShadow: '0 0 30px rgba(59, 130, 246, 0.6)' }
+            },
+            slideInLeft: {
+              '0%': { opacity: '0', transform: 'translateX(-30px)' },
+              '100%': { opacity: '1', transform: 'translateX(0)' }
+            },
+            slideInRight: {
+              '0%': { opacity: '0', transform: 'translateX(30px)' },
+              '100%': { opacity: '1', transform: 'translateX(0)' }
+            },
+            bounceGentle: {
+              '0%': { opacity: '0', transform: 'translateY(20px) scale(0.95)' },
+              '60%': { transform: 'translateY(-5px) scale(1.02)' },
+              '100%': { opacity: '1', transform: 'translateY(0) scale(1)' }
+            }
+          }
+        }
+      },
+      corePlugins: {
+        preflight: false,
+      }
+    }
+  </script>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- CSS Libraries -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.1/sweetalert2.min.css" rel="stylesheet">
+  
+  <!-- Alpine.js -->
+  <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.x.x/dist/cdn.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  
+  <!-- Custom CSS -->
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: Inter, sans-serif;
+    }
+    
+    a {
+      text-decoration: none;
+    }
+    
+    a:hover {
+      text-decoration: none;
+    }
+    
+    .error-field {
+      border-color: #dc2626 !important;
+      background-color: #fef2f2 !important;
+    }
+    
+    .success-field {
+      border-color: #10b981 !important;
+      background-color: #f0fdf4 !important;
+    }
+
+    .category-card {
+      transition: all 0.3s ease;
+    }
+
+    .category-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+
+    .category-card.selected {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+    }
+
+    .category-card.selected .category-inner {
+      border-color: #2563eb !important;
+      background-color: #f8fafc !important;
+      border-width: 3px !important;
+    }
+    
+    .category-card .category-inner {
+      background-color: white;
+      border-radius: 40px !important;
+    }
+    
+    .category-inner {
+      border-radius: 50px !important;
+      -webkit-border-radius: 50px !important;
+      -moz-border-radius: 50px !important;
+    }
+    
+    .task-card {
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .task-card:hover {
+      transform: translateY(-2px) scale(1.02);
+    }
+    
+    .status-badge {
+      transition: all 0.2s ease;
+    }
+    
+    .filter-button {
+      transition: all 0.2s ease;
+    }
+    
+    .filter-button.active {
+      background-color: #2563eb;
+      color: white;
+    }
+    
+    .modern-button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none !important;
+      border-radius: 0.75rem;
+      color: white;
+      font-weight: 600;
+      padding: 0.75rem 1.5rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .modern-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+    }
+    
+    .modern-button:active {
+      transform: translateY(0);
+    }
+    
+    .modern-button::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+    
+    /* 메가메뉴 애니메이션 */
+    .group:hover .group-hover\:opacity-100 {
+      animation: fadeInUp 0.3s ease-out;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .group\/item:hover {
+      transform: translateX(4px);
+    }
+
+    .mobile-section .mobile-section-toggle.active i {
+      transform: rotate(180deg);
+    }
+
+    .header-scrolled {
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(20px);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    
+    @media (max-width: 640px) {
+      input, textarea {
+        max-width: 100% !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+      }
+      
+      .relative {
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+      
+      .flex.items-start {
+        align-items: flex-start !important;
+        justify-content: flex-start !important;
+      }
+    }
+  </style>
+</head>
+  
+  <!-- Page-specific head content -->
+<body class="bg-gray-50">
+  <!-- Header Navigation -->
+  <div th:replace="~{fragments/header :: header}"></div>
+  
+  <!-- Main Content Area -->
+  <main th:replace="~{${content}}" class="pt-16">
+    <!-- Page content will be inserted here -->
+  </main>
+  
+  <!-- Footer -->
+  <div th:replace="~{fragments/footer :: footer}"></div>
+  
+  <!-- JavaScript Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.1/sweetalert2.min.js"></script>
+  
+  <!-- Common JavaScript -->
+  <div th:replace="~{fragments/common-scripts :: common-scripts}"></div>
+
+</body>
+</html>

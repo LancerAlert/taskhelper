@@ -1,0 +1,70 @@
+<!-- Common JavaScript Scripts Fragment -->
+<th:block th:fragment="common-scripts">
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu functionality
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const menuIcon = document.getElementById('menu-icon');
+            const closeIcon = document.getElementById('close-icon');
+
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', function() {
+                    const isExpanded = this.getAttribute('aria-expanded') === 'true';
+                    this.setAttribute('aria-expanded', !isExpanded);
+                    mobileMenu.classList.toggle('hidden');
+
+                    // Toggle menu/close icons
+                    if (menuIcon && closeIcon) {
+                        menuIcon.classList.toggle('opacity-0');
+                        closeIcon.classList.toggle('opacity-0');
+                    }
+                });
+            }
+
+            // Header scroll effect
+            let lastScrollTop = 0;
+            const header = document.querySelector('nav');
+
+            window.addEventListener('scroll', function() {
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+                if (scrollTop > 100) {
+                    header.classList.add('header-scrolled');
+                } else {
+                    header.classList.remove('header-scrolled');
+                }
+
+                lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+            });
+
+            // Close mobile menu when clicking outside
+            document.addEventListener('click', function(event) {
+                if (mobileMenuButton && mobileMenu &&
+                    !mobileMenuButton.contains(event.target) &&
+                    !mobileMenu.contains(event.target)) {
+                    mobileMenu.classList.add('hidden');
+                    mobileMenuButton.setAttribute('aria-expanded', 'false');
+                    if (menuIcon && closeIcon) {
+                        menuIcon.classList.remove('opacity-0');
+                        closeIcon.classList.add('opacity-0');
+                    }
+                }
+            });
+
+            // Escape key handling
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape' && mobileMenu && !mobileMenu.classList.contains('hidden')) {
+                    mobileMenu.classList.add('hidden');
+                    mobileMenuButton.setAttribute('aria-expanded', 'false');
+                    if (menuIcon && closeIcon) {
+                        menuIcon.classList.remove('opacity-0');
+                        closeIcon.classList.add('opacity-0');
+                    }
+                }
+            });
+
+            console.log('TaskHelper common scripts initialized');
+        });
+    </script>
+</th:block>

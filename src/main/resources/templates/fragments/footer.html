@@ -1,0 +1,75 @@
+<!-- 
+  TaskHelper 표준 Footer
+  
+  사용법:
+  1. 현재 (정적 HTML): 이 파일 내용을 각 HTML 파일에 복사
+  2. Thymeleaf 변환 시: th:replace="fragments/footer :: footer" 사용
+  
+  특징:
+  - 4열 그리드 레이아웃 (브랜드 + 서비스 + 서포트 + 팔로우)
+  - 반응형 디자인 (모바일에서 1열로 변경)
+  - 접근성 개선 (aria-label, lang 속성)
+  - 카테고리 필터 링크 포함
+-->
+
+<!-- Footer Fragment -->
+<!-- th:fragment="footer" (Thymeleaf 변환 시 추가 예정) -->
+<th:block th:fragment="footer">
+    <footer class="bg-gray-900 text-white py-12">
+      <div class="max-w-7xl mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <!-- Brand Section -->
+          <div>
+            <div class="flex items-center space-x-2 mb-4">
+              <i class="fas fa-hands-helping text-2xl text-blue-500" aria-hidden="true"></i>
+              <span class="text-xl font-bold">TaskHelper</span>
+            </div>
+            <p class="text-gray-400">近所の方々と一緒に信頼できる代行サービス</p>
+          </div>
+
+          <!-- Services Section -->
+          <div>
+            <h4 class="font-semibold mb-4">サービス</h4>
+            <ul class="space-y-2 text-gray-400">
+              <li><a href="task-list.html?category=shopping" class="hover:text-white transition-colors">買い物代行</a></li>
+              <li><a href="task-list.html?category=cleaning" class="hover:text-white transition-colors">清掃サービス</a></li>
+              <li><a href="task-list.html?category=delivery" class="hover:text-white transition-colors">配達・運搬</a></li>
+              <li><a href="task-list.html?category=petcare" class="hover:text-white transition-colors">ペットケア</a></li>
+            </ul>
+          </div>
+
+          <!-- Support Section -->
+          <div>
+            <h4 class="font-semibold mb-4">サポート</h4>
+            <ul class="space-y-2 text-gray-400">
+              <li><a href="#" class="hover:text-white transition-colors">ヘルプセンター</a></li>
+              <li><a href="#" class="hover:text-white transition-colors">お問い合わせ</a></li>
+              <li><a href="#" class="hover:text-white transition-colors">利用規約</a></li>
+              <li><a href="#" class="hover:text-white transition-colors">プライバシーポリシー</a></li>
+            </ul>
+          </div>
+
+          <!-- Follow Section -->
+          <div>
+            <h4 class="font-semibold mb-4">フォロー</h4>
+            <div class="flex space-x-4">
+              <a href="#" class="text-gray-400 hover:text-white transition-colors" aria-label="Twitter">
+                <i class="fab fa-twitter text-xl"></i>
+              </a>
+              <a href="#" class="text-gray-400 hover:text-white transition-colors" aria-label="Facebook">
+                <i class="fab fa-facebook text-xl"></i>
+              </a>
+              <a href="#" class="text-gray-400 hover:text-white transition-colors" aria-label="Instagram">
+                <i class="fab fa-instagram text-xl"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Copyright Section -->
+        <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+          <p>&copy; 2025 <span lang="en">TaskHelper</span>. <span lang="en">All rights reserved</span>.</p>
+        </div>
+      </div>
+    </footer>
+</th:block>

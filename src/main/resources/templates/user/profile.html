@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="ja" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>プロフィール - TaskHelper | 近所の信頼できる代行サービス</title>
+  
+  <!-- CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- CSS Libraries -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  
+  <!-- Additional UI Libraries -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.1/sweetalert2.min.css" rel="stylesheet">
+  
+  <!-- Custom CSS -->
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .glass-card {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .profile-avatar {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .stat-card {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s;
+    }
+    
+    .stat-card:hover::before {
+      left: 100%;
+    }
+    
+    .stat-card.green {
+      background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+    }
+    
+    .stat-card.orange {
+      background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
+    }
+    
+    .stat-card.purple {
+      background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+    }
+    
+    .stat-card.red {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+
+    /* メガメニューのアニメーション */
+    .group:hover .group-hover\:opacity-100 {
+      animation: fadeInUp 0.3s ease-out;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ホバー効果の強化 */
+    .group\/item:hover {
+      transform: translateX(4px);
+    }
+
+    /* モバイルセクションのアニメーション */
+    .mobile-section .mobile-section-toggle.active i {
+      transform: rotate(180deg);
+    }
+
+    /* スクロール時のヘッダー効果 */
+    .header-scrolled {
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(20px);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+
+<body class="bg-gray-50 min-h-screen">
+
+<!-- Navigation -->
+<nav class="bg-white/95 backdrop-blur-lg border-b border-gray-100 fixed top-0 left-0 right-0 z-50 shadow-sm">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex items-center h-16">
+      <!-- Logo -->
+      <div class="flex items-center space-x-2">
+        <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+          <i class="fas fa-hands-helping text-white text-sm" aria-hidden="true"></i>
+        </div>
+        <span class="text-xl font-bold text-gray-900">TaskHelper</span>
+      </div>
+      
+      <!-- Desktop Mega Menu -->
+      <div class="hidden lg:flex items-center space-x-1 mx-auto">
+        <!-- ホーム -->
+        <a href="index.html" class="px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 font-medium">
+          <i class="fas fa-home mr-2"></i>ホーム
+        </a>
+
+        <!-- タスク (Mega Menu) -->
+        <div class="relative group">
+          <button class="px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 font-medium flex items-center">
+            <i class="fas fa-tasks mr-2"></i>タスク
+            <i class="fas fa-chevron-down ml-1 text-xs transition-transform duration-200 group-hover:rotate-180"></i>
+          </button>
+          
+          <!-- Mega Menu Dropdown -->
+          <div class="absolute top-full left-0 mt-2 w-96 bg-white rounded-2xl shadow-2xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+            <div class="p-6">
+              <div class="grid grid-cols-1 gap-4">
+                <div>
+                  <h3 class="text-sm font-semibold text-gray-900 mb-3 flex items-center">
+                    <i class="fas fa-plus-circle text-green-500 mr-2"></i>タスク管理
+                  </h3>
+                  <div class="space-y-2">
+                    <a href="task-create.html" class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
+                      <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-plus text-green-600"></i>
+                      </div>
+                      <div>
+                        <div class="font-medium text-gray-900 group-hover/item:text-green-600">タスク作成</div>
+                        <div class="text-sm text-gray-500">新しい依頼を投稿</div>
+                      </div>
+                    </a>
+                    <a href="task-list.html" class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
+                      <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-list text-blue-600"></i>
+                      </div>
+                      <div>
+                        <div class="font-medium text-gray-900 group-hover/item:text-blue-600">タスク一覧</div>
+                        <div class="text-sm text-gray-500">依頼を探す・応募</div>
+                      </div>
+                    </a>
+                    <a href="my-tasks.html" class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
+                      <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-clipboard-list text-purple-600"></i>
+                      </div>
+                      <div>
+                        <div class="font-medium text-gray-900 group-hover/item:text-purple-600">マイタスク</div>
+                        <div class="text-sm text-gray-500">進行中・完了済み</div>
+                      </div>
+                    </a>
+                    <a href="task-progress.html" class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
+                      <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-chart-line text-orange-600"></i>
+                      </div>
+                      <div>
+                        <div class="font-medium text-gray-900 group-hover/item:text-orange-600">進行状況</div>
+                        <div class="text-sm text-gray-500">リアルタイム追跡</div>
+                      </div>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- プロフィール & アカウント (Mega Menu) - HIGHLIGHTED FOR CURRENT PAGE -->
+        <div class="relative group">
+          <button class="px-4 py-2 text-blue-600 font-semibold bg-blue-50 rounded-lg transition-all duration-200 flex items-center">
+            <i class="fas fa-user mr-2"></i>アカウント
+            <i class="fas fa-chevron-down ml-1 text-xs transition-transform duration-200 group-hover:rotate-180"></i>
+          </button>
+          
+          <div class="absolute top-full left-0 mt-2 w-96 bg-white rounded-2xl shadow-2xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+            <div class="p-6">
+              <div class="grid grid-cols-1 gap-4">
+                <div>
+                  <h3 class="text-sm font-semibold text-gray-900 mb-3 flex items-center">
+                    <i class="fas fa-user-circle text-blue-500 mr-2"></i>プロフィール
+                  </h3>
+                  <div class="space-y-2">
+                    <a href="profile.html" class="flex items-center p-3 rounded-lg bg-blue-50 border border-blue-200 transition-colors group/item">
+                      <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-user text-blue-600"></i>
+                      </div>
+                      <div>
+                        <div class="font-medium text-blue-600">マイプロフィール</div>
+                        <div class="text-sm text-blue-500">基本情報・設定</div>
+                      </div>
+                    </a>
+                    <a href="user-profile-public.html" class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
+                      <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-eye text-green-600"></i>
+                      </div>
+                      <div>
+                        <div class="font-medium text-gray-900 group-hover/item:text-green-600">公開プロフィール</div>
+                        <div class="text-sm text-gray-500">他ユーザーから見た画面</div>
+                      </div>
+                    </a>
+                    <a href="settings.html" class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
+                      <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-cog text-gray-600"></i>
+                      </div>
+                      <div>
+                        <div class="font-medium text-gray-900 group-hover/item:text-gray-600">設定</div>
+                        <div class="text-sm text-gray-500">通知・プライバシー</div>
+                      </div>
+                    </a>
+                    <a href="notifications.html" class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
+                      <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-bell text-yellow-600"></i>
+                      </div>
+                      <div>
+                        <div class="font-medium text-gray-900 group-hover/item:text-yellow-600">通知</div>
+                        <div class="text-sm text-gray-500">メッセージ・更新情報</div>
+                      </div>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- コミュニティ (Mega Menu) -->
+        <div class="relative group">
+          <button class="px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 font-medium flex items-center">
+            <i class="fas fa-users mr-2"></i>コミュニティ
+            <i class="fas fa-chevron-down ml-1 text-xs transition-transform duration-200 group-hover:rotate-180"></i>
+          </button>
+          
+          <div class="absolute top-full left-0 mt-2 w-96 bg-white rounded-2xl shadow-2xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+            <div class="p-6">
+              <div class="grid grid-cols-1 gap-4">
+                <div>
+                  <h3 class="text-sm font-semibold text-gray-900 mb-3 flex items-center">
+                    <i class="fas fa-trophy text-yellow-500 mr-2"></i>コミュニティ & 成果
+                  </h3>
+                  <div class="space-y-2">
+                    <a href="leaderboard.html" class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
+                      <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-ranking-star text-yellow-600"></i>
+                      </div>
+                      <div>
+                        <div class="font-medium text-gray-900 group-hover/item:text-yellow-600">ランキング</div>
+                        <div class="text-sm text-gray-500">トップヘルパー</div>
+                      </div>
+                    </a>
+                    <a href="achievement-center.html" class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
+                      <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-medal text-purple-600"></i>
+                      </div>
+                      <div>
+                        <div class="font-medium text-gray-900 group-hover/item:text-purple-600">成果センター</div>
+                        <div class="text-sm text-gray-500">バッジ・レベル</div>
+                      </div>
+                    </a>
+                    <a href="testimonials.html" class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
+                      <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-quote-right text-green-600"></i>
+                      </div>
+                      <div>
+                        <div class="font-medium text-gray-900 group-hover/item:text-green-600">お客様の声</div>
+                        <div class="text-sm text-gray-500">レビュー・体験談</div>
+                      </div>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- その他 (Mega Menu) -->
+        <div class="relative group">
+          <button class="px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 font-medium flex items-center">
+            <i class="fas fa-ellipsis-h mr-2"></i>その他
+            <i class="fas fa-chevron-down ml-1 text-xs transition-transform duration-200 group-hover:rotate-180"></i>
+          </button>
+          
+          <div class="absolute top-full right-0 mt-2 w-80 bg-white rounded-2xl shadow-2xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+            <div class="p-6">
+              <div class="space-y-4">
+                <!-- 機能・ツール -->
+                <div>
+                  <h3 class="text-sm font-semibold text-gray-900 mb-3 flex items-center">
+                    <i class="fas fa-tools text-indigo-500 mr-2"></i>機能・ツール
+                  </h3>
+                  <div class="grid grid-cols-2 gap-2">
+                    <a href="search.html" class="flex flex-col items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
+                      <i class="fas fa-search text-gray-600 mb-1"></i>
+                      <span class="text-xs font-medium">検索</span>
+                    </a>
+                    <a href="messages.html" class="flex flex-col items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
+                      <i class="fas fa-comments text-blue-600 mb-1"></i>
+                      <span class="text-xs font-medium">メッセージ</span>
+                    </a>
+                    <a href="favorites.html" class="flex flex-col items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
+                      <i class="fas fa-heart text-red-600 mb-1"></i>
+                      <span class="text-xs font-medium">お気に入り</span>
+                    </a>
+                    <a href="payment.html" class="flex flex-col items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
+                      <i class="fas fa-credit-card text-green-600 mb-1"></i>
+                      <span class="text-xs font-medium">決済</span>
+                    </a>
+                    <a href="earnings.html" class="flex flex-col items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
+                      <i class="fas fa-yen-sign text-purple-600 mb-1"></i>
+                      <span class="text-xs font-medium">収益</span>
+                    </a>
+                    <a href="reviews.html" class="flex flex-col items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
+                      <i class="fas fa-star text-yellow-600 mb-1"></i>
+                      <span class="text-xs font-medium">レビュー</span>
+                    </a>
+                  </div>
+                </div>
+
+                <!-- サポート -->
+                <div>
+                  <h3 class="text-sm font-semibold text-gray-900 mb-3 flex items-center">
+                    <i class="fas fa-life-ring text-orange-500 mr-2"></i>サポート
+                  </h3>
+                  <div class="space-y-2">
+                    <a href="help.html" class="flex items-center p-2 rounded-lg hover:bg-gray-50 transition-colors text-sm">
+                      <i class="fas fa-question-circle text-blue-600 mr-3"></i>
+                      ヘルプセンター
+                    </a>
+                    <a href="dispute-resolution.html" class="flex items-center p-2 rounded-lg hover:bg-gray-50 transition-colors text-sm">
+                      <i class="fas fa-gavel text-red-600 mr-3"></i>
+                      分争解決
+                    </a>
+                    <a href="onboarding-guide.html" class="flex items-center p-2 rounded-lg hover:bg-gray-50 transition-colors text-sm">
+                      <i class="fas fa-route text-purple-600 mr-3"></i>
+                      ガイドツアー
+                    </a>
+                  </div>
+                </div>
+
+                <!-- 会社情報 -->
+                <div>
+                  <h3 class="text-sm font-semibold text-gray-900 mb-3 flex items-center">
+                    <i class="fas fa-building text-gray-500 mr-2"></i>会社情報
+                  </h3>
+                  <div class="grid grid-cols-2 gap-2 text-xs">
+                    <a href="about.html" class="p-2 rounded-lg hover:bg-gray-50 transition-colors text-center">会社概要</a>
+                    <a href="terms.html" class="p-2 rounded-lg hover:bg-gray-50 transition-colors text-center">利用規約</a>
+                    <a href="privacy-policy.html" class="p-2 rounded-lg hover:bg-gray-50 transition-colors text-center">プライバシー</a>
+                    <a href="helper-onboarding.html" class="p-2 rounded-lg hover:bg-gray-50 transition-colors text-center">ヘルパー登録</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Auth Buttons -->
+      <div class="hidden lg:flex items-center space-x-3">
+        <a href="login.html" class="border border-blue-600 text-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-blue-50 transition-all duration-200 hover:scale-105">ログイン</a>
+        <a href="register.html" class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-200 hover:scale-105 shadow-lg">始める</a>
+      </div>
+      
+      <!-- Mobile Menu Button -->
+      <div class="lg:hidden ml-auto">
+        <button id="mobile-menu-button" class="text-gray-700 hover:text-blue-600 p-2 transition-all duration-300 ease-in-out" aria-expanded="false">
+          <svg class="w-6 h-6 transition-transform duration-300 ease-in-out" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path id="menu-icon" class="transition-opacity duration-300" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            <path id="close-icon" class="transition-opacity duration-300 opacity-0" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden lg:hidden pb-4 transition-all duration-300 ease-in-out transform border-t border-gray-100 mt-4">
+      <div class="flex flex-col space-y-1 pt-4">
+        <!-- 基本メニュー -->
+        <a href="index.html" class="flex items-center px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+          <i class="fas fa-home mr-3 w-5"></i>ホーム
+        </a>
+        <a href="task-list.html" class="flex items-center px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+          <i class="fas fa-list mr-3 w-5"></i>タスク一覧
+        </a>
+        <a href="task-create.html" class="flex items-center px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+          <i class="fas fa-plus mr-3 w-5"></i>タスク作成
+        </a>
+        <a href="my-tasks.html" class="flex items-center px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+          <i class="fas fa-clipboard-list mr-3 w-5"></i>マイタスク
+        </a>
+        
+        <!-- 展開可能セクション -->
+        <div class="mobile-section">
+          <button class="mobile-section-toggle w-full flex items-center justify-between px-4 py-3 text-blue-600 font-semibold bg-blue-50 rounded-lg transition-colors" data-target="profile-section">
+            <span class="flex items-center">
+              <i class="fas fa-user mr-3 w-5"></i>プロフィール
+            </span>
+            <i class="fas fa-chevron-down transition-transform duration-200"></i>
+          </button>
+          <div id="profile-section" class="pl-8 space-y-1">
+            <a href="profile.html" class="flex items-center px-4 py-2 text-sm text-blue-600 font-medium bg-blue-50 border border-blue-200 rounded-lg transition-colors">
+              <i class="fas fa-user-circle mr-3 w-4"></i>マイプロフィール
+            </a>
+            <a href="settings.html" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+              <i class="fas fa-cog mr-3 w-4"></i>設定
+            </a>
+            <a href="notifications.html" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+              <i class="fas fa-bell mr-3 w-4"></i>通知
+            </a>
+          </div>
+        </div>
+
+        <div class="mobile-section">
+          <button class="mobile-section-toggle w-full flex items-center justify-between px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors" data-target="community-section">
+            <span class="flex items-center">
+              <i class="fas fa-users mr-3 w-5"></i>コミュニティ
+            </span>
+            <i class="fas fa-chevron-down transition-transform duration-200"></i>
+          </button>
+          <div id="community-section" class="hidden pl-8 space-y-1">
+            <a href="leaderboard.html" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+              <i class="fas fa-trophy mr-3 w-4"></i>ランキング
+            </a>
+            <a href="achievement-center.html" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+              <i class="fas fa-medal mr-3 w-4"></i>成果センター
+            </a>
+            <a href="testimonials.html" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+              <i class="fas fa-quote-right mr-3 w-4"></i>お客様の声
+            </a>
+          </div>
+        </div>
+
+        <div class="mobile-section">
+          <button class="mobile-section-toggle w-full flex items-center justify-between px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors" data-target="tools-section">
+            <span class="flex items-center">
+              <i class="fas fa-tools mr-3 w-5"></i>ツール
+            </span>
+            <i class="fas fa-chevron-down transition-transform duration-200"></i>
+          </button>
+          <div id="tools-section" class="hidden pl-8 space-y-1">
+            <a href="search.html" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+              <i class="fas fa-search mr-3 w-4"></i>検索
+            </a>
+            <a href="messages.html" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+              <i class="fas fa-comments mr-3 w-4"></i>メッセージ
+            </a>
+            <a href="favorites.html" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+              <i class="fas fa-heart mr-3 w-4"></i>お気に入り
+            </a>
+            <a href="payment.html" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+              <i class="fas fa-credit-card mr-3 w-4"></i>決済
+            </a>
+            <a href="earnings.html" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+              <i class="fas fa-yen-sign mr-3 w-4"></i>収益
+            </a>
+          </div>
+        </div>
+
+        <div class="mobile-section">
+          <button class="mobile-section-toggle w-full flex items-center justify-between px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors" data-target="support-section">
+            <span class="flex items-center">
+              <i class="fas fa-life-ring mr-3 w-5"></i>サポート
+            </span>
+            <i class="fas fa-chevron-down transition-transform duration-200"></i>
+          </button>
+          <div id="support-section" class="hidden pl-8 space-y-1">
+            <a href="help.html" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+              <i class="fas fa-question-circle mr-3 w-4"></i>ヘルプ
+            </a>
+            <a href="dispute-resolution.html" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+              <i class="fas fa-gavel mr-3 w-4"></i>分争解決
+            </a>
+            <a href="onboarding-guide.html" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+              <i class="fas fa-route mr-3 w-4"></i>ガイドツアー
+            </a>
+          </div>
+        </div>
+        
+        <!-- 認証ボタン -->
+        <hr class="my-4">
+        <div class="flex gap-3 px-4">
+          <a href="login.html" class="flex-1 border border-blue-600 text-blue-600 px-4 py-3 rounded-lg font-semibold hover:bg-blue-50 text-center transition-colors">ログイン</a>
+          <a href="register.html" class="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 text-center transition-colors">始める</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main class="pt-16">
+  <!-- Hero Section -->
+  <section class="bg-gradient-to-r from-blue-600 to-purple-600 py-16">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="flex flex-col lg:flex-row items-center gap-8">
+        <!-- Profile Avatar -->
+        <div class="profile-avatar w-32 h-32 rounded-full flex items-center justify-center text-white text-4xl font-bold shadow-2xl">
+          田中
+        </div>
+        
+        <!-- Profile Info -->
+        <div class="text-white text-center lg:text-left">
+          <h1 class="text-4xl font-bold mb-2">田中 太郎</h1>
+          <p class="text-xl opacity-90 mb-4">信頼できるタスクヘルパー</p>
+          <div class="flex flex-wrap justify-center lg:justify-start gap-2">
+            <span class="bg-white/20 px-3 py-1 rounded-full text-sm">⭐ 4.9 評価</span>
+            <span class="bg-white/20 px-3 py-1 rounded-full text-sm">✅ 本人確認済み</span>
+            <span class="bg-white/20 px-3 py-1 rounded-full text-sm">📍 東京都渋谷区</span>
+          </div>
+        </div>
+        
+        <!-- Edit Button -->
+        <div class="lg:ml-auto">
+          <button class="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 hover:scale-105 transition-all duration-300 shadow-lg">
+            <i class="fas fa-edit mr-2"></i>
+            プロフィール編集
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Section -->
+  <section class="py-12 -mt-6">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <!-- Total Tasks -->
+        <div class="stat-card p-6 rounded-2xl shadow-xl hover:scale-105 transition-all duration-300">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-white/80 text-sm">総依頼数</p>
+              <p class="text-3xl font-bold">45</p>
+            </div>
+            <i class="fas fa-tasks text-2xl opacity-80"></i>
+          </div>
+        </div>
+        
+        <!-- Completed Tasks -->
+        <div class="stat-card green p-6 rounded-2xl shadow-xl hover:scale-105 transition-all duration-300">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-white/80 text-sm">完了済み</p>
+              <p class="text-3xl font-bold">42</p>
+            </div>
+            <i class="fas fa-check-circle text-2xl opacity-80"></i>
+          </div>
+        </div>
+        
+        <!-- Success Rate -->
+        <div class="stat-card orange p-6 rounded-2xl shadow-xl hover:scale-105 transition-all duration-300">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-white/80 text-sm">成功率</p>
+              <p class="text-3xl font-bold">93%</p>
+            </div>
+            <i class="fas fa-chart-line text-2xl opacity-80"></i>
+          </div>
+        </div>
+        
+        <!-- Earnings -->
+        <div class="stat-card purple p-6 rounded-2xl shadow-xl hover:scale-105 transition-all duration-300">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-white/80 text-sm">累計収入</p>
+              <p class="text-3xl font-bold">¥89,500</p>
+            </div>
+            <i class="fas fa-yen-sign text-2xl opacity-80"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <section class="py-12">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Left Column - Profile Details -->
+        <div class="lg:col-span-2 space-y-8">
+          
+          <!-- About Me -->
+          <div class="glass-card p-8 rounded-2xl shadow-lg">
+            <h2 class="text-2xl font-bold mb-6 flex items-center">
+              <i class="fas fa-user text-blue-600 mr-3"></i>
+              自己紹介
+            </h2>
+            <p class="text-gray-700 leading-relaxed">
+              こんにちは！東京都渋谷区在住の田中太郎です。TaskHelperを利用し始めて2年になります。
+              主に買い物代行、清掃、配達などのお手伝いをさせていただいています。
+              丁寧で迅速な対応を心がけており、お客様からも高い評価をいただいています。
+              車での移動も可能ですので、幅広いエリアでサービスを提供できます。
+              何かお困りのことがございましたら、お気軽にお声かけください！
+            </p>
+          </div>
+          
+          <!-- Skills & Services -->
+          <div class="glass-card p-8 rounded-2xl shadow-lg">
+            <h2 class="text-2xl font-bold mb-6 flex items-center">
+              <i class="fas fa-star text-blue-600 mr-3"></i>
+              得意なサービス
+            </h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <div class="bg-green-50 border border-green-200 p-4 rounded-xl text-center hover:scale-105 hover:bg-green-100 transition-all duration-300">
+                <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center mx-auto mb-2">
+                  <i class="fas fa-shopping-cart text-white text-lg"></i>
+                </div>
+                <p class="font-semibold text-green-800">買い物代行</p>
+                <p class="text-sm text-green-600">15件完了</p>
+              </div>
+              <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl text-center hover:scale-105 hover:bg-blue-100 transition-all duration-300">
+                <div class="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center mx-auto mb-2">
+                  <i class="fas fa-broom text-white text-lg"></i>
+                </div>
+                <p class="font-semibold text-blue-800">清掃・掃除</p>
+                <p class="text-sm text-blue-600">12件完了</p>
+              </div>
+              <div class="bg-orange-50 border border-orange-200 p-4 rounded-xl text-center hover:scale-105 hover:bg-orange-100 transition-all duration-300">
+                <div class="w-12 h-12 bg-gradient-to-br from-orange-400 to-orange-600 rounded-xl flex items-center justify-center mx-auto mb-2">
+                  <i class="fas fa-truck text-white text-lg"></i>
+                </div>
+                <p class="font-semibold text-orange-800">配達・運搬</p>
+                <p class="text-sm text-orange-600">8件完了</p>
+              </div>
+              <div class="bg-purple-50 border border-purple-200 p-4 rounded-xl text-center hover:scale-105 hover:bg-purple-100 transition-all duration-300">
+                <div class="w-12 h-12 bg-gradient-to-br from-purple-400 to-purple-600 rounded-xl flex items-center justify-center mx-auto mb-2">
+                  <i class="fas fa-paw text-white text-lg"></i>
+                </div>
+                <p class="font-semibold text-purple-800">ペットケア</p>
+                <p class="text-sm text-purple-600">5件完了</p>
+              </div>
+              <div class="bg-red-50 border border-red-200 p-4 rounded-xl text-center hover:scale-105 hover:bg-red-100 transition-all duration-300">
+                <div class="w-12 h-12 bg-gradient-to-br from-red-400 to-red-600 rounded-xl flex items-center justify-center mx-auto mb-2">
+                  <i class="fas fa-tools text-white text-lg"></i>
+                </div>
+                <p class="font-semibold text-red-800">修理・メンテ</p>
+                <p class="text-sm text-red-600">2件完了</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Recent Reviews -->
+          <div class="glass-card p-8 rounded-2xl shadow-lg">
+            <h2 class="text-2xl font-bold mb-6 flex items-center">
+              <i class="fas fa-comments text-blue-600 mr-3"></i>
+              最近のレビュー
+            </h2>
+            <div class="space-y-6">
+              <!-- Review 1 -->
+              <div class="border-l-4 border-blue-500 pl-4">
+                <div class="flex items-center mb-2">
+                  <div class="flex text-yellow-400">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                  </div>
+                  <span class="ml-2 text-gray-600 text-sm">2日前</span>
+                </div>
+                <p class="text-gray-700 mb-2">
+                  「とても丁寧に買い物をしていただき、商品の質も良く、時間通りに配達してくださいました。また機会があればお願いしたいです。」
+                </p>
+                <p class="text-sm text-gray-500">- 佐藤 花子さん</p>
+              </div>
+              
+              <!-- Review 2 -->
+              <div class="border-l-4 border-green-500 pl-4">
+                <div class="flex items-center mb-2">
+                  <div class="flex text-yellow-400">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                  </div>
+                  <span class="ml-2 text-gray-600 text-sm">1週間前</span>
+                </div>
+                <p class="text-gray-700 mb-2">
+                  「急な清掃依頼にも関わらず、迅速に対応していただきました。仕上がりも期待以上で大満足です！」
+                </p>
+                <p class="text-sm text-gray-500">- 山田 次郎さん</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Right Column - Sidebar -->
+        <div class="space-y-8">
+          
+          <!-- Quick Actions -->
+          <div class="glass-card p-6 rounded-2xl shadow-lg">
+            <h3 class="text-xl font-bold mb-4">クイックアクション</h3>
+            <div class="space-y-3">
+              <button class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 hover:scale-105 transition-all duration-300">
+                <i class="fas fa-plus mr-2"></i>
+                新しい依頼を投稿
+              </button>
+              <button class="w-full border border-blue-600 text-blue-600 py-3 px-4 rounded-lg font-semibold hover:bg-blue-50 hover:scale-105 transition-all duration-300" style="border: 1px solid #2563eb !important;">
+                <i class="fas fa-search mr-2"></i>
+                依頼を探す
+              </button>
+              <button class="w-full border border-blue-600 text-blue-600 py-3 px-4 rounded-lg font-semibold hover:bg-blue-50 hover:scale-105 transition-all duration-300" style="border: 1px solid #2563eb !important;">
+                <i class="fas fa-tasks mr-2"></i>
+                マイタスク
+              </button>
+            </div>
+          </div>
+          
+          <!-- Account Info -->
+          <div class="glass-card p-6 rounded-2xl shadow-lg">
+            <h3 class="text-xl font-bold mb-4">アカウント情報</h3>
+            <div class="space-y-4">
+              <div class="flex items-center justify-between">
+                <span class="text-gray-600">登録日</span>
+                <span class="font-semibold">2023年3月15日</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-gray-600">最終ログイン</span>
+                <span class="font-semibold">2時間前</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-gray-600">レスポンス率</span>
+                <span class="font-semibold text-green-600">98%</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-gray-600">平均レスポンス時間</span>
+                <span class="font-semibold">15分</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Verification Status -->
+          <div class="glass-card p-6 rounded-2xl shadow-lg">
+            <h3 class="text-xl font-bold mb-4">認証状況</h3>
+            <div class="space-y-3">
+              <div class="flex items-center">
+                <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                <span class="text-gray-700">本人確認済み</span>
+              </div>
+              <div class="flex items-center">
+                <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                <span class="text-gray-700">電話番号認証済み</span>
+              </div>
+              <div class="flex items-center">
+                <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                <span class="text-gray-700">メールアドレス認証済み</span>
+              </div>
+              <div class="flex items-center">
+                <i class="fas fa-times-circle text-gray-400 mr-3"></i>
+                <span class="text-gray-400">住所確認未完了</span>
+              </div>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Footer -->
+<footer class="bg-gray-900 text-white py-12">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+      <div>
+        <div class="flex items-center space-x-2 mb-4">
+          <i class="fas fa-hands-helping text-2xl text-blue-500"></i>
+          <span class="text-xl font-bold">TaskHelper</span>
+        </div>
+        <p class="text-gray-400">近所の方々と一緒に信頼できる代行サービス</p>
+      </div>
+      <div>
+        <h4 class="font-semibold mb-4">サービス</h4>
+        <ul class="space-y-2 text-gray-400">
+          <li><a href="#" class="hover:text-white transition-colors">買い物代行</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">清掃サービス</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">配達・運搬</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">ペットケア</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="font-semibold mb-4">サポート</h4>
+        <ul class="space-y-2 text-gray-400">
+          <li><a href="#" class="hover:text-white transition-colors">ヘルプセンター</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">お問い合わせ</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">利用規約</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">プライバシー</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="font-semibold mb-4">フォロー</h4>
+        <div class="flex space-x-4">
+          <a href="#" class="text-gray-400 hover:text-white transition-colors">
+            <i class="fab fa-twitter text-xl"></i>
+          </a>
+          <a href="#" class="text-gray-400 hover:text-white transition-colors">
+            <i class="fab fa-facebook text-xl"></i>
+          </a>
+          <a href="#" class="text-gray-400 hover:text-white transition-colors">
+            <i class="fab fa-instagram text-xl"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+      <p>&copy; 2025 TaskHelper. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<!-- JS Libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.1/sweetalert2.all.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Mobile menu functionality
+  const mobileMenuButton = document.getElementById('mobile-menu-button');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const menuIcon = document.getElementById('menu-icon');
+  const closeIcon = document.getElementById('close-icon');
+  
+  if (mobileMenuButton && mobileMenu) {
+    mobileMenuButton.addEventListener('click', function() {
+      const isExpanded = this.getAttribute('aria-expanded') === 'true';
+      this.setAttribute('aria-expanded', !isExpanded);
+      mobileMenu.classList.toggle('hidden');
+      
+      // Toggle menu/close icons
+      if (menuIcon && closeIcon) {
+        menuIcon.classList.toggle('opacity-0');
+        closeIcon.classList.toggle('opacity-0');
+      }
+    });
+  }
+
+  // Mobile section toggles
+  const sectionToggles = document.querySelectorAll('.mobile-section-toggle');
+  sectionToggles.forEach(toggle => {
+    toggle.addEventListener('click', function() {
+      const targetId = this.getAttribute('data-target');
+      const targetSection = document.getElementById(targetId);
+      const chevron = this.querySelector('i:last-child');
+      
+      if (targetSection) {
+        targetSection.classList.toggle('hidden');
+        this.classList.toggle('active');
+      }
+    });
+  });
+
+  // Header scroll effect
+  let lastScrollTop = 0;
+  const header = document.querySelector('nav');
+  
+  window.addEventListener('scroll', function() {
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    
+    if (scrollTop > 100) {
+      header.classList.add('header-scrolled');
+    } else {
+      header.classList.remove('header-scrolled');
+    }
+    
+    lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+  });
+
+  // Close mobile menu when clicking outside
+  document.addEventListener('click', function(event) {
+    if (mobileMenuButton && mobileMenu && !mobileMenuButton.contains(event.target) && !mobileMenu.contains(event.target)) {
+      mobileMenu.classList.add('hidden');
+      mobileMenuButton.setAttribute('aria-expanded', 'false');
+      if (menuIcon && closeIcon) {
+        menuIcon.classList.remove('opacity-0');
+        closeIcon.classList.add('opacity-0');
+      }
+    }
+  });
+
+  // Keyboard navigation for accessibility
+  document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape' && mobileMenu) {
+      mobileMenu.classList.add('hidden');
+      if (mobileMenuButton) {
+        mobileMenuButton.setAttribute('aria-expanded', 'false');
+      }
+      if (menuIcon && closeIcon) {
+        menuIcon.classList.remove('opacity-0');
+        closeIcon.classList.add('opacity-0');
+      }
+    }
+  });
+  
+  // Profile edit functionality
+  const editButton = document.querySelector('button:has(i.fa-edit)');
+  if (editButton) {
+    editButton.addEventListener('click', function() {
+      toastr.info('プロフィール編集機能は準備中です', '開発中');
+    });
+  }
+  
+  // Quick action buttons
+  const quickActionButtons = document.querySelectorAll('.glass-card button');
+  quickActionButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const buttonText = this.textContent.trim();
+      
+      if (buttonText.includes('新しい依頼')) {
+        window.location.href = 'task-create.html';
+      } else if (buttonText.includes('依頼を探す')) {
+        window.location.href = 'task-list.html';
+      } else if (buttonText.includes('メッセージ')) {
+        toastr.info('メッセージ機能は準備中です', '開発中');
+      }
+    });
+  });
+  
+  // Smooth animations on scroll
+  const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+  };
+  
+  const observer = new IntersectionObserver(function(entries) {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, observerOptions);
+  
+  // Observe all cards for animation
+  document.querySelectorAll('.glass-card, .stat-card').forEach(card => {
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(20px)';
+    card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    observer.observe(card);
+  });
+  
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,226 @@
+<!-- Main Content -->
+<div layout:fragment="content" id="main-content" class="pt-20">
+  <!-- Hero Section -->
+  <section class="bg-gradient-to-r from-blue-500 to-purple-600 text-white py-20" aria-labelledby="hero-title">
+    <div id="particles-js" class="absolute inset-0 z-0"></div>
+    <div class="max-w-4xl mx-auto px-4 text-center relative z-10">
+      <h1 id="hero-title" class="text-5xl font-bold mb-6 animate-fade-in-smooth">
+        信頼できる近所の<br>代行サービス
+      </h1>
+      <p class="text-xl mb-8 animate-slide-up-gentle" style="animation-delay: 200ms">
+        忙しい日常、小さなお手伝いが必要な時<br>
+        近所の方々と一緒に安全な代行サービス
+      </p>
+      <div class="space-x-4 animate-scale-in-soft" style="animation-delay: 400ms">
+        <a th:href="@{/task-list}" class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300 inline-block">
+          代行を探す
+        </a>
+        <a th:href="@{/helper-onboarding}" class="border border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors focus:outline-none focus:ring-4 focus:ring-white inline-block">
+          ヘルパー登録
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services -->
+  <section id="services" class="py-16 bg-white" aria-labelledby="services-title">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="text-center mb-16 animate-fade-in-smooth">
+        <h2 id="services-title" class="text-3xl font-bold mb-4 text-gray-900">
+          どんなお手伝いが必要ですか？
+        </h2>
+        <div class="w-20 h-1 bg-gradient-to-r from-blue-500 to-purple-600 mx-auto rounded-full animate-scale-in-soft" style="animation-delay: 300ms"></div>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-6">
+        <a th:href="@{/task-list(category='shopping')}" class="group bg-white border border-gray-100 p-6 rounded-2xl text-center hover:shadow-xl hover:border-green-200 hover:-translate-y-2 transition-all duration-500 cursor-pointer animate-slide-up-gentle hover:bg-gradient-to-br hover:from-green-50 hover:to-green-100" style="animation-delay: 100ms">
+          <div class="w-16 h-16 bg-gradient-to-br from-green-400 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg animate-float-subtle">
+            <i class="fas fa-shopping-cart text-2xl text-white" aria-hidden="true"></i>
+          </div>
+          <h3 class="font-bold text-gray-900 mb-2 group-hover:text-green-700 transition-colors">買い物</h3>
+          <p class="text-sm text-gray-600 group-hover:text-green-600 transition-colors">スーパー、コンビニ</p>
+        </a>
+
+        <a th:href="@{/task-list(category='cleaning')}" class="group bg-white border border-gray-100 p-6 rounded-2xl text-center hover:shadow-xl hover:border-blue-200 hover:-translate-y-2 transition-all duration-500 cursor-pointer animate-slide-up-gentle hover:bg-gradient-to-br hover:from-blue-50 hover:to-blue-100" style="animation-delay: 200ms">
+          <div class="w-16 h-16 bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg animate-float-subtle">
+            <i class="fas fa-broom text-2xl text-white" aria-hidden="true"></i>
+          </div>
+          <h3 class="font-bold text-gray-900 mb-2 group-hover:text-blue-700 transition-colors">掃除</h3>
+          <p class="text-sm text-gray-600 group-hover:text-blue-600 transition-colors">家の片付け、掃除</p>
+        </a>
+
+        <a th:href="@{/task-list(category='delivery')}" class="group bg-white border border-gray-100 p-6 rounded-2xl text-center hover:shadow-xl hover:border-orange-200 hover:-translate-y-2 transition-all duration-500 cursor-pointer animate-slide-up-gentle hover:bg-gradient-to-br hover:from-orange-50 hover:to-orange-100" style="animation-delay: 300ms">
+          <div class="w-16 h-16 bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg animate-float-subtle">
+            <i class="fas fa-truck text-2xl text-white" aria-hidden="true"></i>
+          </div>
+          <h3 class="font-bold text-gray-900 mb-2 group-hover:text-orange-700 transition-colors">配送</h3>
+          <p class="text-sm text-gray-600 group-hover:text-orange-600 transition-colors">収取、配送</p>
+        </a>
+
+        <a th:href="@{/task-list(category='petcare')}" class="group bg-white border border-gray-100 p-6 rounded-2xl text-center hover:shadow-xl hover:border-purple-200 hover:-translate-y-2 transition-all duration-500 cursor-pointer animate-slide-up-gentle hover:bg-gradient-to-br hover:from-purple-50 hover:to-purple-100" style="animation-delay: 400ms">
+          <div class="w-16 h-16 bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg animate-float-subtle">
+            <i class="fas fa-paw text-2xl text-white" aria-hidden="true"></i>
+          </div>
+          <h3 class="font-bold text-gray-900 mb-2 group-hover:text-purple-700 transition-colors">ペットケア</h3>
+          <p class="text-sm text-gray-600 group-hover:text-purple-600 transition-colors">散歩、お世話</p>
+        </a>
+
+        <a th:href="@{/task-list(category='repairs')}" class="group bg-white border border-gray-100 p-6 rounded-2xl text-center hover:shadow-xl hover:border-red-200 hover:-translate-y-2 transition-all duration-500 cursor-pointer animate-slide-up-gentle hover:bg-gradient-to-br hover:from-red-50 hover:to-red-100" style="animation-delay: 500ms">
+          <div class="w-16 h-16 bg-gradient-to-br from-red-400 to-red-600 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg animate-float-subtle">
+            <i class="fas fa-tools text-2xl text-white" aria-hidden="true"></i>
+          </div>
+          <h3 class="font-bold text-gray-900 mb-2 group-hover:text-red-700 transition-colors">修理</h3>
+          <p class="text-sm text-gray-600 group-hover:text-red-600 transition-colors">組み立て、小修理</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="py-20 bg-gradient-to-br from-gray-50 to-blue-50" aria-labelledby="features-title">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="text-center mb-16 animate-fade-in-smooth">
+        <h2 id="features-title" class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          なぜ<span lang="en" class="text-blue-600">TaskHelper</span>なのか？
+        </h2>
+        <p class="text-xl text-gray-600 max-w-2xl mx-auto animate-slide-up-gentle" style="animation-delay: 200ms">
+          安全で便利な代行マッチングの新しい基準
+        </p>
+        <div class="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-600 mx-auto mt-6 rounded-full animate-scale-in-soft" style="animation-delay: 400ms"></div>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="group relative overflow-hidden bg-white rounded-3xl p-8 text-center hover:shadow-2xl hover:-translate-y-3 transition-all duration-500 animate-slide-up-gentle border border-blue-100 hover:border-blue-300" style="animation-delay: 100ms">
+          <div class="absolute inset-0 bg-gradient-to-br from-blue-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          <div class="relative z-10">
+            <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 group-hover:rotate-12 transition-all duration-500 shadow-xl animate-bounce-gentle">
+              <i class="fas fa-shield-alt text-3xl text-white" aria-hidden="true"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-4 text-gray-900 group-hover:text-blue-700 transition-colors">安全な取引</h3>
+            <p class="text-gray-600 leading-relaxed group-hover:text-gray-700 transition-colors">
+              エスクロー決済と本人確認で安全に取引します
+            </p>
+          </div>
+        </div>
+
+        <div class="group relative overflow-hidden bg-white rounded-3xl p-8 text-center hover:shadow-2xl hover:-translate-y-3 transition-all duration-500 animate-slide-up-gentle border border-green-100 hover:border-green-300" style="animation-delay: 300ms">
+          <div class="absolute inset-0 bg-gradient-to-br from-green-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          <div class="relative z-10">
+            <div class="w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 group-hover:rotate-12 transition-all duration-500 shadow-xl animate-bounce-gentle" style="animation-delay: 200ms">
+              <i class="fas fa-comments text-3xl text-white" aria-hidden="true"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-4 text-gray-900 group-hover:text-green-700 transition-colors">便利なコミュニケーション</h3>
+            <p class="text-gray-600 leading-relaxed group-hover:text-gray-700 transition-colors">
+              メッセージで詳細な打ち合わせ後にマッチングして満足度を高めます
+            </p>
+          </div>
+        </div>
+
+        <div class="group relative overflow-hidden bg-white rounded-3xl p-8 text-center hover:shadow-2xl hover:-translate-y-3 transition-all duration-500 animate-slide-up-gentle border border-purple-100 hover:border-purple-300" style="animation-delay: 500ms">
+          <div class="absolute inset-0 bg-gradient-to-br from-purple-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          <div class="relative z-10">
+            <div class="w-20 h-20 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 group-hover:rotate-12 transition-all duration-500 shadow-xl animate-bounce-gentle" style="animation-delay: 400ms">
+              <i class="fas fa-star text-3xl text-white" aria-hidden="true"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-4 text-gray-900 group-hover:text-purple-700 transition-colors">信頼評価</h3>
+            <p class="text-gray-600 leading-relaxed group-hover:text-gray-700 transition-colors">
+              双方向評価システムで信頼できるヘルパーを見つけます
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section id="how-it-works" class="py-20 bg-gradient-to-br from-gray-50 to-gray-100" aria-labelledby="how-it-works-title">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="text-center mb-16">
+        <h2 id="how-it-works-title" class="text-3xl md:text-4xl font-bold text-gray-900 mb-4 animate-scale-in-soft">
+          利用方法
+        </h2>
+        <p class="text-xl text-gray-600 max-w-2xl mx-auto animate-scale-in-soft" style="animation-delay: 200ms">
+          3ステップで簡単に代行を完了します
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="text-center hover:-translate-y-2 transition-transform duration-300 animate-scale-in-soft" style="animation-delay: 300ms">
+          <div class="w-20 h-20 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-6 shadow-lg">
+            1
+          </div>
+          <h3 class="text-xl font-bold mb-4 text-gray-900">代行登録</h3>
+          <p class="text-gray-600 leading-relaxed max-w-sm mx-auto">
+            カテゴリーを選択して詳細な内容を作成してください
+          </p>
+        </div>
+
+        <div class="text-center hover:-translate-y-2 transition-transform duration-300 animate-bounce-gentle" style="animation-delay: 400ms">
+          <div class="w-20 h-20 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-6 shadow-lg">
+            2
+          </div>
+          <h3 class="text-xl font-bold mb-4 text-gray-900">ヘルパー選択</h3>
+          <p class="text-gray-600 leading-relaxed max-w-sm mx-auto">
+            関心を示したヘルパーとメッセージで相談後に選択してください
+          </p>
+        </div>
+
+        <div class="text-center hover:-translate-y-2 transition-transform duration-300 animate-fade-in-smooth" style="animation-delay: 500ms">
+          <div class="w-20 h-20 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-6 shadow-lg">
+            3
+          </div>
+          <h3 class="text-xl font-bold mb-4 text-gray-900">安全な完了</h3>
+          <p class="text-gray-600 leading-relaxed max-w-sm mx-auto">
+            代行完了後に確認すると自動で決済が処理されます
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Section -->
+  <section class="stats pt-8 pb-16 bg-gradient-to-br from-blue-500 via-purple-600 to-pink-500 text-white relative" aria-labelledby="stats-heading">
+    <h2 id="stats-heading" class="sr-only">サービス統計情報</h2>
+    <div id="particles-stats" class="absolute inset-0 z-0"></div>
+    <div class="max-w-7xl mx-auto px-4 relative z-10">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+        <div class="bg-white/15 backdrop-blur-xl border border-white/30 p-5 rounded-xl hover:scale-105 hover:bg-white/20 transition-all duration-500 animate-fade-in-smooth shadow-2xl" style="animation-delay: 100ms; -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);">
+          <div class="text-4xl font-bold mb-2 stat-number animate-bounce-gentle" data-count="1234" data-suffix="+">0</div>
+          <div class="text-base opacity-90">アクティブユーザー</div>
+        </div>
+        <div class="bg-white/15 backdrop-blur-xl border border-white/30 p-5 rounded-xl hover:scale-105 hover:bg-white/20 transition-all duration-500 animate-fade-in-smooth shadow-2xl" style="animation-delay: 200ms; -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);">
+          <div class="text-4xl font-bold mb-2 stat-number animate-bounce-gentle" data-count="6789" data-suffix="+">0</div>
+          <div class="text-base opacity-90">完了した代行</div>
+        </div>
+        <div class="bg-white/15 backdrop-blur-xl border border-white/30 p-5 rounded-xl hover:scale-105 hover:bg-white/20 transition-all duration-500 animate-fade-in-smooth shadow-2xl" style="animation-delay: 300ms; -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);">
+          <div class="text-4xl font-bold mb-2 stat-number animate-bounce-gentle" data-count="4.6" data-type="rating">0</div>
+          <div class="text-base opacity-90">平均満足度</div>
+        </div>
+        <div class="bg-white/15 backdrop-blur-xl border border-white/30 p-5 rounded-xl hover:scale-105 hover:bg-white/20 transition-all duration-500 animate-fade-in-smooth shadow-2xl" style="animation-delay: 400ms; -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);">
+          <div class="text-4xl font-bold mb-2 stat-number animate-bounce-gentle" data-count="12" data-suffix="時間">0</div>
+          <div class="text-base opacity-90">平均応答時間</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="py-12 bg-white" aria-labelledby="cta-title">
+    <div class="max-w-4xl mx-auto px-4 text-center">
+      <h2 id="cta-title" class="text-3xl md:text-4xl font-bold text-gray-900 mb-4 animate-fade-in-smooth">
+        今すぐ始めてみましょう
+      </h2>
+      <p class="text-lg text-gray-600 mb-6 max-w-2xl mx-auto animate-slide-up-gentle" style="animation-delay: 200ms">
+        初回の代行は手数料なしで無料でご利用いただけます
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center animate-bounce-gentle" style="animation-delay: 400ms">
+        <a th:href="@{/task-create}" class="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300 inline-block">
+          代行を登録する
+        </a>
+        <a th:href="@{/helper-onboarding}" class="border border-blue-600 text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300 inline-block">
+          ヘルパーになる
+        </a>
+      </div>
+    </div>
+  </section>
+</div>

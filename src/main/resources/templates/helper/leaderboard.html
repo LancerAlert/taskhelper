@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="ja" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ヘルパーランキング - TaskHelper | 近所の信頼できる代行サービス</title>
+  
+  <!-- CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- CSS Libraries -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  
+  <!-- Additional UI Libraries -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.1/sweetalert2.min.css" rel="stylesheet">
+  
+  <!-- Alpine.js -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  
+  <!-- Custom CSS -->
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .glass-effect {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .leaderboard-header {
+      background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .leaderboard-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="stars" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="20" cy="20" r="1" fill="white" opacity="0.3"/><circle cx="80" cy="40" r="1.5" fill="white" opacity="0.2"/><circle cx="40" cy="80" r="1" fill="white" opacity="0.3"/><circle cx="60" cy="10" r="0.5" fill="white" opacity="0.4"/></pattern></defs><rect width="100" height="100" fill="url(%23stars)"/></svg>');
+      opacity: 0.5;
+    }
+    
+    .trophy-gold {
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      color: #92400e;
+      border: 3px solid #fbbf24;
+      box-shadow: 0 10px 30px rgba(251, 191, 36, 0.3);
+    }
+    
+    .trophy-silver {
+      background: linear-gradient(135deg, #e5e7eb, #d1d5db);
+      color: #374151;
+      border: 3px solid #d1d5db;
+      box-shadow: 0 8px 25px rgba(209, 213, 219, 0.3);
+    }
+    
+    .trophy-bronze {
+      background: linear-gradient(135deg, #d97706, #b45309);
+      color: #fbbf24;
+      border: 3px solid #d97706;
+      box-shadow: 0 8px 25px rgba(217, 119, 6, 0.3);
+    }
+    
+    .rank-card {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 1rem;
+      padding: 1.5rem;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .rank-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      border-color: #3b82f6;
+    }
+    
+    .rank-card.top-3 {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.95));
+      backdrop-filter: blur(20px);
+    }
+    
+    .rank-badge {
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 0.875rem;
+      color: white;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    
+    .rank-badge.rank-1 { background: linear-gradient(135deg, #fbbf24, #f59e0b); }
+    .rank-badge.rank-2 { background: linear-gradient(135deg, #9ca3af, #6b7280); }
+    .rank-badge.rank-3 { background: linear-gradient(135deg, #d97706, #b45309); }
+    .rank-badge.rank-other { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+    
+    .stats-item {
+      text-align: center;
+      padding: 1rem;
+    }
+    
+    .stats-number {
+      font-size: 2rem;
+      font-weight: bold;
+      line-height: 1;
+    }
+    
+    .category-filter {
+      transition: all 0.2s ease;
+    }
+    
+    .category-filter.active {
+      background: #3b82f6;
+      color: white;
+      transform: scale(1.05);
+    }
+    
+    .period-selector {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .achievement-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.375rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      margin: 0.125rem;
+    }
+    
+    .achievement-master {
+      background: #fef3c7;
+      color: #92400e;
+      border: 1px solid #fed7aa;
+    }
+    
+    .achievement-expert {
+      background: #e0e7ff;
+      color: #3730a3;
+      border: 1px solid #c7d2fe;
+    }
+    
+    .achievement-rising {
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
+    
+    .progress-bar {
+      height: 6px;
+      background: #e5e7eb;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #3b82f6, #60a5fa);
+      border-radius: 3px;
+      transition: width 0.8s ease;
+    }
+  </style>
+</head>
+
+<body class="bg-gradient-to-br from-blue-50 via-white to-green-50 min-h-screen">
+
+<!-- Navigation -->
+<nav class="bg-white shadow-sm fixed top-0 left-0 right-0 z-50">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex items-center h-16">
+      <!-- Logo -->
+      <div class="flex items-center space-x-2">
+        <i class="fas fa-hands-helping text-2xl text-blue-600" aria-hidden="true"></i>
+        <span class="text-xl font-bold text-gray-900">TaskHelper</span>
+      </div>
+      
+      <!-- Desktop Menu (centered) -->
+      <div class="hidden md:flex items-center space-x-8 mx-auto">
+        <a href="index.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">ホーム</a>
+        <a href="task-list.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">依頼一覧</a>
+        <a href="task-create.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">依頼投稿</a>
+        <a href="profile.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">プロフィール</a>
+        <a href="my-tasks.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">マイタスク</a>
+      </div>
+      
+      <!-- Auth Buttons -->
+      <div class="hidden md:flex items-center space-x-3">
+        <a href="login.html" class="border border-blue-600 text-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-blue-50 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">ログイン</a>
+        <a href="register.html" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">始める</a>
+      </div>
+      
+      <!-- Mobile Menu Button -->
+      <div class="md:hidden ml-auto">
+        <button id="mobile-menu-button" class="text-gray-700 hover:text-blue-600 p-2 transition-all duration-300 ease-in-out" aria-expanded="false">
+          <svg class="w-6 h-6 transition-transform duration-300 ease-in-out" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path id="menu-icon" class="transition-opacity duration-300" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            <path id="close-icon" class="transition-opacity duration-300 opacity-0" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden md:hidden pb-4 transition-all duration-300 ease-in-out transform">
+      <div class="flex flex-col space-y-2">
+        <a href="index.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">ホーム</a>
+        <a href="task-list.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">依頼一覧</a>
+        <a href="task-create.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">依頼投稿</a>
+        <a href="profile.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">プロフィール</a>
+        <a href="my-tasks.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">マイタスク</a>
+        <hr class="my-3">
+        <div class="flex gap-2 justify-center">
+          <a href="login.html" class="border border-blue-600 text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-50 text-center transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">ログイン</a>
+          <a href="register.html" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 text-center transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">始める</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<main class="min-h-screen pt-16" x-data="leaderboardApp()">
+  
+  <!-- Header -->
+  <div class="leaderboard-header text-white py-16 relative">
+    <div class="max-w-6xl mx-auto px-4 relative z-10">
+      <div class="text-center">
+        <div class="mb-6">
+          <i class="fas fa-trophy text-6xl text-yellow-300 mb-4"></i>
+        </div>
+        <h1 class="text-4xl md:text-5xl font-bold mb-4">ヘルパーランキング</h1>
+        <p class="text-xl text-blue-100 max-w-2xl mx-auto">
+          優秀なヘルパーたちの活躍をご覧ください。実績、評価、信頼度に基づいたランキングです。
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Overview -->
+  <div class="py-12 bg-white bg-opacity-70">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="stats-item glass-effect rounded-xl">
+          <div class="stats-number text-blue-600">1,247</div>
+          <div class="text-gray-600">アクティブヘルパー</div>
+        </div>
+        <div class="stats-item glass-effect rounded-xl">
+          <div class="stats-number text-green-600">23,456</div>
+          <div class="text-gray-600">完了タスク</div>
+        </div>
+        <div class="stats-item glass-effect rounded-xl">
+          <div class="stats-number text-purple-600">4.8</div>
+          <div class="text-gray-600">平均評価</div>
+        </div>
+        <div class="stats-item glass-effect rounded-xl">
+          <div class="stats-number text-orange-600">98%</div>
+          <div class="text-gray-600">満足度</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="max-w-6xl mx-auto px-4 py-8">
+    <div class="glass-effect rounded-xl p-6 mb-8">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+        
+        <!-- Period Selector -->
+        <div class="flex items-center space-x-4">
+          <span class="font-medium text-gray-700">期間:</span>
+          <div class="flex space-x-2">
+            <template x-for="period in periods" :key="period.value">
+              <button @click="selectedPeriod = period.value; loadLeaderboard()" 
+                      :class="selectedPeriod === period.value ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'"
+                      class="px-4 py-2 rounded-lg border border-gray-200 font-medium transition-colors"
+                      x-text="period.label">
+              </button>
+            </template>
+          </div>
+        </div>
+
+        <!-- Category Filters -->
+        <div class="flex items-center space-x-4">
+          <span class="font-medium text-gray-700">カテゴリ:</span>
+          <div class="flex flex-wrap gap-2">
+            <template x-for="category in categories" :key="category.value">
+              <button @click="selectedCategory = category.value; loadLeaderboard()" 
+                      :class="selectedCategory === category.value ? 'category-filter active' : 'category-filter'"
+                      class="px-3 py-1 rounded-full border border-gray-200 text-sm font-medium bg-white text-gray-700 hover:bg-gray-50">
+                <i :class="category.icon" class="mr-1"></i>
+                <span x-text="category.label"></span>
+              </button>
+            </template>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top 3 Heroes -->
+    <div class="mb-12">
+      <h2 class="text-2xl font-bold text-center text-gray-900 mb-8">🏆 今月のトップヘルパー</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <template x-for="(helper, index) in topThree" :key="helper.id">
+          <div class="rank-card top-3 text-center" :class="{
+            'order-2 md:order-1': index === 1,
+            'order-1 md:order-2': index === 0,
+            'order-3 md:order-3': index === 2
+          }">
+            <div class="rank-badge" :class="`rank-${index + 1}`" x-text="index + 1"></div>
+            
+            <!-- Trophy for #1 -->
+            <div x-show="index === 0" class="mb-4">
+              <div class="w-16 h-16 mx-auto trophy-gold rounded-full flex items-center justify-center">
+                <i class="fas fa-crown text-2xl"></i>
+              </div>
+            </div>
+            <div x-show="index === 1" class="mb-4">
+              <div class="w-14 h-14 mx-auto trophy-silver rounded-full flex items-center justify-center">
+                <i class="fas fa-medal text-xl"></i>
+              </div>
+            </div>
+            <div x-show="index === 2" class="mb-4">
+              <div class="w-12 h-12 mx-auto trophy-bronze rounded-full flex items-center justify-center">
+                <i class="fas fa-award text-lg"></i>
+              </div>
+            </div>
+            
+            <img :src="helper.avatar" :alt="helper.name" class="w-20 h-20 rounded-full mx-auto mb-4 border-4 border-white shadow-lg object-cover">
+            
+            <h3 class="text-xl font-bold text-gray-900 mb-2" x-text="helper.name"></h3>
+            
+            <div class="flex items-center justify-center mb-3">
+              <div class="flex text-yellow-400">
+                <template x-for="i in 5">
+                  <i :class="i <= helper.rating ? 'fas fa-star' : 'far fa-star'"></i>
+                </template>
+              </div>
+              <span class="ml-2 font-semibold text-gray-700" x-text="helper.rating"></span>
+            </div>
+            
+            <div class="space-y-2 mb-4">
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-600">完了タスク</span>
+                <span class="font-semibold" x-text="helper.completedTasks"></span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-600">満足度</span>
+                <span class="font-semibold text-green-600" x-text="helper.satisfaction + '%'"></span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-600">スコア</span>
+                <span class="font-semibold text-blue-600" x-text="helper.score"></span>
+              </div>
+            </div>
+            
+            <div class="flex flex-wrap justify-center gap-1 mb-4">
+              <template x-for="badge in helper.badges" :key="badge">
+                <span class="achievement-badge" :class="`achievement-${badge.type}`">
+                  <i :class="badge.icon" class="mr-1"></i>
+                  <span x-text="badge.name"></span>
+                </span>
+              </template>
+            </div>
+            
+            <button @click="viewProfile(helper)" class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+              プロフィールを見る
+            </button>
+          </div>
+        </template>
+      </div>
+    </div>
+
+    <!-- Full Leaderboard -->
+    <div class="glass-effect rounded-xl p-6">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold text-gray-900">全体ランキング</h2>
+        <div class="flex items-center space-x-4">
+          <div class="text-sm text-gray-600">
+            <span x-text="filteredHelpers.length"></span>人のヘルパー
+          </div>
+          <select x-model="sortBy" @change="sortLeaderboard()" class="px-3 py-1 border border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500">
+            <option value="score">スコア順</option>
+            <option value="rating">評価順</option>
+            <option value="tasks">タスク数順</option>
+            <option value="satisfaction">満足度順</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="space-y-4">
+        <template x-for="(helper, index) in paginatedHelpers" :key="helper.id">
+          <div class="rank-card flex items-center space-x-4">
+            <div class="flex-shrink-0">
+              <div class="w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg" :class="{
+                'bg-yellow-100 text-yellow-800': (currentPage - 1) * itemsPerPage + index + 1 <= 3,
+                'bg-gray-100 text-gray-700': (currentPage - 1) * itemsPerPage + index + 1 > 3
+              }">
+                <span x-text="(currentPage - 1) * itemsPerPage + index + 1"></span>
+              </div>
+            </div>
+            
+            <div class="flex-shrink-0">
+              <img :src="helper.avatar" :alt="helper.name" class="w-16 h-16 rounded-full object-cover border-2 border-gray-200">
+            </div>
+            
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between mb-2">
+                <h3 class="text-lg font-semibold text-gray-900 truncate" x-text="helper.name"></h3>
+                <div class="flex items-center">
+                  <div class="flex text-yellow-400 mr-2">
+                    <template x-for="i in 5">
+                      <i :class="i <= helper.rating ? 'fas fa-star' : 'far fa-star'" class="text-sm"></i>
+                    </template>
+                  </div>
+                  <span class="text-sm font-semibold text-gray-700" x-text="helper.rating"></span>
+                </div>
+              </div>
+              
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-3">
+                <div>
+                  <span class="text-gray-500">完了:</span>
+                  <span class="font-semibold ml-1" x-text="helper.completedTasks"></span>
+                </div>
+                <div>
+                  <span class="text-gray-500">満足度:</span>
+                  <span class="font-semibold text-green-600 ml-1" x-text="helper.satisfaction + '%'"></span>
+                </div>
+                <div>
+                  <span class="text-gray-500">応答:</span>
+                  <span class="font-semibold ml-1" x-text="helper.responseTime"></span>
+                </div>
+                <div>
+                  <span class="text-gray-500">スコア:</span>
+                  <span class="font-semibold text-blue-600 ml-1" x-text="helper.score"></span>
+                </div>
+              </div>
+              
+              <div class="flex items-center justify-between">
+                <div class="flex flex-wrap gap-1">
+                  <template x-for="badge in helper.badges.slice(0, 3)" :key="badge">
+                    <span class="achievement-badge" :class="`achievement-${badge.type}`">
+                      <i :class="badge.icon" class="mr-1"></i>
+                      <span x-text="badge.name"></span>
+                    </span>
+                  </template>
+                  <span x-show="helper.badges.length > 3" class="text-xs text-gray-500">
+                    +<span x-text="helper.badges.length - 3"></span>
+                  </span>
+                </div>
+                
+                <div class="flex space-x-2">
+                  <button @click="viewProfile(helper)" class="px-3 py-1 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors">
+                    詳細
+                  </button>
+                  <button @click="contactHelper(helper)" class="px-3 py-1 border border-blue-600 text-blue-600 text-sm rounded-lg hover:bg-blue-50 transition-colors">
+                    連絡
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
+      </div>
+      
+      <!-- Pagination -->
+      <div x-show="totalPages > 1" class="flex items-center justify-center mt-8 space-x-2">
+        <button @click="currentPage > 1 && (currentPage--)" :disabled="currentPage === 1" class="px-3 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+        
+        <template x-for="page in visiblePages" :key="page">
+          <button @click="currentPage = page" :class="currentPage === page ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'" class="px-3 py-2 border border-gray-300 rounded-lg" x-text="page">
+          </button>
+        </template>
+        
+        <button @click="currentPage < totalPages && (currentPage++)" :disabled="currentPage === totalPages" class="px-3 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50">
+          <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- JavaScript Libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.1/sweetalert2.all.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Mobile menu functionality
+  const mobileMenuButton = document.getElementById('mobile-menu-button');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const menuIcon = document.getElementById('menu-icon');
+  const closeIcon = document.getElementById('close-icon');
+  
+  if (mobileMenuButton && mobileMenu) {
+    mobileMenuButton.addEventListener('click', function() {
+      const isExpanded = this.getAttribute('aria-expanded') === 'true';
+      this.setAttribute('aria-expanded', !isExpanded);
+      mobileMenu.classList.toggle('hidden');
+      
+      // Toggle menu/close icons
+      if (menuIcon && closeIcon) {
+        menuIcon.classList.toggle('opacity-0');
+        closeIcon.classList.toggle('opacity-0');
+      }
+    });
+    
+    // Close menu when clicking links
+    mobileMenu.addEventListener('click', function(event) {
+      if (event.target.tagName === 'A') {
+        mobileMenu.classList.add('hidden');
+        mobileMenuButton.setAttribute('aria-expanded', 'false');
+        if (menuIcon && closeIcon) {
+          menuIcon.classList.remove('opacity-0');
+          closeIcon.classList.add('opacity-0');
+        }
+      }
+    });
+  }
+});
+
+// Leaderboard App using Alpine.js
+function leaderboardApp() {
+  return {
+    selectedPeriod: 'monthly',
+    selectedCategory: 'all',
+    sortBy: 'score',
+    currentPage: 1,
+    itemsPerPage: 10,
+    
+    periods: [
+      { value: 'weekly', label: '週間' },
+      { value: 'monthly', label: '月間' },
+      { value: 'quarterly', label: '四半期' },
+      { value: 'yearly', label: '年間' }
+    ],
+    
+    categories: [
+      { value: 'all', label: 'すべて', icon: 'fas fa-globe' },
+      { value: 'cleaning', label: '掃除', icon: 'fas fa-broom' },
+      { value: 'shopping', label: '買い物', icon: 'fas fa-shopping-cart' },
+      { value: 'delivery', label: '配達', icon: 'fas fa-truck' },
+      { value: 'pet', label: 'ペット', icon: 'fas fa-dog' },
+      { value: 'repair', label: '修理', icon: 'fas fa-tools' }
+    ],
+    
+    allHelpers: [],
+    
+    init() {
+      this.generateMockData();
+      this.loadLeaderboard();
+    },
+    
+    generateMockData() {
+      const names = [
+        '田中太郎', '佐藤花子', '山田一郎', '鈴木美咲', '高橋健一',
+        '渡辺由美', '伊藤大輔', '中村恵子', '小林直人', '加藤裕子',
+        '吉田雅人', '山本智子', '松本和也', '井上真理', '木村秀樹',
+        '林美香', '清水健太', '森田優子', '池田博', '橋本さくら'
+      ];
+      
+      const badgeTypes = [
+        { type: 'master', name: 'マスター', icon: 'fas fa-crown' },
+        { type: 'expert', name: 'エキスパート', icon: 'fas fa-star' },
+        { type: 'rising', name: '新星', icon: 'fas fa-rocket' }
+      ];
+      
+      this.allHelpers = names.map((name, index) => ({
+        id: index + 1,
+        name: name,
+        avatar: `https://images.unsplash.com/photo-${1500000000000 + Math.random() * 100000000}?w=80&h=80&fit=crop&crop=face`,
+        rating: Math.round((4 + Math.random()) * 10) / 10,
+        completedTasks: Math.floor(Math.random() * 200) + 20,
+        satisfaction: Math.floor(Math.random() * 10) + 90,
+        responseTime: Math.floor(Math.random() * 5) + 1 + '時間',
+        score: Math.floor(Math.random() * 500) + 500,
+        badges: this.getRandomBadges(badgeTypes),
+        category: this.categories[Math.floor(Math.random() * (this.categories.length - 1)) + 1].value,
+        joinDate: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000)
+      }));
+    },
+    
+    getRandomBadges(badgeTypes) {
+      const count = Math.floor(Math.random() * 3) + 1;
+      const badges = [];
+      for (let i = 0; i < count; i++) {
+        const badge = badgeTypes[Math.floor(Math.random() * badgeTypes.length)];
+        if (!badges.find(b => b.type === badge.type)) {
+          badges.push(badge);
+        }
+      }
+      return badges;
+    },
+    
+    loadLeaderboard() {
+      // Simulate loading
+      setTimeout(() => {
+        this.sortLeaderboard();
+      }, 500);
+    },
+    
+    sortLeaderboard() {
+      this.allHelpers.sort((a, b) => {
+        switch (this.sortBy) {
+          case 'score':
+            return b.score - a.score;
+          case 'rating':
+            return b.rating - a.rating;
+          case 'tasks':
+            return b.completedTasks - a.completedTasks;
+          case 'satisfaction':
+            return b.satisfaction - a.satisfaction;
+          default:
+            return b.score - a.score;
+        }
+      });
+      
+      this.currentPage = 1;
+    },
+    
+    get filteredHelpers() {
+      if (this.selectedCategory === 'all') {
+        return this.allHelpers;
+      }
+      return this.allHelpers.filter(helper => helper.category === this.selectedCategory);
+    },
+    
+    get topThree() {
+      return this.filteredHelpers.slice(0, 3);
+    },
+    
+    get paginatedHelpers() {
+      const start = (this.currentPage - 1) * this.itemsPerPage;
+      const end = start + this.itemsPerPage;
+      return this.filteredHelpers.slice(start, end);
+    },
+    
+    get totalPages() {
+      return Math.ceil(this.filteredHelpers.length / this.itemsPerPage);
+    },
+    
+    get visiblePages() {
+      const pages = [];
+      const start = Math.max(1, this.currentPage - 2);
+      const end = Math.min(this.totalPages, this.currentPage + 2);
+      
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+      
+      return pages;
+    },
+    
+    viewProfile(helper) {
+      window.location.href = `user-profile-public.html?id=${helper.id}`;
+    },
+    
+    contactHelper(helper) {
+      Swal.fire({
+        title: `${helper.name}に連絡`,
+        html: `
+          <div class="text-left">
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-1">件名</label>
+              <input id="subject" type="text" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="依頼内容の件名">
+            </div>
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-1">メッセージ</label>
+              <textarea id="message" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="詳細な依頼内容をお書きください"></textarea>
+            </div>
+          </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: '送信',
+        cancelButtonText: 'キャンセル',
+        confirmButtonColor: '#2563eb',
+        preConfirm: () => {
+          const subject = document.getElementById('subject').value;
+          const message = document.getElementById('message').value;
+          
+          if (!subject.trim() || !message.trim()) {
+            Swal.showValidationMessage('件名とメッセージを入力してください');
+            return false;
+          }
+          
+          return { subject, message };
+        }
+      }).then((result) => {
+        if (result.isConfirmed) {
+          toastr.success(`${helper.name}にメッセージを送信しました`);
+        }
+      });
+    }
+  }
+}
+
+// Configure Toastr
+toastr.options = {
+  "closeButton": true,
+  "progressBar": true,
+  "positionClass": "toast-top-right",
+  "timeOut": "4000"
+};
+</script>
+
+</body>
+</html>

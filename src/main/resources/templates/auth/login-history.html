@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="ja" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ログイン履歴 - TaskHelper | 近所の信頼できる代行サービス</title>
+  
+  <!-- CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- CSS Libraries -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  
+  <!-- Additional UI Libraries -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.1/sweetalert2.min.css" rel="stylesheet">
+  
+  <!-- Alpine.js -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  
+  <!-- Custom CSS -->
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .glass-effect {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .status-success {
+      background: #f0fdf4;
+      color: #15803d;
+      border: 1px solid #bbf7d0;
+    }
+    
+    .status-failed {
+      background: #fef2f2;
+      color: #dc2626;
+      border: 1px solid #fecaca;
+    }
+    
+    .status-suspicious {
+      background: #fefbf2;
+      color: #d97706;
+      border: 1px solid #fed7aa;
+    }
+    
+    .location-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.375rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    
+    .device-icon {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.875rem;
+    }
+    
+    .timeline-item {
+      position: relative;
+      padding-left: 2rem;
+    }
+    
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: 0.5rem;
+      top: 1rem;
+      bottom: -1rem;
+      width: 2px;
+      background: #e5e7eb;
+    }
+    
+    .timeline-item:last-child::before {
+      display: none;
+    }
+    
+    .timeline-dot {
+      position: absolute;
+      left: 0.25rem;
+      top: 1rem;
+      width: 0.75rem;
+      height: 0.75rem;
+      border-radius: 50%;
+      border: 2px solid white;
+      background: #6b7280;
+    }
+    
+    .timeline-dot.success {
+      background: #10b981;
+    }
+    
+    .timeline-dot.failed {
+      background: #ef4444;
+    }
+    
+    .timeline-dot.suspicious {
+      background: #f59e0b;
+    }
+  </style>
+</head>
+
+<body class="bg-gradient-to-br from-blue-50 via-white to-green-50 min-h-screen">
+
+<!-- Navigation -->
+<nav class="bg-white shadow-sm fixed top-0 left-0 right-0 z-50">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex items-center h-16">
+      <!-- Logo -->
+      <div class="flex items-center space-x-2">
+        <i class="fas fa-hands-helping text-2xl text-blue-600" aria-hidden="true"></i>
+        <span class="text-xl font-bold text-gray-900">TaskHelper</span>
+      </div>
+      
+      <!-- Desktop Menu (centered) -->
+      <div class="hidden md:flex items-center space-x-8 mx-auto">
+        <a href="../index.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">ホーム</a>
+        <a href="../tasks/task-list.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">依頼一覧</a>
+        <a href="../tasks/task-create.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">依頼投稿</a>
+        <a href="../user/profile.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">プロフィール</a>
+        <a href="../tasks/my-tasks.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">マイタスク</a>
+      </div>
+      
+      <!-- Auth Buttons -->
+      <div class="hidden md:flex items-center space-x-3">
+        <a href="login.html" class="border border-blue-600 text-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-blue-50 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">ログイン</a>
+        <a href="register.html" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">始める</a>
+      </div>
+      
+      <!-- Mobile Menu Button -->
+      <div class="md:hidden ml-auto">
+        <button id="mobile-menu-button" class="text-gray-700 hover:text-blue-600 p-2 transition-all duration-300 ease-in-out" aria-expanded="false">
+          <svg class="w-6 h-6 transition-transform duration-300 ease-in-out" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path id="menu-icon" class="transition-opacity duration-300" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            <path id="close-icon" class="transition-opacity duration-300 opacity-0" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden md:hidden pb-4 transition-all duration-300 ease-in-out transform">
+      <div class="flex flex-col space-y-2">
+        <a href="../index.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">ホーム</a>
+        <a href="../tasks/task-list.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">依頼一覧</a>
+        <a href="../tasks/task-create.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">依頼投稿</a>
+        <a href="../user/profile.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">プロフィール</a>
+        <a href="../tasks/my-tasks.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">マイタスク</a>
+        <hr class="my-3">
+        <div class="flex gap-2 justify-center">
+          <a href="login.html" class="border border-blue-600 text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-50 text-center transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">ログイン</a>
+          <a href="register.html" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 text-center transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">始める</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<main class="min-h-screen pt-20 pb-8 px-4" x-data="loginHistoryApp()">
+  <div class="max-w-4xl mx-auto">
+    
+    <!-- Back Navigation -->
+    <div class="mb-6">
+      <a href="../user/settings.html" class="inline-flex items-center text-blue-600 hover:text-blue-700 transition-colors">
+        <i class="fas fa-arrow-left mr-2"></i>
+        設定に戻る
+      </a>
+    </div>
+
+    <!-- Header -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">ログイン履歴</h1>
+          <p class="text-gray-600 mt-1">アカウントのセキュリティ状況を確認できます</p>
+        </div>
+        <div class="flex items-center space-x-2">
+          <button @click="exportHistory()" class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+            <i class="fas fa-download mr-2"></i>
+            エクスポート
+          </button>
+          <button @click="refreshHistory()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            <i class="fas fa-sync-alt mr-2"></i>
+            更新
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Security Summary -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div class="glass-effect rounded-xl p-6">
+        <div class="flex items-center">
+          <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+            <i class="fas fa-check-circle text-2xl text-green-600"></i>
+          </div>
+          <div class="ml-4">
+            <h3 class="text-lg font-semibold text-gray-900">成功ログイン</h3>
+            <p class="text-2xl font-bold text-green-600" x-text="stats.successful"></p>
+            <p class="text-sm text-gray-500">過去30日間</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass-effect rounded-xl p-6">
+        <div class="flex items-center">
+          <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+            <i class="fas fa-times-circle text-2xl text-red-600"></i>
+          </div>
+          <div class="ml-4">
+            <h3 class="text-lg font-semibold text-gray-900">失敗試行</h3>
+            <p class="text-2xl font-bold text-red-600" x-text="stats.failed"></p>
+            <p class="text-sm text-gray-500">過去30日間</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass-effect rounded-xl p-6">
+        <div class="flex items-center">
+          <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+            <i class="fas fa-exclamation-triangle text-2xl text-yellow-600"></i>
+          </div>
+          <div class="ml-4">
+            <h3 class="text-lg font-semibold text-gray-900">suspicious試行</h3>
+            <p class="text-2xl font-bold text-yellow-600" x-text="stats.suspicious"></p>
+            <p class="text-sm text-gray-500">過去30日間</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter and Search -->
+    <div class="glass-effect rounded-xl p-6 mb-8">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+        <div class="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4">
+          <select x-model="filters.status" @change="applyFilters()" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+            <option value="">すべてのステータス</option>
+            <option value="success">成功</option>
+            <option value="failed">失敗</option>
+            <option value="suspicious">suspicious</option>
+          </select>
+          
+          <select x-model="filters.device" @change="applyFilters()" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+            <option value="">すべてのデバイス</option>
+            <option value="desktop">デスクトップ</option>
+            <option value="mobile">モバイル</option>
+            <option value="tablet">タブレット</option>
+          </select>
+          
+          <select x-model="filters.period" @change="applyFilters()" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+            <option value="7">過去7日間</option>
+            <option value="30">過去30日間</option>
+            <option value="90">過去90日間</option>
+            <option value="all">全期間</option>
+          </select>
+        </div>
+        
+        <div class="relative">
+          <input 
+            type="text" 
+            x-model="searchQuery" 
+            @input="applyFilters()"
+            placeholder="IPアドレスや場所で検索..."
+            class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full md:w-64">
+          <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Login History Timeline -->
+    <div class="glass-effect rounded-xl p-6">
+      <h2 class="text-xl font-bold text-gray-900 mb-6">ログイン履歴</h2>
+      
+      <div x-show="loading" class="text-center py-8">
+        <i class="fas fa-spinner fa-spin text-3xl text-blue-600 mb-4"></i>
+        <p class="text-gray-600">読み込み中...</p>
+      </div>
+      
+      <div x-show="!loading" class="space-y-4">
+        <template x-for="entry in filteredHistory" :key="entry.id">
+          <div class="timeline-item">
+            <div class="timeline-dot" :class="entry.status"></div>
+            <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+              <div class="flex items-start justify-between">
+                <div class="flex items-start space-x-4 flex-1">
+                  <!-- Device Icon -->
+                  <div class="device-icon bg-gray-100" :class="{
+                    'bg-blue-100 text-blue-600': entry.device === 'desktop',
+                    'bg-green-100 text-green-600': entry.device === 'mobile',
+                    'bg-purple-100 text-purple-600': entry.device === 'tablet'
+                  }">
+                    <i :class="{
+                      'fas fa-desktop': entry.device === 'desktop',
+                      'fas fa-mobile-alt': entry.device === 'mobile',
+                      'fas fa-tablet-alt': entry.device === 'tablet'
+                    }"></i>
+                  </div>
+                  
+                  <!-- Login Details -->
+                  <div class="flex-1">
+                    <div class="flex items-center space-x-2 mb-2">
+                      <span class="location-badge" :class="{
+                        'status-success': entry.status === 'success',
+                        'status-failed': entry.status === 'failed',
+                        'status-suspicious': entry.status === 'suspicious'
+                      }">
+                        <i :class="{
+                          'fas fa-check': entry.status === 'success',
+                          'fas fa-times': entry.status === 'failed',
+                          'fas fa-exclamation-triangle': entry.status === 'suspicious'
+                        }" class="mr-1"></i>
+                        <span x-text="getStatusText(entry.status)"></span>
+                      </span>
+                      
+                      <span x-show="entry.is2FA" class="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
+                        <i class="fas fa-shield-alt mr-1"></i>
+                        2FA
+                      </span>
+                    </div>
+                    
+                    <div class="text-sm text-gray-600 space-y-1">
+                      <div class="flex items-center">
+                        <i class="fas fa-clock w-4 text-gray-400 mr-2"></i>
+                        <span x-text="formatDateTime(entry.timestamp)"></span>
+                      </div>
+                      
+                      <div class="flex items-center">
+                        <i class="fas fa-map-marker-alt w-4 text-gray-400 mr-2"></i>
+                        <span x-text="entry.location"></span>
+                      </div>
+                      
+                      <div class="flex items-center">
+                        <i class="fas fa-globe w-4 text-gray-400 mr-2"></i>
+                        <span x-text="entry.ip"></span>
+                      </div>
+                      
+                      <div class="flex items-center">
+                        <i class="fas fa-browser w-4 text-gray-400 mr-2"></i>
+                        <span x-text="entry.userAgent"></span>
+                      </div>
+                    </div>
+                    
+                    <div x-show="entry.note" class="mt-2 text-sm text-gray-500 italic" x-text="entry.note"></div>
+                  </div>
+                </div>
+                
+                <!-- Actions -->
+                <div class="flex items-center space-x-2">
+                  <button x-show="entry.status === 'suspicious'" @click="reportSuspicious(entry)" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="suspicious活動として報告">
+                    <i class="fas fa-flag text-sm"></i>
+                  </button>
+                  
+                  <button x-show="entry.canRevoke" @click="revokeSession(entry)" class="p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors" title="セッションを無効化">
+                    <i class="fas fa-ban text-sm"></i>
+                  </button>
+                  
+                  <button @click="showDetails(entry)" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="詳細を表示">
+                    <i class="fas fa-info-circle text-sm"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
+        
+        <div x-show="filteredHistory.length === 0" class="text-center py-8">
+          <i class="fas fa-search text-4xl text-gray-300 mb-4"></i>
+          <p class="text-gray-500">条件に一致する履歴が見つかりません</p>
+        </div>
+      </div>
+      
+      <!-- Load More -->
+      <div x-show="!loading && hasMore" class="text-center mt-6">
+        <button @click="loadMore()" class="px-6 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors">
+          さらに読み込む
+        </button>
+      </div>
+    </div>
+
+    <!-- Security Recommendations -->
+    <div class="mt-8 bg-blue-50 border border-blue-200 rounded-xl p-6">
+      <h3 class="font-bold text-blue-900 mb-4 flex items-center">
+        <i class="fas fa-lightbulb mr-2"></i>
+        セキュリティの推奨事項
+      </h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-blue-800">
+        <div class="flex items-start">
+          <i class="fas fa-check text-blue-600 mr-2 mt-0.5"></i>
+          <span>suspicious活動を定期的にチェックする</span>
+        </div>
+        <div class="flex items-start">
+          <i class="fas fa-check text-blue-600 mr-2 mt-0.5"></i>
+          <span>未知のデバイスからのアクセスに注意する</span>
+        </div>
+        <div class="flex items-start">
+          <i class="fas fa-check text-blue-600 mr-2 mt-0.5"></i>
+          <span>2段階認証を有効にする</span>
+        </div>
+        <div class="flex items-start">
+          <i class="fas fa-check text-blue-600 mr-2 mt-0.5"></i>
+          <span>パスワードを定期的に変更する</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- JavaScript Libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.1/sweetalert2.all.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Mobile menu functionality
+  const mobileMenuButton = document.getElementById('mobile-menu-button');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const menuIcon = document.getElementById('menu-icon');
+  const closeIcon = document.getElementById('close-icon');
+  
+  if (mobileMenuButton && mobileMenu) {
+    mobileMenuButton.addEventListener('click', function() {
+      const isExpanded = this.getAttribute('aria-expanded') === 'true';
+      this.setAttribute('aria-expanded', !isExpanded);
+      mobileMenu.classList.toggle('hidden');
+      
+      // Toggle menu/close icons
+      if (menuIcon && closeIcon) {
+        menuIcon.classList.toggle('opacity-0');
+        closeIcon.classList.toggle('opacity-0');
+      }
+    });
+    
+    // Close menu when clicking links
+    mobileMenu.addEventListener('click', function(event) {
+      if (event.target.tagName === 'A') {
+        mobileMenu.classList.add('hidden');
+        mobileMenuButton.setAttribute('aria-expanded', 'false');
+        if (menuIcon && closeIcon) {
+          menuIcon.classList.remove('opacity-0');
+          closeIcon.classList.add('opacity-0');
+        }
+      }
+    });
+  }
+});
+
+// Login History App using Alpine.js
+function loginHistoryApp() {
+  return {
+    loading: true,
+    hasMore: true,
+    searchQuery: '',
+    filters: {
+      status: '',
+      device: '',
+      period: '30'
+    },
+    stats: {
+      successful: 42,
+      failed: 3,
+      suspicious: 1
+    },
+    loginHistory: [],
+    filteredHistory: [],
+    
+    init() {
+      this.loadHistory();
+    },
+    
+    async loadHistory() {
+      this.loading = true;
+      
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Generate sample login history
+      this.loginHistory = this.generateSampleHistory();
+      this.applyFilters();
+      this.loading = false;
+    },
+    
+    generateSampleHistory() {
+      const statuses = ['success', 'failed', 'suspicious'];
+      const devices = ['desktop', 'mobile', 'tablet'];
+      const locations = ['東京, 日本', '大阪, 日本', '横浜, 日本', 'ロンドン, イギリス', 'ニューヨーク, アメリカ'];
+      const userAgents = [
+        'Chrome 120.0.0.0 on Windows',
+        'Safari 17.0 on macOS',
+        'Chrome 120.0.0.0 on Android',
+        'Firefox 121.0 on Linux',
+        'Edge 120.0.0.0 on Windows'
+      ];
+      
+      const history = [];
+      for (let i = 0; i < 25; i++) {
+        const timestamp = new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000);
+        const status = statuses[Math.floor(Math.random() * statuses.length)];
+        
+        history.push({
+          id: i + 1,
+          timestamp: timestamp.toISOString(),
+          status: status,
+          device: devices[Math.floor(Math.random() * devices.length)],
+          location: locations[Math.floor(Math.random() * locations.length)],
+          ip: `192.168.${Math.floor(Math.random() * 255) + 1}.${Math.floor(Math.random() * 255) + 1}`,
+          userAgent: userAgents[Math.floor(Math.random() * userAgents.length)],
+          is2FA: Math.random() > 0.7,
+          canRevoke: status === 'success' && Math.random() > 0.5,
+          note: status === 'suspicious' ? 'suspicious活動が検出されました' : 
+                status === 'failed' ? '無効なパスワードが入力されました' : ''
+        });
+      }
+      
+      return history.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    },
+    
+    applyFilters() {
+      let filtered = [...this.loginHistory];
+      
+      // Status filter
+      if (this.filters.status) {
+        filtered = filtered.filter(entry => entry.status === this.filters.status);
+      }
+      
+      // Device filter
+      if (this.filters.device) {
+        filtered = filtered.filter(entry => entry.device === this.filters.device);
+      }
+      
+      // Period filter
+      if (this.filters.period !== 'all') {
+        const days = parseInt(this.filters.period);
+        const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+        filtered = filtered.filter(entry => new Date(entry.timestamp) >= cutoff);
+      }
+      
+      // Search filter
+      if (this.searchQuery) {
+        const query = this.searchQuery.toLowerCase();
+        filtered = filtered.filter(entry => 
+          entry.ip.toLowerCase().includes(query) ||
+          entry.location.toLowerCase().includes(query) ||
+          entry.userAgent.toLowerCase().includes(query)
+        );
+      }
+      
+      this.filteredHistory = filtered;
+    },
+    
+    async refreshHistory() {
+      await this.loadHistory();
+      toastr.success('履歴を更新しました');
+    },
+    
+    loadMore() {
+      // Simulate loading more entries
+      this.hasMore = false;
+      toastr.info('すべての履歴を読み込み済みです');
+    },
+    
+    getStatusText(status) {
+      const statusMap = {
+        'success': '成功',
+        'failed': '失敗',
+        'suspicious': 'suspicious'
+      };
+      return statusMap[status] || status;
+    },
+    
+    formatDateTime(timestamp) {
+      const date = new Date(timestamp);
+      return date.toLocaleString('ja-JP', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    },
+    
+    showDetails(entry) {
+      Swal.fire({
+        title: 'ログイン詳細',
+        html: `
+          <div class="text-left space-y-3">
+            <div><strong>時刻:</strong> ${this.formatDateTime(entry.timestamp)}</div>
+            <div><strong>ステータス:</strong> ${this.getStatusText(entry.status)}</div>
+            <div><strong>デバイス:</strong> ${entry.device}</div>
+            <div><strong>場所:</strong> ${entry.location}</div>
+            <div><strong>IPアドレス:</strong> ${entry.ip}</div>
+            <div><strong>ブラウザ:</strong> ${entry.userAgent}</div>
+            <div><strong>2段階認証:</strong> ${entry.is2FA ? '使用' : '未使用'}</div>
+            ${entry.note ? `<div><strong>備考:</strong> ${entry.note}</div>` : ''}
+          </div>
+        `,
+        icon: 'info',
+        confirmButtonText: '閉じる',
+        confirmButtonColor: '#2563eb'
+      });
+    },
+    
+    reportSuspicious(entry) {
+      Swal.fire({
+        title: 'suspicious活動の報告',
+        text: 'このアクセスをsuspicious活動として報告しますか？',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: '報告する',
+        cancelButtonText: 'キャンセル',
+        confirmButtonColor: '#dc2626'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          toastr.success('suspicious活動として報告しました');
+        }
+      });
+    },
+    
+    revokeSession(entry) {
+      Swal.fire({
+        title: 'セッションの無効化',
+        text: 'このセッションを無効化しますか？該当デバイスは再ログインが必要になります。',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: '無効化する',
+        cancelButtonText: 'キャンセル',
+        confirmButtonColor: '#dc2626'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          entry.canRevoke = false;
+          toastr.success('セッションを無効化しました');
+        }
+      });
+    },
+    
+    exportHistory() {
+      const csvContent = this.generateCSV();
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `login-history-${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toastr.success('ログイン履歴をエクスポートしました');
+    },
+    
+    generateCSV() {
+      const headers = ['日時', 'ステータス', 'デバイス', '場所', 'IPアドレス', 'ブラウザ', '2段階認証', '備考'];
+      const rows = this.filteredHistory.map(entry => [
+        this.formatDateTime(entry.timestamp),
+        this.getStatusText(entry.status),
+        entry.device,
+        entry.location,
+        entry.ip,
+        entry.userAgent,
+        entry.is2FA ? '使用' : '未使用',
+        entry.note || ''
+      ]);
+      
+      return [headers, ...rows]
+        .map(row => row.map(field => `"${field}"`).join(','))
+        .join('\n');
+    }
+  }
+}
+
+// Configure Toastr
+toastr.options = {
+  "closeButton": true,
+  "progressBar": true,
+  "positionClass": "toast-top-right",
+  "timeOut": "4000"
+};
+</script>
+
+</body>
+</html>

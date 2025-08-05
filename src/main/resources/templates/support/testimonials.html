@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="ja" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>お客様の声 - TaskHelper | 近所の信頼できる代行サービス</title>
+  
+  <!-- CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- CSS Libraries -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  
+  <!-- Additional UI Libraries -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.1/sweetalert2.min.css" rel="stylesheet">
+  
+  <!-- Alpine.js -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  
+  <!-- Custom CSS -->
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .glass-effect {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .hero-section {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 50%, #1e40af 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .hero-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="testimonial-pattern" width="50" height="50" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="2" fill="white" opacity="0.1"/><circle cx="10" cy="10" r="1" fill="white" opacity="0.1"/><circle cx="40" cy="15" r="1.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23testimonial-pattern)"/></svg>');
+      opacity: 0.5;
+    }
+    
+    .testimonial-card {
+      background: white;
+      border-radius: 1rem;
+      padding: 2rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s ease;
+      position: relative;
+      border: 1px solid #f1f5f9;
+    }
+    
+    .testimonial-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+      border-color: #3b82f6;
+    }
+    
+    .testimonial-card::before {
+      content: '"';
+      position: absolute;
+      top: -10px;
+      left: 20px;
+      font-size: 4rem;
+      color: #3b82f6;
+      font-family: serif;
+      line-height: 1;
+      opacity: 0.2;
+    }
+    
+    .featured-testimonial {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(147, 197, 253, 0.1));
+      border: 2px solid #3b82f6;
+      position: relative;
+    }
+    
+    .featured-badge {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #3b82f6;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+    
+    .rating-stars {
+      color: #fbbf24;
+    }
+    
+    .category-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      margin: 0.25rem;
+    }
+    
+    .category-cleaning {
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
+    
+    .category-shopping {
+      background: #dbeafe;
+      color: #1e40af;
+      border: 1px solid #bfdbfe;
+    }
+    
+    .category-delivery {
+      background: #fed7aa;
+      color: #9a3412;
+      border: 1px solid #fdba74;
+    }
+    
+    .category-pet {
+      background: #f3e8ff;
+      color: #7c3aed;
+      border: 1px solid #e9d5ff;
+    }
+    
+    .category-repair {
+      background: #fee2e2;
+      color: #dc2626;
+      border: 1px solid #fecaca;
+    }
+    
+    .stats-grid {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(248, 250, 252, 0.9));
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    
+    .filter-button {
+      transition: all 0.2s ease;
+    }
+    
+    .filter-button.active {
+      background: #3b82f6;
+      color: white;
+      transform: scale(1.05);
+    }
+    
+    .testimonial-meta {
+      border-top: 1px solid #f1f5f9;
+      margin-top: 1.5rem;
+      padding-top: 1rem;
+    }
+    
+    .verified-badge {
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.375rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    
+    .masonry-grid {
+      column-count: 1;
+      column-gap: 1.5rem;
+    }
+    
+    @media (min-width: 768px) {
+      .masonry-grid {
+        column-count: 2;
+      }
+    }
+    
+    @media (min-width: 1024px) {
+      .masonry-grid {
+        column-count: 3;
+      }
+    }
+    
+    .masonry-item {
+      break-inside: avoid;
+      margin-bottom: 1.5rem;
+    }
+  </style>
+</head>
+
+<body class="bg-gradient-to-br from-blue-50 via-white to-green-50 min-h-screen">
+
+<!-- Navigation -->
+<nav class="bg-white shadow-sm fixed top-0 left-0 right-0 z-50">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex items-center h-16">
+      <!-- Logo -->
+      <div class="flex items-center space-x-2">
+        <i class="fas fa-hands-helping text-2xl text-blue-600" aria-hidden="true"></i>
+        <span class="text-xl font-bold text-gray-900">TaskHelper</span>
+      </div>
+      
+      <!-- Desktop Menu (centered) -->
+      <div class="hidden md:flex items-center space-x-8 mx-auto">
+        <a href="index.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">ホーム</a>
+        <a href="task-list.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">依頼一覧</a>
+        <a href="task-create.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">依頼投稿</a>
+        <a href="profile.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">プロフィール</a>
+        <a href="my-tasks.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">マイタスク</a>
+      </div>
+      
+      <!-- Auth Buttons -->
+      <div class="hidden md:flex items-center space-x-3">
+        <a href="login.html" class="border border-blue-600 text-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-blue-50 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">ログイン</a>
+        <a href="register.html" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">始める</a>
+      </div>
+      
+      <!-- Mobile Menu Button -->
+      <div class="md:hidden ml-auto">
+        <button id="mobile-menu-button" class="text-gray-700 hover:text-blue-600 p-2 transition-all duration-300 ease-in-out" aria-expanded="false">
+          <svg class="w-6 h-6 transition-transform duration-300 ease-in-out" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path id="menu-icon" class="transition-opacity duration-300" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            <path id="close-icon" class="transition-opacity duration-300 opacity-0" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden md:hidden pb-4 transition-all duration-300 ease-in-out transform">
+      <div class="flex flex-col space-y-2">
+        <a href="index.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">ホーム</a>
+        <a href="task-list.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">依頼一覧</a>
+        <a href="task-create.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">依頼投稿</a>
+        <a href="profile.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">プロフィール</a>
+        <a href="my-tasks.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">マイタスク</a>
+        <hr class="my-3">
+        <div class="flex gap-2 justify-center">
+          <a href="login.html" class="border border-blue-600 text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-50 text-center transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">ログイン</a>
+          <a href="register.html" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 text-center transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">始める</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<main class="min-h-screen pt-16" x-data="testimonialsApp()">
+  
+  <!-- Hero Section -->
+  <div class="hero-section text-white py-20 relative">
+    <div class="max-w-6xl mx-auto px-4 relative z-10">
+      <div class="text-center">
+        <div class="mb-6">
+          <i class="fas fa-heart text-5xl text-red-300 mb-4"></i>
+        </div>
+        <h1 class="text-4xl md:text-5xl font-bold mb-6">お客様の声</h1>
+        <p class="text-xl text-blue-100 max-w-3xl mx-auto leading-relaxed">
+          TaskHelperをご利用いただいたお客様から届いた、心温まるメッセージをご紹介します。<br>
+          実際のサービス体験談から、ヘルパーとお客様の信頼関係が築かれる様子をご覧ください。
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Section -->
+  <div class="py-16 bg-white bg-opacity-70">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="stats-grid rounded-xl p-8 text-center">
+          <div class="text-4xl font-bold text-blue-600 mb-2">4.9</div>
+          <div class="text-gray-600">平均評価</div>
+          <div class="rating-stars text-2xl mt-2">
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+          </div>
+        </div>
+        <div class="stats-grid rounded-xl p-8 text-center">
+          <div class="text-4xl font-bold text-green-600 mb-2">2,847</div>
+          <div class="text-gray-600">総レビュー数</div>
+        </div>
+        <div class="stats-grid rounded-xl p-8 text-center">
+          <div class="text-4xl font-bold text-purple-600 mb-2">98%</div>
+          <div class="text-gray-600">満足度</div>
+        </div>
+        <div class="stats-grid rounded-xl p-8 text-center">
+          <div class="text-4xl font-bold text-orange-600 mb-2">95%</div>
+          <div class="text-gray-600">リピート率</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Featured Testimonials -->
+  <div class="py-16">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold text-gray-900 mb-4">🌟 今月のピックアップ</h2>
+        <p class="text-gray-600 max-w-2xl mx-auto">
+          特に印象的だったお客様の体験談をピックアップしてご紹介します
+        </p>
+      </div>
+      
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <template x-for="testimonial in featuredTestimonials" :key="testimonial.id">
+          <div class="testimonial-card featured-testimonial">
+            <div class="featured-badge">
+              <i class="fas fa-star mr-1"></i>
+              今月のベスト
+            </div>
+            
+            <div class="flex items-center mb-4">
+              <img :src="testimonial.avatar" :alt="testimonial.name" class="w-16 h-16 rounded-full object-cover border-2 border-blue-200">
+              <div class="ml-4">
+                <h3 class="font-semibold text-gray-900" x-text="testimonial.name"></h3>
+                <div class="flex items-center mt-1">
+                  <div class="rating-stars mr-2">
+                    <template x-for="i in 5">
+                      <i :class="i <= testimonial.rating ? 'fas fa-star' : 'far fa-star'"></i>
+                    </template>
+                  </div>
+                  <span class="verified-badge">
+                    <i class="fas fa-shield-check mr-1"></i>
+                    認証済み
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            <blockquote class="text-gray-700 italic text-lg leading-relaxed mb-4" x-text="testimonial.content"></blockquote>
+            
+            <div class="testimonial-meta">
+              <div class="flex items-center justify-between text-sm">
+                <div class="flex items-center space-x-3">
+                  <span class="category-tag" :class="`category-${testimonial.category}`">
+                    <i :class="testimonial.categoryIcon" class="mr-1"></i>
+                    <span x-text="testimonial.categoryName"></span>
+                  </span>
+                  <span class="text-gray-500" x-text="testimonial.date"></span>
+                </div>
+                <div class="text-gray-500">
+                  ヘルパー: <span class="font-medium" x-text="testimonial.helper"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="max-w-6xl mx-auto px-4 mb-8">
+    <div class="glass-effect rounded-xl p-6">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+        
+        <!-- Category Filters -->
+        <div class="flex flex-wrap gap-2">
+          <template x-for="category in categories" :key="category.value">
+            <button @click="selectedCategory = category.value; filterTestimonials()" 
+                    :class="selectedCategory === category.value ? 'filter-button active' : 'filter-button'"
+                    class="px-4 py-2 rounded-lg border border-gray-200 text-sm font-medium bg-white text-gray-700 hover:bg-gray-50">
+              <i :class="category.icon" class="mr-2"></i>
+              <span x-text="category.label"></span>
+            </button>
+          </template>
+        </div>
+
+        <!-- Sort Options -->
+        <div class="flex items-center space-x-4">
+          <label class="text-sm font-medium text-gray-700">並び順:</label>
+          <select x-model="sortBy" @change="sortTestimonials()" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500">
+            <option value="newest">新しい順</option>
+            <option value="oldest">古い順</option>
+            <option value="rating">評価順</option>
+            <option value="helpful">参考になった順</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Testimonials Grid -->
+  <div class="max-w-6xl mx-auto px-4 pb-16">
+    <div class="masonry-grid">
+      <template x-for="testimonial in paginatedTestimonials" :key="testimonial.id">
+        <div class="masonry-item">
+          <div class="testimonial-card">
+            <div class="flex items-start mb-4">
+              <img :src="testimonial.avatar" :alt="testimonial.name" class="w-12 h-12 rounded-full object-cover flex-shrink-0">
+              <div class="ml-3 flex-1">
+                <div class="flex items-center justify-between mb-1">
+                  <h3 class="font-semibold text-gray-900" x-text="testimonial.name"></h3>
+                  <div class="rating-stars">
+                    <template x-for="i in 5">
+                      <i :class="i <= testimonial.rating ? 'fas fa-star' : 'far fa-star'" class="text-sm"></i>
+                    </template>
+                  </div>
+                </div>
+                <div class="text-sm text-gray-500" x-text="testimonial.date"></div>
+              </div>
+            </div>
+            
+            <blockquote class="text-gray-700 leading-relaxed mb-4" x-text="testimonial.content"></blockquote>
+            
+            <div class="testimonial-meta">
+              <div class="flex items-center justify-between mb-3">
+                <span class="category-tag" :class="`category-${testimonial.category}`">
+                  <i :class="testimonial.categoryIcon" class="mr-1"></i>
+                  <span x-text="testimonial.categoryName"></span>
+                </span>
+                <div class="text-sm text-gray-500">
+                  <i class="fas fa-user mr-1"></i>
+                  <span x-text="testimonial.helper"></span>
+                </div>
+              </div>
+              
+              <div class="flex items-center justify-between text-sm">
+                <button @click="toggleHelpful(testimonial)" 
+                        :class="testimonial.isHelpful ? 'text-blue-600' : 'text-gray-500 hover:text-blue-600'"
+                        class="flex items-center transition-colors">
+                  <i :class="testimonial.isHelpful ? 'fas fa-thumbs-up' : 'far fa-thumbs-up'" class="mr-1"></i>
+                  参考になった (<span x-text="testimonial.helpful"></span>)
+                </button>
+                <button @click="shareTestimonial(testimonial)" class="text-gray-500 hover:text-blue-600 transition-colors">
+                  <i class="fas fa-share mr-1"></i>
+                  シェア
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
+    </div>
+    
+    <!-- Load More -->
+    <div x-show="hasMoreTestimonials" class="text-center mt-12">
+      <button @click="loadMoreTestimonials()" 
+              :disabled="loading"
+              class="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50">
+        <span x-show="!loading">さらに表示</span>
+        <span x-show="loading" class="flex items-center">
+          <i class="fas fa-spinner fa-spin mr-2"></i>
+          読み込み中...
+        </span>
+      </button>
+    </div>
+  </div>
+
+  <!-- CTA Section -->
+  <div class="bg-blue-600 py-16">
+    <div class="max-w-4xl mx-auto px-4 text-center">
+      <h2 class="text-3xl font-bold text-white mb-4">あなたも TaskHelper を始めませんか？</h2>
+      <p class="text-xl text-blue-100 mb-8">
+        信頼できるヘルパーがあなたの日常をサポートします。まずは簡単な依頼から始めてみましょう。
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="task-create.html" class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors">
+          <i class="fas fa-plus mr-2"></i>
+          依頼を投稿する
+        </a>
+        <a href="register.html" class="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors">
+          <i class="fas fa-user-plus mr-2"></i>
+          アカウント作成
+        </a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- JavaScript Libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.1/sweetalert2.all.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Mobile menu functionality
+  const mobileMenuButton = document.getElementById('mobile-menu-button');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const menuIcon = document.getElementById('menu-icon');
+  const closeIcon = document.getElementById('close-icon');
+  
+  if (mobileMenuButton && mobileMenu) {
+    mobileMenuButton.addEventListener('click', function() {
+      const isExpanded = this.getAttribute('aria-expanded') === 'true';
+      this.setAttribute('aria-expanded', !isExpanded);
+      mobileMenu.classList.toggle('hidden');
+      
+      // Toggle menu/close icons
+      if (menuIcon && closeIcon) {
+        menuIcon.classList.toggle('opacity-0');
+        closeIcon.classList.toggle('opacity-0');
+      }
+    });
+    
+    // Close menu when clicking links
+    mobileMenu.addEventListener('click', function(event) {
+      if (event.target.tagName === 'A') {
+        mobileMenu.classList.add('hidden');
+        mobileMenuButton.setAttribute('aria-expanded', 'false');
+        if (menuIcon && closeIcon) {
+          menuIcon.classList.remove('opacity-0');
+          closeIcon.classList.add('opacity-0');
+        }
+      }
+    });
+  }
+});
+
+// Testimonials App using Alpine.js
+function testimonialsApp() {
+  return {
+    selectedCategory: 'all',
+    sortBy: 'newest',
+    currentPage: 1,
+    itemsPerPage: 12,
+    loading: false,
+    
+    categories: [
+      { value: 'all', label: 'すべて', icon: 'fas fa-globe' },
+      { value: 'cleaning', label: '掃除', icon: 'fas fa-broom' },
+      { value: 'shopping', label: '買い物', icon: 'fas fa-shopping-cart' },
+      { value: 'delivery', label: '配達', icon: 'fas fa-truck' },
+      { value: 'pet', label: 'ペットケア', icon: 'fas fa-dog' },
+      { value: 'repair', label: '修理', icon: 'fas fa-tools' }
+    ],
+    
+    featuredTestimonials: [
+      {
+        id: 'featured-1',
+        name: '田中美咲',
+        avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b1e6?w=80&h=80&fit=crop&crop=face',
+        rating: 5,
+        content: '初めてTaskHelperを利用しました。一人暮らしで忙しく、掃除が追いつかない状況でしたが、田中さんが本当に丁寧に対応してくださいました。お部屋がピカピカになっただけでなく、整理整頓のコツまで教えていただき、感動しました。料金も適正で、また必ずお願いしたいと思います。',
+        category: 'cleaning',
+        categoryName: '掃除',
+        categoryIcon: 'fas fa-broom',
+        helper: '田中太郎',
+        date: '2025年1月15日'
+      },
+      {
+        id: 'featured-2',
+        name: '山田健一',
+        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face',
+        rating: 5,
+        content: '高齢の母の買い物を代行していただきました。コロナ禍で外出が心配でしたが、佐藤さんが細かく商品の写真を送ってくださり、母の好みも覚えてくださって、まるで家族のように接してくださいました。TaskHelperに登録して本当に良かったです。地域のつながりを感じられるサービスですね。',
+        category: 'shopping',
+        categoryName: '買い物',
+        categoryIcon: 'fas fa-shopping-cart',
+        helper: '佐藤花子',
+        date: '2025年1月12日'
+      }
+    ],
+    
+    allTestimonials: [],
+    filteredTestimonials: [],
+    
+    init() {
+      this.generateMockTestimonials();
+      this.filterTestimonials();
+    },
+    
+    generateMockTestimonials() {
+      const names = [
+        '鈴木直子', '伊藤雅人', '渡辺恵子', '中村健太', '小林由美',
+        '加藤大輔', '吉田真理', '山本和也', '松本智子', '井上博',
+        '木村さくら', '林健一', '清水美香', '森田優子', '池田秀樹',
+        '橋本裕子', '石川直人', '斎藤恵美', '後藤雅彦', '藤田明美'
+      ];
+      
+      const helpers = [
+        '田中太郎', '佐藤花子', '山田一郎', '鈴木美咲', '高橋健一'
+      ];
+      
+      const testimonialTexts = {
+        cleaning: [
+          '部屋の掃除をお願いしました。想像以上に丁寧で、隅々まで綺麗にしていただきました。',
+          'エアコンクリーニングを依頼。プロの技術で見違えるほど綺麗になりました。',
+          '大掃除の時期にお願いしました。一人では到底できない作業量でしたが、効率的に進めていただき感謝です。',
+          'キッチンの油汚れに困っていましたが、専用の道具と技術で完璧に除去していただきました。'
+        ],
+        shopping: [
+          '高齢の父の代わりに買い物を依頼。商品選びも丁寧で、父も大変喜んでいました。',
+          '重い荷物の買い物をお願いしました。商品の写真も送ってくださり、安心でした。',
+          '急な来客で食材が必要でしたが、迅速に対応していただき助かりました。',
+          '特売日に合わせて買い物を依頼。節約になり、とても満足しています。'
+        ],
+        delivery: [
+          '引越しの荷物運びを手伝っていただきました。重い家具も安全に運んでくださいました。',
+          '大型家電の配送設置をお願いしました。丁寧な作業で安心してお任せできました。',
+          '書類の配達を依頼。時間通りに確実に届けていただき、ビジネスでも信頼できます。',
+          '植木鉢の移動をお願いしました。植物を傷つけないよう細心の注意を払ってくださいました。'
+        ],
+        pet: [
+          'ペットの散歩をお願いしました。愛犬もすぐに懐いて、安心してお任せできました。',
+          '出張中のペットシッターを依頼。こまめに写真を送ってくださり、安心して出張できました。',
+          '高齢猫の世話をお願いしました。優しく接してくださり、猫もリラックスしていました。',
+          'トリミングサロンへの送迎を依頼。ペットの扱いに慣れていて、ストレスなく移動できました。'
+        ],
+        repair: [
+          '水道の蛇口交換をお願いしました。迅速かつ丁寧な作業で、問題が解決しました。',
+          '家具の組み立てを依頼。説明書を見ながら的確に組み立てていただきました。',
+          '電球交換などの細かい修理をまとめて依頼。一つ一つ丁寧に対応していただきました。',
+          '網戸の張り替えをお願いしました。仕上がりも美しく、プロの技術を感じました。'
+        ]
+      };
+      
+      this.allTestimonials = names.map((name, index) => {
+        const categoryKeys = Object.keys(testimonialTexts);
+        const category = categoryKeys[Math.floor(Math.random() * categoryKeys.length)];
+        const categoryInfo = this.categories.find(c => c.value === category);
+        const texts = testimonialTexts[category];
+        
+        const date = new Date();
+        date.setDate(date.getDate() - Math.floor(Math.random() * 180));
+        
+        return {
+          id: index + 1,
+          name: name,
+          avatar: `https://images.unsplash.com/photo-${1500000000000 + Math.random() * 100000000}?w=80&h=80&fit=crop&crop=face`,
+          rating: Math.floor(Math.random() * 2) + 4, // 4 or 5 stars
+          content: texts[Math.floor(Math.random() * texts.length)],
+          category: category,
+          categoryName: categoryInfo ? categoryInfo.label : category,
+          categoryIcon: categoryInfo ? categoryInfo.icon : 'fas fa-tag',
+          helper: helpers[Math.floor(Math.random() * helpers.length)],
+          date: date.toLocaleDateString('ja-JP'),
+          helpful: Math.floor(Math.random() * 20) + 1,
+          isHelpful: false,
+          timestamp: date.getTime()
+        };
+      });
+    },
+    
+    filterTestimonials() {
+      if (this.selectedCategory === 'all') {
+        this.filteredTestimonials = [...this.allTestimonials];
+      } else {
+        this.filteredTestimonials = this.allTestimonials.filter(
+          testimonial => testimonial.category === this.selectedCategory
+        );
+      }
+      this.sortTestimonials();
+    },
+    
+    sortTestimonials() {
+      this.filteredTestimonials.sort((a, b) => {
+        switch (this.sortBy) {
+          case 'newest':
+            return b.timestamp - a.timestamp;
+          case 'oldest':
+            return a.timestamp - b.timestamp;
+          case 'rating':
+            return b.rating - a.rating;
+          case 'helpful':
+            return b.helpful - a.helpful;
+          default:
+            return b.timestamp - a.timestamp;
+        }
+      });
+      this.currentPage = 1;
+    },
+    
+    get paginatedTestimonials() {
+      const start = (this.currentPage - 1) * this.itemsPerPage;
+      const end = start + this.itemsPerPage;
+      return this.filteredTestimonials.slice(0, end);
+    },
+    
+    get hasMoreTestimonials() {
+      return this.paginatedTestimonials.length < this.filteredTestimonials.length;
+    },
+    
+    loadMoreTestimonials() {
+      this.loading = true;
+      setTimeout(() => {
+        this.currentPage++;
+        this.loading = false;
+      }, 800);
+    },
+    
+    toggleHelpful(testimonial) {
+      if (testimonial.isHelpful) {
+        testimonial.helpful--;
+        testimonial.isHelpful = false;
+        toastr.info('参考になったを取り消しました');
+      } else {
+        testimonial.helpful++;
+        testimonial.isHelpful = true;
+        toastr.success('参考になったをマークしました');
+      }
+    },
+    
+    shareTestimonial(testimonial) {
+      if (navigator.share) {
+        navigator.share({
+          title: `${testimonial.name}さんのレビュー - TaskHelper`,
+          text: testimonial.content,
+          url: window.location.href
+        });
+      } else {
+        // Fallback for browsers that don't support Web Share API
+        navigator.clipboard.writeText(`${testimonial.name}さんのレビュー: "${testimonial.content}" - TaskHelper`);
+        toastr.success('レビューをクリップボードにコピーしました');
+      }
+    }
+  }
+}
+
+// Configure Toastr
+toastr.options = {
+  "closeButton": true,
+  "progressBar": true,
+  "positionClass": "toast-top-right",
+  "timeOut": "4000"
+};
+</script>
+
+</body>
+</html>

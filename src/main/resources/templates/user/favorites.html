@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="ja" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>お気に入り - TaskHelper | 近所の信頼できる代行サービス</title>
+  
+  <!-- CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- CSS Libraries -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  
+  <!-- Additional UI Libraries -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.1/sweetalert2.min.css" rel="stylesheet">
+  
+  <!-- Alpine.js -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  
+  <!-- Custom CSS -->
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .glass-effect {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .favorite-card {
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+    }
+    
+    .favorite-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+      border-color: rgba(37, 99, 235, 0.2);
+    }
+    
+    .favorite-heart {
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .favorite-heart.active {
+      color: #ef4444;
+      transform: scale(1.2);
+    }
+    
+    .favorite-heart:hover {
+      transform: scale(1.1);
+    }
+    
+    .category-shopping { background: #d1fae5; color: #065f46; }
+    .category-cleaning { background: #dbeafe; color: #1e40af; }
+    .category-delivery { background: #fef3c7; color: #92400e; }
+    .category-petcare { background: #e0e7ff; color: #3730a3; }
+    .category-repairs { background: #fee2e2; color: #991b1b; }
+    
+    .filter-chip {
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .filter-chip:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .filter-chip.active {
+      background: #2563eb;
+      color: white;
+      transform: translateY(-2px);
+    }
+    
+    .empty-state {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(16, 185, 129, 0.05));
+      border: 2px dashed #d1d5db;
+    }
+    
+    .sort-dropdown {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+  </style>
+</head>
+
+<body class="bg-gradient-to-br from-blue-50 via-white to-green-50 min-h-screen">
+
+<!-- Navigation -->
+<nav class="bg-white shadow-sm fixed top-0 left-0 right-0 z-50">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex items-center h-16">
+      <!-- Logo -->
+      <div class="flex items-center space-x-2">
+        <i class="fas fa-hands-helping text-2xl text-blue-600" aria-hidden="true"></i>
+        <span class="text-xl font-bold text-gray-900">TaskHelper</span>
+      </div>
+      
+      <!-- Desktop Menu (centered) -->
+      <div class="hidden md:flex items-center space-x-8 mx-auto">
+        <a href="index.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">ホーム</a>
+        <a href="task-list.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">依頼一覧</a>
+        <a href="task-create.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">依頼投稿</a>
+        <a href="profile.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">プロフィール</a>
+        <a href="my-tasks.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">マイタスク</a>
+      </div>
+      
+      <!-- Auth Buttons -->
+      <div class="hidden md:flex items-center space-x-3">
+        <a href="login.html" class="border border-blue-600 text-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-blue-50 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">ログイン</a>
+        <a href="register.html" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">始める</a>
+      </div>
+      
+      <!-- Mobile Menu Button -->
+      <div class="md:hidden ml-auto">
+        <button id="mobile-menu-button" class="text-gray-700 hover:text-blue-600 p-2 transition-all duration-300 ease-in-out" aria-expanded="false">
+          <svg class="w-6 h-6 transition-transform duration-300 ease-in-out" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path id="menu-icon" class="transition-opacity duration-300" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            <path id="close-icon" class="transition-opacity duration-300 opacity-0" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden md:hidden pb-4 transition-all duration-300 ease-in-out transform">
+      <div class="flex flex-col space-y-2">
+        <a href="index.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">ホーム</a>
+        <a href="task-list.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">依頼一覧</a>
+        <a href="task-create.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">依頼投稿</a>
+        <a href="profile.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">プロフィール</a>
+        <a href="my-tasks.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">マイタスク</a>
+        <hr class="my-3">
+        <div class="flex gap-2 justify-center">
+          <a href="login.html" class="border border-blue-600 text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-50 text-center transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">ログイン</a>
+          <a href="register.html" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 text-center transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">始める</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-12" x-data="favoritesApp()">
+  <!-- Page Header -->
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">
+        <i class="fas fa-heart text-red-500 mr-3"></i>
+        お気に入り
+      </h1>
+      <p class="text-gray-600">保存した依頼を管理できます</p>
+    </div>
+    
+    <!-- Stats -->
+    <div class="hidden md:flex items-center space-x-6">
+      <div class="text-center">
+        <div class="text-2xl font-bold text-blue-600" x-text="favorites.length"></div>
+        <div class="text-sm text-gray-600">保存済み</div>
+      </div>
+      <div class="text-center">
+        <div class="text-2xl font-bold text-green-600" x-text="favorites.filter(f => f.status === 'available').length"></div>
+        <div class="text-sm text-gray-600">募集中</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters and Search -->
+  <div class="glass-effect rounded-2xl p-6 shadow-lg mb-8">
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+      <!-- Search -->
+      <div class="flex-1 lg:mr-6">
+        <div class="relative">
+          <input 
+            type="search" 
+            x-model="searchQuery"
+            placeholder="依頼を検索..." 
+            class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+          <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+        </div>
+      </div>
+      
+      <!-- Sort -->
+      <div class="flex items-center space-x-4">
+        <div class="relative">
+          <select x-model="sortBy" class="sort-dropdown px-4 py-3 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 appearance-none pr-8">
+            <option value="newest">新着順</option>
+            <option value="price-high">価格：高い順</option>
+            <option value="price-low">価格：安い順</option>
+            <option value="deadline">期限順</option>
+          </select>
+          <i class="fas fa-chevron-down absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+        </div>
+        
+        <button @click="viewMode = viewMode === 'grid' ? 'list' : 'grid'" class="p-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+          <i class="fas" :class="viewMode === 'grid' ? 'fa-list' : 'fa-th-large'"></i>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Category Filters -->
+    <div class="flex flex-wrap gap-3 mt-6">
+      <button 
+        @click="selectedCategory = 'all'"
+        class="filter-chip px-4 py-2 rounded-full text-sm font-medium border"
+        :class="selectedCategory === 'all' ? 'active' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'">
+        全て
+      </button>
+      <button 
+        @click="selectedCategory = 'shopping'"
+        class="filter-chip px-4 py-2 rounded-full text-sm font-medium border"
+        :class="selectedCategory === 'shopping' ? 'active' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'">
+        <i class="fas fa-shopping-cart mr-2"></i>買い物代行
+      </button>
+      <button 
+        @click="selectedCategory = 'cleaning'"
+        class="filter-chip px-4 py-2 rounded-full text-sm font-medium border"
+        :class="selectedCategory === 'cleaning' ? 'active' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'">
+        <i class="fas fa-broom mr-2"></i>掃除・整理
+      </button>
+      <button 
+        @click="selectedCategory = 'delivery'"
+        class="filter-chip px-4 py-2 rounded-full text-sm font-medium border"
+        :class="selectedCategory === 'delivery' ? 'active' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'">
+        <i class="fas fa-truck mr-2"></i>配送・引越し
+      </button>
+      <button 
+        @click="selectedCategory = 'petcare'"
+        class="filter-chip px-4 py-2 rounded-full text-sm font-medium border"
+        :class="selectedCategory === 'petcare' ? 'active' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'">
+        <i class="fas fa-paw mr-2"></i>ペットケア
+      </button>
+      <button 
+        @click="selectedCategory = 'repairs'"
+        class="filter-chip px-4 py-2 rounded-full text-sm font-medium border"
+        :class="selectedCategory === 'repairs' ? 'active' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'">
+        <i class="fas fa-tools mr-2"></i>修理・メンテナンス
+      </button>
+    </div>
+  </div>
+
+  <!-- Favorites Grid/List -->
+  <div x-show="filteredFavorites.length > 0">
+    <!-- Grid View -->
+    <div x-show="viewMode === 'grid'" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <template x-for="favorite in filteredFavorites" :key="favorite.id">
+        <div class="favorite-card glass-effect rounded-2xl p-6 shadow-lg">
+          <!-- Card Header -->
+          <div class="flex items-start justify-between mb-4">
+            <span class="px-3 py-1 rounded-full text-sm font-medium" 
+                  :class="getCategoryClass(favorite.category)" 
+                  x-text="getCategoryName(favorite.category)"></span>
+            <button @click="removeFavorite(favorite.id)" class="favorite-heart active">
+              <i class="fas fa-heart text-xl"></i>
+            </button>
+          </div>
+          
+          <!-- Task Info -->
+          <h3 class="text-lg font-semibold text-gray-900 mb-3" x-text="favorite.title"></h3>
+          <p class="text-gray-600 text-sm mb-4 line-clamp-2" x-text="favorite.description"></p>
+          
+          <!-- Task Details -->
+          <div class="space-y-2 mb-4">
+            <div class="flex items-center text-sm text-gray-500">
+              <i class="fas fa-yen-sign mr-2 w-4"></i>
+              <span x-text="favorite.price.toLocaleString() + '円'"></span>
+            </div>
+            <div class="flex items-center text-sm text-gray-500">
+              <i class="fas fa-calendar mr-2 w-4"></i>
+              <span x-text="new Date(favorite.deadline).toLocaleDateString('ja-JP')"></span>
+            </div>
+            <div class="flex items-center text-sm text-gray-500">
+              <i class="fas fa-map-marker-alt mr-2 w-4"></i>
+              <span x-text="favorite.location"></span>
+            </div>
+          </div>
+          
+          <!-- Status -->
+          <div class="flex items-center justify-between">
+            <span class="px-3 py-1 rounded-full text-xs font-medium"
+                  :class="favorite.status === 'available' ? 'bg-green-100 text-green-800' : 
+                          favorite.status === 'in_progress' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'"
+                  x-text="getStatusName(favorite.status)"></span>
+            
+            <button @click="viewTask(favorite.id)" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition-colors">
+              詳細を見る
+            </button>
+          </div>
+        </div>
+      </template>
+    </div>
+    
+    <!-- List View -->
+    <div x-show="viewMode === 'list'" class="space-y-4">
+      <template x-for="favorite in filteredFavorites" :key="favorite.id">
+        <div class="favorite-card glass-effect rounded-2xl p-6 shadow-lg">
+          <div class="flex items-start justify-between">
+            <div class="flex-1">
+              <div class="flex items-center mb-3">
+                <span class="px-3 py-1 rounded-full text-sm font-medium mr-3" 
+                      :class="getCategoryClass(favorite.category)" 
+                      x-text="getCategoryName(favorite.category)"></span>
+                <span class="px-3 py-1 rounded-full text-xs font-medium"
+                      :class="favorite.status === 'available' ? 'bg-green-100 text-green-800' : 
+                              favorite.status === 'in_progress' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'"
+                      x-text="getStatusName(favorite.status)"></span>
+              </div>
+              
+              <h3 class="text-xl font-semibold text-gray-900 mb-2" x-text="favorite.title"></h3>
+              <p class="text-gray-600 mb-4" x-text="favorite.description"></p>
+              
+              <div class="flex items-center space-x-6 text-sm text-gray-500">
+                <div class="flex items-center">
+                  <i class="fas fa-yen-sign mr-2"></i>
+                  <span x-text="favorite.price.toLocaleString() + '円'"></span>
+                </div>
+                <div class="flex items-center">
+                  <i class="fas fa-calendar mr-2"></i>
+                  <span x-text="new Date(favorite.deadline).toLocaleDateString('ja-JP')"></span>
+                </div>
+                <div class="flex items-center">
+                  <i class="fas fa-map-marker-alt mr-2"></i>
+                  <span x-text="favorite.location"></span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="flex flex-col items-end space-y-3 ml-6">
+              <button @click="removeFavorite(favorite.id)" class="favorite-heart active">
+                <i class="fas fa-heart text-xl"></i>
+              </button>
+              <button @click="viewTask(favorite.id)" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                詳細を見る
+              </button>
+            </div>
+          </div>
+        </div>
+      </template>
+    </div>
+  </div>
+  
+  <!-- Empty State -->
+  <div x-show="filteredFavorites.length === 0" class="empty-state rounded-2xl p-12 text-center">
+    <div class="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-6">
+      <i class="fas fa-heart text-4xl text-gray-400"></i>
+    </div>
+    
+    <div x-show="favorites.length === 0">
+      <h3 class="text-xl font-medium text-gray-900 mb-2">お気に入りがありません</h3>
+      <p class="text-gray-600 mb-6">
+        気になる依頼を見つけたら、ハートマークをクリックしてお気に入りに追加しましょう。
+      </p>
+      <a href="task-list.html" class="inline-flex items-center bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+        <i class="fas fa-search mr-2"></i>
+        依頼を探す
+      </a>
+    </div>
+    
+    <div x-show="favorites.length > 0 && filteredFavorites.length === 0">
+      <h3 class="text-xl font-medium text-gray-900 mb-2">条件に一致する依頼がありません</h3>
+      <p class="text-gray-600 mb-6">
+        検索条件やフィルターを変更して再度お試しください。
+      </p>
+      <button @click="clearFilters()" class="inline-flex items-center bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+        <i class="fas fa-filter mr-2"></i>
+        フィルターをクリア
+      </button>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="mt-12 grid md:grid-cols-3 gap-6">
+    <div class="glass-effect rounded-2xl p-6 shadow-lg text-center">
+      <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <i class="fas fa-search text-2xl text-blue-600"></i>
+      </div>
+      <h3 class="text-lg font-semibold text-gray-900 mb-2">新しい依頼を探す</h3>
+      <p class="text-gray-600 text-sm mb-4">あなたの条件に合う依頼を見つけましょう</p>
+      <a href="task-list.html" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+        依頼一覧を見る
+      </a>
+    </div>
+    
+    <div class="glass-effect rounded-2xl p-6 shadow-lg text-center">
+      <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <i class="fas fa-bell text-2xl text-green-600"></i>
+      </div>
+      <h3 class="text-lg font-semibold text-gray-900 mb-2">通知設定</h3>
+      <p class="text-gray-600 text-sm mb-4">お気に入りの依頼の更新を通知で受け取る</p>
+      <a href="settings.html" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors">
+        設定する
+      </a>
+    </div>
+    
+    <div class="glass-effect rounded-2xl p-6 shadow-lg text-center">
+      <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <i class="fas fa-plus text-2xl text-purple-600"></i>
+      </div>
+      <h3 class="text-lg font-semibold text-gray-900 mb-2">依頼を投稿</h3>
+      <p class="text-gray-600 text-sm mb-4">あなたの依頼をヘルパーに見つけてもらいましょう</p>
+      <a href="task-create.html" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors">
+        投稿する
+      </a>
+    </div>
+  </div>
+</main>
+
+<!-- Footer -->
+<footer class="bg-gray-900 text-white py-12">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+      <!-- Brand Section -->
+      <div class="col-span-2 md:col-span-1">
+        <div class="flex items-center space-x-2 mb-4">
+          <i class="fas fa-hands-helping text-2xl text-blue-500"></i>
+          <span class="text-xl font-bold">TaskHelper</span>
+        </div>
+        <p class="text-gray-400 text-sm leading-relaxed">
+          近所の信頼できる代行サービスで、<br>
+          あなたの時間をより価値のあることに。
+        </p>
+      </div>
+      
+      <!-- Services Section -->
+      <div>
+        <h3 class="font-semibold mb-4">サービス</h3>
+        <ul class="space-y-2 text-sm">
+          <li><a href="task-list.html?category=shopping" class="text-gray-400 hover:text-white transition-colors">買い物代行</a></li>
+          <li><a href="task-list.html?category=cleaning" class="text-gray-400 hover:text-white transition-colors">掃除・整理</a></li>
+          <li><a href="task-list.html?category=delivery" class="text-gray-400 hover:text-white transition-colors">配送・引越し</a></li>
+          <li><a href="task-list.html?category=petcare" class="text-gray-400 hover:text-white transition-colors">ペットケア</a></li>
+          <li><a href="task-list.html?category=repairs" class="text-gray-400 hover:text-white transition-colors">修理・メンテナンス</a></li>
+        </ul>
+      </div>
+      
+      <!-- Support Section -->
+      <div>
+        <h3 class="font-semibold mb-4">サポート</h3>
+        <ul class="space-y-2 text-sm">
+          <li><a href="help.html" class="text-gray-400 hover:text-white transition-colors">ヘルプセンター</a></li>
+          <li><a href="#" class="text-gray-400 hover:text-white transition-colors">お問い合わせ</a></li>
+          <li><a href="terms.html" class="text-gray-400 hover:text-white transition-colors">利用規約</a></li>
+          <li><a href="privacy-policy.html" class="text-gray-400 hover:text-white transition-colors">プライバシーポリシー</a></li>
+        </ul>
+      </div>
+      
+      <!-- Follow Section -->
+      <div>
+        <h3 class="font-semibold mb-4">フォロー</h3>
+        <div class="flex space-x-4">
+          <a href="#" class="text-gray-400 hover:text-white transition-colors">
+            <i class="fab fa-twitter text-xl"></i>
+          </a>
+          <a href="#" class="text-gray-400 hover:text-white transition-colors">
+            <i class="fab fa-facebook text-xl"></i>
+          </a>
+          <a href="#" class="text-gray-400 hover:text-white transition-colors">
+            <i class="fab fa-instagram text-xl"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+    
+    <div class="border-t border-gray-800 mt-8 pt-8 text-center">
+      <p class="text-gray-400 text-sm" lang="ja">
+        &copy; 2025 TaskHelper. All rights reserved.
+      </p>
+    </div>
+  </div>
+</footer>
+
+<!-- JavaScript Libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.1/sweetalert2.all.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Mobile menu functionality
+  const mobileMenuButton = document.getElementById('mobile-menu-button');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const menuIcon = document.getElementById('menu-icon');
+  const closeIcon = document.getElementById('close-icon');
+  
+  if (mobileMenuButton && mobileMenu) {
+    mobileMenuButton.addEventListener('click', function() {
+      const isExpanded = this.getAttribute('aria-expanded') === 'true';
+      this.setAttribute('aria-expanded', !isExpanded);
+      mobileMenu.classList.toggle('hidden');
+      
+      // Toggle menu/close icons
+      if (menuIcon && closeIcon) {
+        menuIcon.classList.toggle('opacity-0');
+        closeIcon.classList.toggle('opacity-0');
+      }
+    });
+    
+    // Close menu when clicking links
+    mobileMenu.addEventListener('click', function(event) {
+      if (event.target.tagName === 'A') {
+        mobileMenu.classList.add('hidden');
+        mobileMenuButton.setAttribute('aria-expanded', 'false');
+        if (menuIcon && closeIcon) {
+          menuIcon.classList.remove('opacity-0');
+          closeIcon.classList.add('opacity-0');
+        }
+      }
+    });
+  }
+});
+
+// Favorites App using Alpine.js
+function favoritesApp() {
+  return {
+    favorites: [
+      {
+        id: 1,
+        title: 'コストコでの買い物代行',
+        description: 'コストコで冷凍食品と日用品の買い物をお願いします。リストをお渡しします。',
+        category: 'shopping',
+        price: 3000,
+        deadline: '2025-01-15',
+        location: '東京都世田谷区',
+        status: 'available',
+        savedDate: '2025-01-02'
+      },
+      {
+        id: 2,
+        title: '部屋の掃除と整理整頓',
+        description: '引越し前の部屋の大掃除をお手伝いいただきたいです。',
+        category: 'cleaning',
+        price: 5000,
+        deadline: '2025-01-20',
+        location: '東京都渋谷区',
+        status: 'available',
+        savedDate: '2025-01-03'
+      },
+      {
+        id: 3,
+        title: '家具の配送・組み立て',
+        description: 'IKEAで購入した家具の配送と組み立てをお願いします。',
+        category: 'delivery',
+        price: 7000,
+        deadline: '2025-01-18',
+        location: '東京都新宿区',
+        status: 'in_progress',
+        savedDate: '2025-01-01'
+      },
+      {
+        id: 4,
+        title: '犬の散歩（平日のみ）',
+        description: '平日の夕方に柴犬の散歩をお願いします。週3回程度。',
+        category: 'petcare',
+        price: 2000,
+        deadline: '2025-02-01',
+        location: '東京都目黒区',
+        status: 'available',
+        savedDate: '2024-12-28'
+      },
+      {
+        id: 5,
+        title: 'エアコンの修理・点検',
+        description: 'エアコンの調子が悪いので点検と修理をお願いします。',
+        category: 'repairs',
+        price: 8000,
+        deadline: '2025-01-12',
+        location: '東京都品川区',
+        status: 'completed',
+        savedDate: '2024-12-25'
+      }
+    ],
+    searchQuery: '',
+    selectedCategory: 'all',
+    sortBy: 'newest',
+    viewMode: 'grid',
+    
+    get filteredFavorites() {
+      let filtered = this.favorites;
+      
+      // Search filter
+      if (this.searchQuery.trim()) {
+        const query = this.searchQuery.toLowerCase();
+        filtered = filtered.filter(f => 
+          f.title.toLowerCase().includes(query) || 
+          f.description.toLowerCase().includes(query)
+        );
+      }
+      
+      // Category filter
+      if (this.selectedCategory !== 'all') {
+        filtered = filtered.filter(f => f.category === this.selectedCategory);
+      }
+      
+      // Sort
+      filtered.sort((a, b) => {
+        switch (this.sortBy) {
+          case 'newest':
+            return new Date(b.savedDate) - new Date(a.savedDate);
+          case 'price-high':
+            return b.price - a.price;
+          case 'price-low':
+            return a.price - b.price;
+          case 'deadline':
+            return new Date(a.deadline) - new Date(b.deadline);
+          default:
+            return 0;
+        }
+      });
+      
+      return filtered;
+    },
+    
+    getCategoryClass(category) {
+      const classes = {
+        shopping: 'category-shopping',
+        cleaning: 'category-cleaning', 
+        delivery: 'category-delivery',
+        petcare: 'category-petcare',
+        repairs: 'category-repairs'
+      };
+      return classes[category] || 'bg-gray-100 text-gray-800';
+    },
+    
+    getCategoryName(category) {
+      const names = {
+        shopping: '買い物代行',
+        cleaning: '掃除・整理',
+        delivery: '配送・引越し',
+        petcare: 'ペットケア',
+        repairs: '修理・メンテナンス'
+      };
+      return names[category] || category;
+    },
+    
+    getStatusName(status) {
+      const names = {
+        available: '募集中',
+        in_progress: '進行中',
+        completed: '完了済み'
+      };
+      return names[status] || status;
+    },
+    
+    removeFavorite(id) {
+      Swal.fire({
+        title: 'お気に入りから削除しますか？',
+        text: 'この操作は取り消せません',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: '削除',
+        cancelButtonText: 'キャンセル'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.favorites = this.favorites.filter(f => f.id !== id);
+          toastr.success('お気に入りから削除しました');
+        }
+      });
+    },
+    
+    viewTask(id) {
+      // Navigate to task detail page
+      window.location.href = `task-detail.html?id=${id}`;
+    },
+    
+    clearFilters() {
+      this.searchQuery = '';
+      this.selectedCategory = 'all';
+      this.sortBy = 'newest';
+    }
+  }
+}
+
+// Configure Toastr
+toastr.options = {
+  "closeButton": true,
+  "progressBar": true,
+  "positionClass": "toast-top-right",
+  "timeOut": "4000"
+};
+</script>
+
+</body>
+</html>

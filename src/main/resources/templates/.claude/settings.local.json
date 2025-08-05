@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rm:*)",
+      "Bash(del \"C:\\programming\\p1\\styles.css\")",
+      "Bash(sed:*)",
+      "Bash(start create-task.html)",
+      "Bash(powershell:*)",
+      "Bash(ls:*)",
+      "Bash(mkdir:*)",
+      "Bash(move login.html register.html forgot-password.html verify-email.html two-factor.html reset-password.html login-history.html auth/)",
+      "Bash(mv:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)"
+    ],
+    "deny": []
+  }
+}

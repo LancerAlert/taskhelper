@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>成果センター - TaskHelper</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.all.min.js"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .achievement-badge {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .achievement-badge:hover {
+            transform: scale(1.05);
+        }
+        .achievement-badge.earned::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,215,0,0.3), transparent);
+            transform: rotate(45deg);
+            animation: shine 2s infinite;
+        }
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+        .level-progress {
+            background: linear-gradient(90deg, #10b981, #059669);
+            transition: width 0.8s ease;
+        }
+        .milestone-marker {
+            position: relative;
+        }
+        .milestone-marker::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 12px;
+            height: 12px;
+            background: #10b981;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 0 0 2px #10b981;
+        }
+        .milestone-marker.locked::after {
+            background: #9ca3af;
+            box-shadow: 0 0 0 2px #9ca3af;
+        }
+        .trophy-bounce {
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+        .streak-flame {
+            animation: flicker 1.5s infinite alternate;
+        }
+        @keyframes flicker {
+            0% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0.8; transform: scale(1.05); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-yellow-50 via-orange-50 to-red-50 min-h-screen">
+    <!-- Header -->
+    <header class="glass-effect shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-4">
+                    <a href="index.html" class="text-2xl font-bold text-indigo-600">
+                        <i class="fas fa-hands-helping mr-2"></i>TaskHelper
+                    </a>
+                    <div class="hidden md:flex items-center space-x-2 bg-yellow-100 rounded-full px-4 py-2">
+                        <i class="fas fa-trophy text-yellow-600"></i>
+                        <span class="text-sm font-medium text-yellow-700">成果センター</span>
+                    </div>
+                </div>
+                <nav class="hidden md:flex items-center space-x-6">
+                    <a href="my-tasks.html" class="text-gray-700 hover:text-indigo-600 transition-colors">
+                        <i class="fas fa-list-check mr-2"></i>マイタスク
+                    </a>
+                    <a href="leaderboard.html" class="text-gray-700 hover:text-indigo-600 transition-colors">
+                        <i class="fas fa-ranking-star mr-2"></i>ランキング
+                    </a>
+                    <a href="profile.html" class="text-gray-700 hover:text-indigo-600 transition-colors">
+                        <i class="fas fa-user mr-2"></i>プロフィール
+                    </a>
+                </nav>
+                <button class="md:hidden" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="md:hidden glass-effect fixed top-20 inset-x-0 z-40 hidden">
+        <div class="px-4 py-4 space-y-3">
+            <a href="my-tasks.html" class="block text-gray-700 hover:text-indigo-600 transition-colors">
+                <i class="fas fa-list-check mr-2"></i>マイタスク
+            </a>
+            <a href="leaderboard.html" class="block text-gray-700 hover:text-indigo-600 transition-colors">
+                <i class="fas fa-ranking-star mr-2"></i>ランキング
+            </a>
+            <a href="profile.html" class="block text-gray-700 hover:text-indigo-600 transition-colors">
+                <i class="fas fa-user mr-2"></i>プロフィール
+            </a>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" x-data="achievementCenter()">
+        <!-- Hero Section -->
+        <div class="text-center mb-12">
+            <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full shadow-lg mb-6 trophy-bounce">
+                <i class="fas fa-trophy text-3xl text-white"></i>
+            </div>
+            <h1 class="text-4xl font-bold text-gray-900 mb-4">成果センター</h1>
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                あなたの TaskHelper での活動実績、獲得バッジ、達成レベルを一覧で確認できます。
+            </p>
+        </div>
+
+        <!-- Current Level & Progress -->
+        <div class="glass-effect rounded-2xl p-8 mb-8">
+            <div class="flex flex-col lg:flex-row items-center justify-between space-y-6 lg:space-y-0">
+                <div class="text-center lg:text-left">
+                    <div class="flex items-center justify-center lg:justify-start space-x-3 mb-4">
+                        <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+                            7
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-900">レベル 7</h2>
+                            <p class="text-lg text-gray-600">頼れるヘルパー</p>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-gray-600">次のレベルまで</span>
+                            <span class="font-semibold">280 / 500 XP</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-4">
+                            <div class="level-progress h-4 rounded-full" style="width: 56%"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-6 text-center">
+                    <div class="bg-white/50 rounded-xl p-4">
+                        <div class="text-3xl font-bold text-blue-600 mb-1">152</div>
+                        <div class="text-sm text-gray-600">完了タスク</div>
+                    </div>
+                    <div class="bg-white/50 rounded-xl p-4">
+                        <div class="text-3xl font-bold text-green-600 mb-1">4.9</div>
+                        <div class="text-sm text-gray-600">平均評価</div>
+                    </div>
+                    <div class="bg-white/50 rounded-xl p-4">
+                        <div class="text-3xl font-bold text-purple-600 mb-1">23</div>
+                        <div class="text-sm text-gray-600">獲得バッジ</div>
+                    </div>
+                    <div class="bg-white/50 rounded-xl p-4">
+                        <div class="text-3xl font-bold text-orange-600 mb-1 flex items-center justify-center">
+                            <i class="fas fa-fire streak-flame mr-1"></i>12
+                        </div>
+                        <div class="text-sm text-gray-600">連続日数</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Achievement Categories -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+            <!-- Recent Achievements -->
+            <div class="lg:col-span-2">
+                <div class="glass-effect rounded-2xl p-6">
+                    <h2 class="text-xl font-bold text-gray-900 mb-6">
+                        <i class="fas fa-star mr-2 text-yellow-600"></i>最近の獲得バッジ
+                    </h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="achievement-badge earned bg-gradient-to-r from-green-400 to-green-600 rounded-xl p-4 text-white cursor-pointer" @click="showAchievementDetails('speed-demon')">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-bolt text-2xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold">スピードデーモン</h3>
+                                    <p class="text-sm opacity-90">24時間以内に5つのタスクを完了</p>
+                                    <span class="text-xs opacity-75">2日前に獲得</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="achievement-badge earned bg-gradient-to-r from-purple-400 to-purple-600 rounded-xl p-4 text-white cursor-pointer" @click="showAchievementDetails('customer-favorite')">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-heart text-2xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold">お客様のお気に入り</h3>
+                                    <p class="text-sm opacity-90">10回連続で5つ星評価を獲得</p>
+                                    <span class="text-xs opacity-75">1週間前に獲得</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="achievement-badge earned bg-gradient-to-r from-blue-400 to-blue-600 rounded-xl p-4 text-white cursor-pointer" @click="showAchievementDetails('communication-master')">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-comments text-2xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold">コミュニケーションマスター</h3>
+                                    <p class="text-sm opacity-90">100回のメッセージ交換を達成</p>
+                                    <span class="text-xs opacity-75">2週間前に獲得</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="achievement-badge bg-gray-300 rounded-xl p-4 text-gray-600 cursor-pointer" @click="showAchievementDetails('century-club')">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-12 h-12 bg-gray-400 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-trophy text-2xl text-white"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold">センチュリークラブ</h3>
+                                    <p class="text-sm">100個のタスクを完了</p>
+                                    <span class="text-xs">152 / 100 (獲得済み？)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Milestones -->
+            <div class="space-y-6">
+                <div class="glass-effect rounded-2xl p-6">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">
+                        <i class="fas fa-route mr-2 text-indigo-600"></i>マイルストーン進行
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="milestone-marker w-4 h-4"></div>
+                                <span class="text-sm font-medium">初回タスク完了</span>
+                            </div>
+                            <i class="fas fa-check text-green-500"></i>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="milestone-marker w-4 h-4"></div>
+                                <span class="text-sm font-medium">10回完了</span>
+                            </div>
+                            <i class="fas fa-check text-green-500"></i>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="milestone-marker w-4 h-4"></div>
+                                <span class="text-sm font-medium">50回完了</span>
+                            </div>
+                            <i class="fas fa-check text-green-500"></i>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="milestone-marker w-4 h-4"></div>
+                                <span class="text-sm font-medium">100回完了</span>
+                            </div>
+                            <i class="fas fa-check text-green-500"></i>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="milestone-marker locked w-4 h-4"></div>
+                                <span class="text-sm text-gray-500">200回完了</span>
+                            </div>
+                            <span class="text-xs text-gray-400">152/200</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="milestone-marker locked w-4 h-4"></div>
+                                <span class="text-sm text-gray-500">500回完了</span>
+                            </div>
+                            <span class="text-xs text-gray-400">152/500</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-effect rounded-2xl p-6">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">
+                        <i class="fas fa-calendar-check mr-2 text-green-600"></i>今月の目標
+                    </h3>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-sm font-medium">タスク完了数</span>
+                                <span class="text-sm text-gray-600">18 / 25</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-green-500 h-2 rounded-full" style="width: 72%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-sm font-medium">平均評価維持</span>
+                                <span class="text-sm text-gray-600">4.9 / 4.5</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-blue-500 h-2 rounded-full" style="width: 100%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-sm font-medium">新しいカテゴリ</span>
+                                <span class="text-sm text-gray-600">2 / 3</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-purple-500 h-2 rounded-full" style="width: 67%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- All Achievements -->
+        <div class="glass-effect rounded-2xl p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold text-gray-900">
+                    <i class="fas fa-medal mr-2 text-gold-600"></i>全てのバッジ
+                </h2>
+                <div class="flex space-x-2">
+                    <button @click="filterAchievements('all')" :class="achievementFilter === 'all' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                        全て
+                    </button>
+                    <button @click="filterAchievements('earned')" :class="achievementFilter === 'earned' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                        獲得済み
+                    </button>
+                    <button @click="filterAchievements('locked')" :class="achievementFilter === 'locked' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                        未獲得
+                    </button>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                <template x-for="badge in filteredBadges" :key="badge.id">
+                    <div class="achievement-badge text-center p-4 rounded-xl cursor-pointer border-2 transition-all duration-200 hover:shadow-lg" 
+                         :class="badge.earned ? 'bg-gradient-to-b from-yellow-100 to-yellow-200 border-yellow-300' : 'bg-gray-100 border-gray-300'"
+                         @click="showAchievementDetails(badge.id)">
+                        <div class="w-12 h-12 mx-auto mb-2 rounded-full flex items-center justify-center"
+                             :class="badge.earned ? 'bg-yellow-400 text-white' : 'bg-gray-400 text-gray-600'">
+                            <i :class="badge.icon" class="text-xl"></i>
+                        </div>
+                        <h3 class="text-sm font-semibold mb-1" :class="badge.earned ? 'text-gray-900' : 'text-gray-500'" x-text="badge.name"></h3>
+                        <p class="text-xs" :class="badge.earned ? 'text-gray-600' : 'text-gray-400'" x-text="badge.description"></p>
+                        <div x-show="badge.earned" class="mt-2">
+                            <span class="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">獲得済み</span>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
+            <div class="glass-effect rounded-xl p-6 text-center">
+                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-tasks text-xl text-blue-600"></i>
+                </div>
+                <div class="text-3xl font-bold text-gray-900 mb-2">152</div>
+                <div class="text-sm text-gray-600 mb-4">総完了タスク数</div>
+                <div class="text-xs text-green-600">
+                    <i class="fas fa-arrow-up mr-1"></i>+8 今月
+                </div>
+            </div>
+            
+            <div class="glass-effect rounded-xl p-6 text-center">
+                <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-star text-xl text-green-600"></i>
+                </div>
+                <div class="text-3xl font-bold text-gray-900 mb-2">4.9</div>
+                <div class="text-sm text-gray-600 mb-4">平均評価</div>
+                <div class="text-xs text-green-600">
+                    優秀レベル
+                </div>
+            </div>
+            
+            <div class="glass-effect rounded-xl p-6 text-center">
+                <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-medal text-xl text-purple-600"></i>
+                </div>
+                <div class="text-3xl font-bold text-gray-900 mb-2">23</div>
+                <div class="text-sm text-gray-600 mb-4">獲得バッジ数</div>
+                <div class="text-xs text-purple-600">
+                    収集率 38%
+                </div>
+            </div>
+            
+            <div class="glass-effect rounded-xl p-6 text-center">
+                <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-fire text-xl text-orange-600"></i>
+                </div>
+                <div class="text-3xl font-bold text-gray-900 mb-2">12</div>
+                <div class="text-sm text-gray-600 mb-4">連続活動日数</div>
+                <div class="text-xs text-orange-600">
+                    <i class="fas fa-fire mr-1"></i>継続中
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function achievementCenter() {
+            return {
+                achievementFilter: 'all',
+                badges: [
+                    { id: 'first-task', name: '初心者', description: '初回タスク完了', icon: 'fas fa-baby', earned: true },
+                    { id: 'speed-demon', name: 'スピードデーモン', description: '24時間で5タスク完了', icon: 'fas fa-bolt', earned: true },
+                    { id: 'customer-favorite', name: 'お客様のお気に入り', description: '10回連続5つ星評価', icon: 'fas fa-heart', earned: true },
+                    { id: 'communication-master', name: 'コミュニケーションマスター', description: '100回メッセージ交換', icon: 'fas fa-comments', earned: true },
+                    { id: 'century-club', name: 'センチュリークラブ', description: '100タスク完了', icon: 'fas fa-trophy', earned: true },
+                    { id: 'early-bird', name: '早起き鳥', description: '朝6時前に10タスク完了', icon: 'fas fa-sunrise', earned: true },
+                    { id: 'night-owl', name: '夜ふかし族', description: '夜10時以降に10タスク完了', icon: 'fas fa-moon', earned: false },
+                    { id: 'weekend-warrior', name: '週末戦士', description: '週末に20タスク完了', icon: 'fas fa-calendar-weekend', earned: true },
+                    { id: 'helper-mentor', name: 'ヘルパーメンター', description: '新人ヘルパーを5人指導', icon: 'fas fa-chalkboard-teacher', earned: false },
+                    { id: 'problem-solver', name: '問題解決者', description: '困難なタスクを10回解決', icon: 'fas fa-puzzle-piece', earned: true },
+                    { id: 'photo-pro', name: 'フォトプロ', description: '100枚の進捗写真を撮影', icon: 'fas fa-camera', earned: true },
+                    { id: 'green-helper', name: 'グリーンヘルパー', description: 'エコタスクを20回完了', icon: 'fas fa-leaf', earned: false },
+                    { id: 'social-butterfly', name: '社交的', description: '50人の異なる依頼者と作業', icon: 'fas fa-users', earned: true },
+                    { id: 'multitasker', name: 'マルチタスカー', description: '全カテゴリで10タスク完了', icon: 'fas fa-layer-group', earned: true },
+                    { id: 'feedback-champion', name: 'フィードバック王', description: '100件のレビューを投稿', icon: 'fas fa-comment-dots', earned: false },
+                    { id: 'safety-first', name: '安全第一', description: '事故なしで6ヶ月活動', icon: 'fas fa-shield-alt', earned: true },
+                    { id: 'innovator', name: 'イノベーター', description: '改善提案が5回採用', icon: 'fas fa-lightbulb', earned: false },
+                    { id: 'loyalty-badge', name: 'ロイヤリティ', description: '1年間継続活動', icon: 'fas fa-award', earned: true },
+                    { id: 'perfectionist', name: '完璧主義者', description: '50回連続完璧評価', icon: 'fas fa-gem', earned: false },
+                    { id: 'community-hero', name: 'コミュニティヒーロー', description: '地域イベントに5回参加', icon: 'fas fa-hands-helping', earned: false }
+                ],
+                get filteredBadges() {
+                    if (this.achievementFilter === 'earned') {
+                        return this.badges.filter(badge => badge.earned);
+                    } else if (this.achievementFilter === 'locked') {
+                        return this.badges.filter(badge => !badge.earned);
+                    }
+                    return this.badges;
+                },
+                filterAchievements(filter) {
+                    this.achievementFilter = filter;
+                },
+                showAchievementDetails(badgeId) {
+                    const badge = this.badges.find(b => b.id === badgeId);
+                    if (badge) {
+                        Swal.fire({
+                            title: badge.name,
+                            text: badge.description,
+                            icon: badge.earned ? 'success' : 'info',
+                            html: `
+                                <div class="text-center">
+                                    <div class="w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center ${badge.earned ? 'bg-yellow-400 text-white' : 'bg-gray-400 text-gray-600'}">
+                                        <i class="${badge.icon} text-3xl"></i>
+                                    </div>
+                                    <p class="text-gray-600 mb-4">${badge.description}</p>
+                                    ${badge.earned ? 
+                                        '<span class="inline-block bg-green-100 text-green-800 px-4 py-2 rounded-full">獲得済み</span>' : 
+                                        '<span class="inline-block bg-gray-100 text-gray-600 px-4 py-2 rounded-full">未獲得</span>'
+                                    }
+                                </div>
+                            `,
+                            confirmButtonText: '閉じる'
+                        });
+                    }
+                }
+            }
+        }
+
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        }
+    </script>
+</body>
+</html>
