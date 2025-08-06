@@ -10,7 +10,7 @@ TaskHelper is a Japanese neighborhood task assistance service website built as a
 
 ### Backend Stack
 - **Spring Boot 3.5.4**: Web framework with embedded Tomcat server
-- **Spring Security**: Authentication and authorization (currently disabled for development)
+- **Spring Security**: Authentication and authorization (currently configured but allows all requests for development)
 - **Spring Data JPA**: Database abstraction layer
 - **MyBatis**: SQL mapping framework for custom queries
 - **H2 Database**: In-memory database for development
@@ -28,9 +28,9 @@ TaskHelper is a Japanese neighborhood task assistance service website built as a
 ### Directory Structure (src/main/resources/templates/)
 - **Root**: index.html (main landing page)
 - **tasks/**: Core task flow (task-list.html, task-create.html, task-detail.html, my-tasks.html, task-progress.html)
-- **user/**: User management (profile.html, settings.html, notifications.html, messages.html, reviews.html, favorites.html)
+- **user/**: User management (user-profile.html, user-settings.html, user-notifications.html, user-messages.html, user-reviews.html, user-favorites.html)
 - **auth/**: Authentication flow (login.html, register.html, forgot-password.html, verify-email.html, two-factor.html, reset-password.html, login-history.html)
-- **helper/**: Helper-specific features (helper-onboarding.html, leaderboard.html, achievement-center.html, earnings.html)
+- **helper/**: Helper-specific features (helper-onboarding.html, helper-leaderboard.html, achievement-center.html, helper-earnings.html)
 - **admin/**: Administrative panel (admin-dashboard.html, admin-users.html, admin-disputes.html, admin-analytics.html, admin-content.html)
 - **support/**: Support and information pages (help.html, about.html, terms.html, privacy-policy.html, dispute-resolution.html, testimonials.html, onboarding-guide.html)
 - **misc/**: Utility pages (payment.html, search.html)
@@ -40,7 +40,7 @@ TaskHelper is a Japanese neighborhood task assistance service website built as a
 ### Template System
 - **layout.html**: Base layout template with Thymeleaf Layout Dialect integration
 - **fragments.html**: Reusable Thymeleaf fragments and JavaScript utilities
-- **header.html**: Navigation component with mega menu structure
+- **header.html**: Complex navigation component with mega menu structure
 - **footer.html**: Footer component with service links
 
 ### Design System Standards
@@ -56,7 +56,7 @@ TaskHelper is a Japanese neighborhood task assistance service website built as a
 - Purple: Pet Care (ペットケア)
 - Red: Repairs (修理)
 
-**Mobile Responsiveness**: Breakpoints at `sm:` (640px), `md:` (768px), `lg:` (1024px) with mobile-first approach. Special mobile CSS in task-create.html for form element handling.
+**Mobile Responsiveness**: Breakpoints at `sm:` (640px), `md:` (768px), `lg:` (1024px) with mobile-first approach. Special mobile CSS in styles.css for form element handling.
 
 ### Key Components
 
@@ -68,33 +68,55 @@ TaskHelper is a Japanese neighborhood task assistance service website built as a
 
 **Form Validation**: `.error-field` and `.success-field` classes for visual feedback with border and background color changes.
 
-## Development Guidelines
+## Development Commands
 
-### Adding New Pages
-1. Copy navigation from header.html and footer from footer.html
-2. Add `text-blue-600 font-semibold` to current page menu item for active state
-3. Include Alpine.js for interactive components (`x-data`, dropdowns, mobile menu)
-4. Apply category-specific colors and consistent hover effects
-5. Ensure mobile responsiveness and test at 640px breakpoint
+### Spring Boot Application
+```bash
+# Run the application (Windows)
+gradlew bootRun
 
-### Styling Architecture
-- **Global CSS**: `box-sizing: border-box`, no text decoration on links
-- **Tailwind Priority**: Prefer utility classes over custom CSS
-- **Custom Classes**: `.task-card`, `.category-card`, `.modern-button`, `.filter-button.active`
-- **Shadow System**: `shadow-lg` for cards, `shadow-xl` for elevated states
-- **Form States**: `.error-field` (red border/background), `.success-field` (green border/background)
+# Run the application (Unix/Mac)
+./gradlew bootRun
 
-### JavaScript Architecture
-- **Vanilla JavaScript**: Primary approach with Alpine.js for specific reactive components
-- **Library Integration**: Toastr (notifications), SweetAlert2 (confirmations)
-- **Mobile Menu**: Uses `aria-expanded` attributes and icon transitions
-- **Time Display**: `updateRelativeTimes()` with setInterval for auto-refresh
-- **Current Year**: 2025 (update data-time attributes accordingly)
+# Build the application
+gradlew build
+
+# Run tests
+gradlew test
+
+# Clean build artifacts
+gradlew clean
+
+# View available Gradle tasks
+gradlew tasks
+
+# Run a specific test class
+gradlew test --tests "TaskhelperApplicationTests"
+```
+
+### Application Configuration
+- **Server Port**: 8081 (configured in application.yml)
+- **Main Class**: com.taskhelper.TaskhelperApplication
+- **Security**: Currently configured to allow all requests for development (SecurityConfig.java:14-19)
+- **Database**: H2 in-memory for development, MySQL for production
+
+## Backend Architecture
+
+### Controller Structure
+- **IndexController**: Simple MVC pattern handling root route to index.html template
+- **AuthController**: Handles authentication routes (register, login) with form processing
+- **SecurityConfig**: Spring Security configuration with CSRF disabled for development, custom login/logout URLs
+
+### Key Backend Files
+- `src/main/java/com/taskhelper/TaskhelperApplication.java`: Standard Spring Boot application entry point
+- `src/main/java/com/taskhelper/config/SecurityConfig.java`: Security configuration with Japanese comments
+- `src/main/java/com/taskhelper/controller/`: MVC controllers for routing
+- `src/main/resources/application.yml`: Application configuration (port 8081, application name)
 
 ## Template System
 
 ### Thymeleaf Layout Pattern (Spring Boot Ready)
-- **layout.html**: Base layout template with fragment placeholders and common resources
+- **layout.html**: Base layout template with fragment placeholders, Tailwind config, and common resources
 - **fragments.html**: Header, footer, and JavaScript fragments with Spring Security integration
 - **Page Templates**: Use `layout:decorate="~{layout}"` for consistent structure
 
@@ -123,63 +145,44 @@ TaskHelper is a Japanese neighborhood task assistance service website built as a
 - **Active Navigation**: `th:classappend="${#httpServletRequest.requestURI == '/' ? 'active-class' : ''}"`
 - **User Context**: `th:text="${#authentication.name}"`
 
-## Development Commands
+## Development Guidelines
 
-### Spring Boot Application
-```bash
-# Run the application (Windows)
-gradlew bootRun
+### Adding New Pages
+1. Copy navigation from header.html and footer from footer.html
+2. Add `text-blue-600 font-semibold` to current page menu item for active state
+3. Include Alpine.js for interactive components (`x-data`, dropdowns, mobile menu)
+4. Apply category-specific colors and consistent hover effects
+5. Ensure mobile responsiveness and test at 640px breakpoint
 
-# Run the application (Unix/Mac)
-./gradlew bootRun
+### Styling Architecture
+- **Global CSS**: `box-sizing: border-box`, no text decoration on links (styles.css)
+- **Tailwind Priority**: Prefer utility classes over custom CSS
+- **Custom Classes**: `.task-card`, `.category-card`, `.modern-button`, `.filter-button.active`
+- **Shadow System**: `shadow-lg` for cards, `shadow-xl` for elevated states
+- **Form States**: `.error-field` (red border/background), `.success-field` (green border/background)
 
-# Build the application
-gradlew build
-
-# Run tests
-gradlew test
-
-# Clean build artifacts
-gradlew clean
-
-# View available Gradle tasks
-gradlew tasks
-```
-
-### Application Configuration
-- **Server Port**: 8081 (configured in application.yml)
-- **Main Class**: com.taskhelper.TaskhelperApplication
-- **Security**: Currently disabled for development (all requests permitted)
-- **Database**: H2 in-memory for development, MySQL for production
-
-### Common Search Commands
-```bash
-# List all HTML pages
-ls *.html
-
-# Find component usage patterns
-grep -r "class.*task-card" *.html
-grep -r "updateRelativeTimes" *.html
-grep -r "category-card" *.html
-
-# Search for specific functions or features
-grep -r "mobile-menu-button" *.html
-grep -r "filter-button" *.html
-```
+### JavaScript Architecture
+- **Vanilla JavaScript**: Primary approach with Alpine.js for specific reactive components
+- **Library Integration**: Toastr (notifications), SweetAlert2 (confirmations)
+- **Mobile Menu**: Uses `aria-expanded` attributes and icon transitions
+- **Time Display**: `updateRelativeTimes()` with setInterval for auto-refresh
+- **Current Year**: 2025 (update data-time attributes accordingly)
 
 ## Key Architecture Notes
 
-**Full Stack Spring Boot Application**: Complete web application with Spring Boot backend, Thymeleaf templating, and Spring Security integration (currently disabled for development).
+**Full Stack Spring Boot Application**: Complete web application with Spring Boot backend, Thymeleaf templating, and Spring Security integration.
 
 **Template Inheritance Pattern**: Uses Thymeleaf Layout Dialect for consistent page structure:
-- `layouts/layout.html`: Base template with common head/body structure and fragment placeholders
+- `layouts/layout.html`: Base template with extensive Tailwind configuration, animations, and common head/body structure
 - `layouts/fragments.html`: Reusable Thymeleaf fragments including relative time JavaScript utilities
 - Individual page templates use `layout:decorate="~{layout}"` pattern
 
 **Database Integration**: Configured for both H2 (development) and MySQL (production) with Spring Data JPA and MyBatis support.
 
-**Security Configuration**: Spring Security currently configured to permit all requests (SecurityConfig.java:14) for development purposes.
+**Security Configuration**: Spring Security configured with custom login/logout URLs, CSRF disabled for development, but with proper form login configuration ready for production.
 
-**Controller Structure**: Simple MVC pattern with MainController handling root route to index.html template.
+**Controller Structure**: Simple MVC pattern with IndexController handling root route and AuthController handling authentication flows.
 
 **Japanese Localization**: Complete Japanese language support including relative time formatting (`updateRelativeTimes()` function) and culturally appropriate UI patterns.
+
+**Complex Navigation System**: Sophisticated mega menu structure in header.html with desktop and mobile variants, using Alpine.js for interactivity and extensive JavaScript for mobile menu functionality.

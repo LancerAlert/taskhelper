@@ -11,7 +11,18 @@
       "Bash(move login.html register.html forgot-password.html verify-email.html two-factor.html reset-password.html login-history.html auth/)",
       "Bash(mv:*)",
       "Bash(find:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(gradlew:*)",
+      "Bash(dir)",
+      "Bash(move favorites.html user-favorites.html)",
+      "Bash(move messages.html user-messages.html)",
+      "Bash(move notifications.html user-notifications.html)",
+      "Bash(move profile.html user-profile.html)",
+      "Bash(move reviews.html user-reviews.html)",
+      "Bash(move settings.html user-settings.html)",
+      "Bash(ren:*)",
+      "Bash(git add:*)",
+      "Bash(git rm:*)"
     ],
     "deny": []
   }
