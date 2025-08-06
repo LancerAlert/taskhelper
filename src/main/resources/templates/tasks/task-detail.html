@@ -302,10 +302,10 @@
       <!-- Desktop Menu (centered) -->
       <div class="hidden md:flex items-center space-x-8 mx-auto">
         <a href="index.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">ホーム</a>
-        <a href="task-list.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">依頼一覧</a>
-        <a href="task-create.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">依頼投稿</a>
-        <a href="profile.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">プロフィール</a>
-        <a href="my-tasks.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">マイタスク</a>
+        <a th:href="@{/task/list}" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">依頼一覧</a>
+        <a th:href="@{/task/create}" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">依頼投稿</a>
+        <a href="../user/user-profile.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">プロフィール</a>
+        <a th:href="@{/task/my}" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">マイタスク</a>
       </div>
       
       <!-- Auth Buttons -->
@@ -329,10 +329,10 @@
     <div id="mobile-menu" class="hidden md:hidden pb-4 transition-all duration-300 ease-in-out transform">
       <div class="flex flex-col space-y-2">
         <a href="index.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">ホーム</a>
-        <a href="task-list.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">依頼一覧</a>
-        <a href="task-create.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">依頼投稿</a>
-        <a href="profile.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">プロフィール</a>
-        <a href="my-tasks.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">マイタスク</a>
+        <a th:href="@{/task/list}" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">依頼一覧</a>
+        <a th:href="@{/task/create}" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">依頼投稿</a>
+        <a href="../user/user-profile.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">プロフィール</a>
+        <a th:href="@{/task/my}" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">マイタスク</a>
         <hr class="my-3">
         <div class="flex gap-2 justify-center">
           <a href="login.html" class="border border-blue-600 text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-50 text-center transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300" style="border: 1px solid #2563eb !important;">ログイン</a>
@@ -370,7 +370,7 @@
           <i class="fas fa-chevron-right text-blue-400 text-lg animate-pulse"></i>
         </li>
         <li class="flex items-center">
-          <a href="task-list.html" class="flex items-center space-x-2 hover:text-blue-600 transition-all duration-300 hover:scale-110 font-semibold group">
+          <a th:href="@{/task/list}" class="flex items-center space-x-2 hover:text-blue-600 transition-all duration-300 hover:scale-110 font-semibold group">
             <span class="text-2xl group-hover:animate-bounce">📋</span>
             <span>依頼一覧</span>
           </a>
@@ -789,7 +789,7 @@
             </div>
           </div>
           
-          <a href="task-list.html" class="block text-center text-blue-600 hover:text-blue-700 text-sm font-medium mt-4 transition-colors">
+          <a th:href="@{/task/list}" class="block text-center text-blue-600 hover:text-blue-700 text-sm font-medium mt-4 transition-colors">
             すべての依頼を見る →
           </a>
         </div>
@@ -821,10 +821,10 @@
       <div>
         <h4 class="font-semibold mb-4">サービス</h4>
         <ul class="space-y-2 text-gray-400">
-          <li><a href="task-list.html?category=shopping" class="hover:text-white transition-colors">買い物代行</a></li>
-          <li><a href="task-list.html?category=cleaning" class="hover:text-white transition-colors">清掃サービス</a></li>
-          <li><a href="task-list.html?category=delivery" class="hover:text-white transition-colors">配達・運搬</a></li>
-          <li><a href="task-list.html?category=petcare" class="hover:text-white transition-colors">ペットケア</a></li>
+          <li><a th:href="@{/task/list(category='shopping')}" class="hover:text-white transition-colors">買い物代行</a></li>
+          <li><a th:href="@{/task/list(category='cleaning')}" class="hover:text-white transition-colors">清掃サービス</a></li>
+          <li><a th:href="@{/task/list(category='delivery')}" class="hover:text-white transition-colors">配達・運搬</a></li>
+          <li><a th:href="@{/task/list(category='petcare')}" class="hover:text-white transition-colors">ペットケア</a></li>
         </ul>
       </div>
       
@@ -935,7 +935,7 @@ document.addEventListener('DOMContentLoaded', function() {
     contactBtn.addEventListener('click', function() {
       const taskId = 'task_shopping_001'; // 実際の環境では URL パラメータから 取得
       const conversationId = 'conv_' + Math.random().toString(36).substr(2, 9);
-      window.location.href = `messages.html?conversation=${conversationId}&task=${taskId}&action=contact`;
+      window.location.href = `../user/user-messages.html?conversation=${conversationId}&task=${taskId}&action=contact`;
     });
   }
   
@@ -967,7 +967,7 @@ document.addEventListener('DOMContentLoaded', function() {
               // メッセージ ページで 新しい 会話を 開始
               const taskId = 'task_' + Math.random().toString(36).substr(2, 9);
               const conversationId = 'conv_' + Math.random().toString(36).substr(2, 9);
-              window.location.href = `messages.html?conversation=${conversationId}&task=${taskId}&action=new`;
+              window.location.href = `../user/user-messages.html?conversation=${conversationId}&task=${taskId}&action=new`;
             }
           });
         }

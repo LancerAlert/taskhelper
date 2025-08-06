@@ -64,6 +64,92 @@
                 }
             });
 
+            // Initialize Particles.js
+            if (typeof particlesJS !== 'undefined') {
+                // Hero section particles
+                if (document.getElementById('particles-js')) {
+                    particlesJS('particles-js', {
+                        particles: {
+                            number: { value: 50, density: { enable: true, value_area: 1000 } },
+                            color: { value: '#ffffff' },
+                            shape: { type: 'circle', stroke: { width: 0, color: '#000000' } },
+                            opacity: { value: 0.3, random: true, anim: { enable: true, speed: 0.5, opacity_min: 0.1, sync: false } },
+                            size: { value: 2, random: true, anim: { enable: true, speed: 2, size_min: 0.5, sync: false } },
+                            line_linked: { enable: true, distance: 120, color: '#ffffff', opacity: 0.2, width: 1 },
+                            move: { enable: true, speed: 1.5, direction: 'none', random: true, straight: false, out_mode: 'out', bounce: false }
+                        },
+                        interactivity: {
+                            detect_on: 'canvas',
+                            events: { onhover: { enable: true, mode: 'grab' }, onclick: { enable: true, mode: 'bubble' }, resize: true },
+                            modes: { 
+                                grab: { distance: 150, line_linked: { opacity: 0.6 } }, 
+                                bubble: { distance: 200, size: 6, duration: 2, opacity: 0.8, speed: 3 }, 
+                                repulse: { distance: 100, duration: 0.4 }, 
+                                push: { particles_nb: 2 }, 
+                                remove: { particles_nb: 1 } 
+                            }
+                        },
+                        retina_detect: true
+                    });
+                }
+
+                // Stats section particles
+                if (document.getElementById('particles-stats')) {
+                    particlesJS('particles-stats', {
+                        particles: {
+                            number: { value: 60, density: { enable: true, value_area: 800 } },
+                            color: { value: '#ffffff' },
+                            shape: { type: 'circle' },
+                            opacity: { value: 0.3, random: false },
+                            size: { value: 2, random: true },
+                            line_linked: { enable: true, distance: 120, color: '#ffffff', opacity: 0.2, width: 1 },
+                            move: { enable: true, speed: 2, direction: 'none', random: false, straight: false, out_mode: 'out', bounce: false }
+                        },
+                        interactivity: { detect_on: 'canvas', events: { onhover: { enable: false }, onclick: { enable: false }, resize: true } },
+                        retina_detect: true
+                    });
+                }
+            }
+
+            // Stat counter animation
+            function animateStatNumbers() {
+                const statNumbers = document.querySelectorAll('.stat-number');
+                statNumbers.forEach(function(element) {
+                    const target = parseFloat(element.getAttribute('data-count'));
+                    const type = element.getAttribute('data-type');
+                    const suffix = element.getAttribute('data-suffix') || '';
+                    let current = 0;
+                    const increment = target / 100;
+                    const timer = setInterval(function() {
+                        current += increment;
+                        if (current >= target) {
+                            current = target;
+                            clearInterval(timer);
+                        }
+                        
+                        if (type === 'rating') {
+                            element.textContent = current.toFixed(1) + suffix;
+                        } else {
+                            element.textContent = Math.floor(current) + suffix;
+                        }
+                    }, 20);
+                });
+            }
+
+            // Trigger stat animation when stats section is in view
+            const statsSection = document.querySelector('.stats');
+            if (statsSection) {
+                const observer = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting) {
+                            animateStatNumbers();
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                });
+                observer.observe(statsSection);
+            }
+
             console.log('TaskHelper common scripts initialized');
         });
     </script>

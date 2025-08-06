@@ -14,7 +14,7 @@
           <!-- Desktop Mega Menu -->
           <div class="hidden lg:flex items-center space-x-1 mx-auto">
             <!-- ホーム -->
-            <a href="../index.html" class="px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 font-medium">
+            <a href="@{/}" class="px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 font-medium">
               <i class="fas fa-home mr-2"></i>ホーム
             </a>
 
@@ -34,7 +34,7 @@
                         <i class="fas fa-plus-circle text-green-500 mr-2"></i>タスク管理
                       </h3>
                       <div class="space-y-2">
-                        <a href="task-create.html" class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
+                        <a href="@{/task/create}" class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
                           <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
                             <i class="fas fa-plus text-green-600"></i>
                           </div>
@@ -43,7 +43,7 @@
                             <div class="text-sm text-gray-500">新しい依頼を投稿</div>
                           </div>
                         </a>
-                        <a href="task-list.html" class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
+                        <a href="@{/task/list}" class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
                           <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
                             <i class="fas fa-list text-blue-600"></i>
                           </div>
@@ -52,7 +52,7 @@
                             <div class="text-sm text-gray-500">依頼を探す・応募</div>
                           </div>
                         </a>
-                        <a href="my-tasks.html" class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
+                        <a href="@{/task/my}" class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
                           <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
                             <i class="fas fa-clipboard-list text-purple-600"></i>
                           </div>
@@ -61,7 +61,7 @@
                             <div class="text-sm text-gray-500">進行中・完了済み</div>
                           </div>
                         </a>
-                        <a href="task-progress.html" class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
+                        <a href="@{/task/progress}" class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
                           <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center mr-3">
                             <i class="fas fa-chart-line text-orange-600"></i>
                           </div>
@@ -92,7 +92,7 @@
                         <i class="fas fa-user-circle text-blue-500 mr-2"></i>プロフィール
                       </h3>
                       <div class="space-y-2">
-                        <a href="profile.html" class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
+                        <a href="@{/user/profile}" class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
                           <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
                             <i class="fas fa-user text-blue-600"></i>
                           </div>
@@ -101,7 +101,7 @@
                             <div class="text-sm text-gray-500">基本情報・設定</div>
                           </div>
                         </a>
-                        <a href="user-profile-public.html" class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
+                        <a href="@{/user/profile/public}" class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
                           <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
                             <i class="fas fa-eye text-green-600"></i>
                           </div>
@@ -110,7 +110,7 @@
                             <div class="text-sm text-gray-500">他ユーザーから見た画面</div>
                           </div>
                         </a>
-                        <a href="settings.html" class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
+                        <a href="@{/user/settings}" class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
                           <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
                             <i class="fas fa-cog text-gray-600"></i>
                           </div>
@@ -119,7 +119,7 @@
                             <div class="text-sm text-gray-500">通知・プライバシー</div>
                           </div>
                         </a>
-                        <a href="notifications.html" class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
+                        <a href="@{/user/notifications}" class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
                           <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center mr-3">
                             <i class="fas fa-bell text-yellow-600"></i>
                           </div>
@@ -150,7 +150,7 @@
                         <i class="fas fa-trophy text-yellow-500 mr-2"></i>コミュニティ & 成果
                       </h3>
                       <div class="space-y-2">
-                        <a href="leaderboard.html" class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
+                        <a href="@{/helper/leaderboard}" class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
                           <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center mr-3">
                             <i class="fas fa-ranking-star text-yellow-600"></i>
                           </div>
@@ -159,7 +159,7 @@
                             <div class="text-sm text-gray-500">トップヘルパー</div>
                           </div>
                         </a>
-                        <a href="achievement-center.html" class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
+                        <a href="achievement-center" class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
                           <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
                             <i class="fas fa-medal text-purple-600"></i>
                           </div>
@@ -168,7 +168,7 @@
                             <div class="text-sm text-gray-500">バッジ・レベル</div>
                           </div>
                         </a>
-                        <a href="testimonials.html" class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
+                        <a href="testimonials" class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
                           <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
                             <i class="fas fa-quote-right text-green-600"></i>
                           </div>
@@ -200,27 +200,27 @@
                         <i class="fas fa-tools text-indigo-500 mr-2"></i>機能・ツール
                       </h3>
                       <div class="grid grid-cols-2 gap-2">
-                        <a href="search.html" class="flex flex-col items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
+                        <a href="search" class="flex flex-col items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
                           <i class="fas fa-search text-gray-600 mb-1"></i>
                           <span class="text-xs font-medium">検索</span>
                         </a>
-                        <a href="messages.html" class="flex flex-col items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
+                        <a href="@{/user/messages}" class="flex flex-col items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
                           <i class="fas fa-comments text-blue-600 mb-1"></i>
                           <span class="text-xs font-medium">メッセージ</span>
                         </a>
-                        <a href="favorites.html" class="flex flex-col items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
+                        <a href="@{/user/favorites}" class="flex flex-col items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
                           <i class="fas fa-heart text-red-600 mb-1"></i>
                           <span class="text-xs font-medium">お気に入り</span>
                         </a>
-                        <a href="payment.html" class="flex flex-col items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
+                        <a href="payment" class="flex flex-col items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
                           <i class="fas fa-credit-card text-green-600 mb-1"></i>
                           <span class="text-xs font-medium">決済</span>
                         </a>
-                        <a href="earnings.html" class="flex flex-col items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
+                        <a href="@{/helper/earnings}" class="flex flex-col items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
                           <i class="fas fa-yen-sign text-purple-600 mb-1"></i>
                           <span class="text-xs font-medium">収益</span>
                         </a>
-                        <a href="reviews.html" class="flex flex-col items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
+                        <a href="@{/user/reviews}" class="flex flex-col items-center p-3 rounded-lg hover:bg-gray-50 transition-colors group/item">
                           <i class="fas fa-star text-yellow-600 mb-1"></i>
                           <span class="text-xs font-medium">レビュー</span>
                         </a>
@@ -233,15 +233,15 @@
                         <i class="fas fa-life-ring text-orange-500 mr-2"></i>サポート
                       </h3>
                       <div class="space-y-2">
-                        <a href="help.html" class="flex items-center p-2 rounded-lg hover:bg-gray-50 transition-colors text-sm">
+                        <a href="help" class="flex items-center p-2 rounded-lg hover:bg-gray-50 transition-colors text-sm">
                           <i class="fas fa-question-circle text-blue-600 mr-3"></i>
                           ヘルプセンター
                         </a>
-                        <a href="dispute-resolution.html" class="flex items-center p-2 rounded-lg hover:bg-gray-50 transition-colors text-sm">
+                        <a href="dispute-resolution" class="flex items-center p-2 rounded-lg hover:bg-gray-50 transition-colors text-sm">
                           <i class="fas fa-gavel text-red-600 mr-3"></i>
                           分争解決
                         </a>
-                        <a href="onboarding-guide.html" class="flex items-center p-2 rounded-lg hover:bg-gray-50 transition-colors text-sm">
+                        <a href="onboarding-guide" class="flex items-center p-2 rounded-lg hover:bg-gray-50 transition-colors text-sm">
                           <i class="fas fa-route text-purple-600 mr-3"></i>
                           ガイドツアー
                         </a>
@@ -254,10 +254,10 @@
                         <i class="fas fa-building text-gray-500 mr-2"></i>会社情報
                       </h3>
                       <div class="grid grid-cols-2 gap-2 text-xs">
-                        <a href="about.html" class="p-2 rounded-lg hover:bg-gray-50 transition-colors text-center">会社概要</a>
-                        <a href="terms.html" class="p-2 rounded-lg hover:bg-gray-50 transition-colors text-center">利用規約</a>
-                        <a href="privacy-policy.html" class="p-2 rounded-lg hover:bg-gray-50 transition-colors text-center">プライバシー</a>
-                        <a href="helper-onboarding.html" class="p-2 rounded-lg hover:bg-gray-50 transition-colors text-center">ヘルパー登録</a>
+                        <a href="about" class="p-2 rounded-lg hover:bg-gray-50 transition-colors text-center">会社概要</a>
+                        <a href="terms" class="p-2 rounded-lg hover:bg-gray-50 transition-colors text-center">利用規約</a>
+                        <a href="privacy-policy" class="p-2 rounded-lg hover:bg-gray-50 transition-colors text-center">プライバシー</a>
+                        <a href="@{/helper/onboarding}" class="p-2 rounded-lg hover:bg-gray-50 transition-colors text-center">ヘルパー登録</a>
                       </div>
                     </div>
                   </div>
@@ -268,8 +268,8 @@
 
           <!-- Auth Buttons -->
           <div class="hidden lg:flex items-center space-x-3">
-            <a href="login.html" class="border border-blue-600 text-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-blue-50 transition-all duration-200 hover:scale-105">ログイン</a>
-            <a href="register.html" class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-200 hover:scale-105 shadow-lg">始める</a>
+            <a href="login" class="border border-blue-600 text-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-blue-50 transition-all duration-200 hover:scale-105">ログイン</a>
+            <a href="register" class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-200 hover:scale-105 shadow-lg">始める</a>
           </div>
 
           <!-- Mobile Menu Button -->
@@ -287,16 +287,16 @@
         <div id="mobile-menu" class="hidden lg:hidden pb-4 transition-all duration-300 ease-in-out transform border-t border-gray-100 mt-4">
           <div class="flex flex-col space-y-1 pt-4">
             <!-- 基本メニュー -->
-            <a href="../index.html" class="flex items-center px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+            <a href="../index" class="flex items-center px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
               <i class="fas fa-home mr-3 w-5"></i>ホーム
             </a>
-            <a href="task-list.html" class="flex items-center px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+            <a href="task-list" class="flex items-center px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
               <i class="fas fa-list mr-3 w-5"></i>タスク一覧
             </a>
-            <a href="task-create.html" class="flex items-center px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+            <a href="task-create" class="flex items-center px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
               <i class="fas fa-plus mr-3 w-5"></i>タスク作成
             </a>
-            <a href="my-tasks.html" class="flex items-center px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+            <a href="my-tasks" class="flex items-center px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
               <i class="fas fa-clipboard-list mr-3 w-5"></i>マイタスク
             </a>
 
@@ -309,13 +309,13 @@
                 <i class="fas fa-chevron-down transition-transform duration-200"></i>
               </button>
               <div id="profile-section" class="hidden pl-8 space-y-1">
-                <a href="profile.html" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                <a href="user-profile" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
                   <i class="fas fa-user-circle mr-3 w-4"></i>マイプロフィール
                 </a>
-                <a href="settings.html" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                <a href="user-settings" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
                   <i class="fas fa-cog mr-3 w-4"></i>設定
                 </a>
-                <a href="notifications.html" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                <a href="user-notifications" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
                   <i class="fas fa-bell mr-3 w-4"></i>通知
                 </a>
               </div>
@@ -329,13 +329,13 @@
                 <i class="fas fa-chevron-down transition-transform duration-200"></i>
               </button>
               <div id="community-section" class="hidden pl-8 space-y-1">
-                <a href="leaderboard.html" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                <a href="@{/helper/leaderboard}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
                   <i class="fas fa-trophy mr-3 w-4"></i>ランキング
                 </a>
-                <a href="achievement-center.html" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                <a href="achievement-center" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
                   <i class="fas fa-medal mr-3 w-4"></i>成果センター
                 </a>
-                <a href="testimonials.html" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                <a href="testimonials" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
                   <i class="fas fa-quote-right mr-3 w-4"></i>お客様の声
                 </a>
               </div>
@@ -349,19 +349,19 @@
                 <i class="fas fa-chevron-down transition-transform duration-200"></i>
               </button>
               <div id="tools-section" class="hidden pl-8 space-y-1">
-                <a href="search.html" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                <a href="search" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
                   <i class="fas fa-search mr-3 w-4"></i>検索
                 </a>
-                <a href="messages.html" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                <a href="@{/user/messages}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
                   <i class="fas fa-comments mr-3 w-4"></i>メッセージ
                 </a>
-                <a href="favorites.html" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                <a href="@{/user/favorites}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
                   <i class="fas fa-heart mr-3 w-4"></i>お気に入り
                 </a>
-                <a href="payment.html" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                <a href="payment" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
                   <i class="fas fa-credit-card mr-3 w-4"></i>決済
                 </a>
-                <a href="earnings.html" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                <a href="@{/helper/earnings}" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
                   <i class="fas fa-yen-sign mr-3 w-4"></i>収益
                 </a>
               </div>
@@ -375,13 +375,13 @@
                 <i class="fas fa-chevron-down transition-transform duration-200"></i>
               </button>
               <div id="support-section" class="hidden pl-8 space-y-1">
-                <a href="help.html" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                <a href="help" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
                   <i class="fas fa-question-circle mr-3 w-4"></i>ヘルプ
                 </a>
-                <a href="dispute-resolution.html" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                <a href="dispute-resolution" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
                   <i class="fas fa-gavel mr-3 w-4"></i>分争解決
                 </a>
-                <a href="onboarding-guide.html" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                <a href="onboarding-guide" class="flex items-center px-4 py-2 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
                   <i class="fas fa-route mr-3 w-4"></i>ガイドツアー
                 </a>
               </div>
@@ -390,8 +390,8 @@
             <!-- 認証ボタン -->
             <hr class="my-4">
             <div class="flex gap-3 px-4">
-              <a href="login.html" class="flex-1 border border-blue-600 text-blue-600 px-4 py-3 rounded-lg font-semibold hover:bg-blue-50 text-center transition-colors">ログイン</a>
-              <a href="register.html" class="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 text-center transition-colors">始める</a>
+              <a href="login" class="flex-1 border border-blue-600 text-blue-600 px-4 py-3 rounded-lg font-semibold hover:bg-blue-50 text-center transition-colors">ログイン</a>
+              <a href="register" class="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 text-center transition-colors">始める</a>
             </div>
           </div>
         </div>

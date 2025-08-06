@@ -1,3 +1,9 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}"
+      th:with="title='TaskHelper - 近所の信頼できる代行サービス'">
+
 <!-- Main Content -->
 <div layout:fragment="content" id="main-content" class="pt-20">
   <!-- Hero Section -->
@@ -12,10 +18,10 @@
         近所の方々と一緒に安全な代行サービス
       </p>
       <div class="space-x-4 animate-scale-in-soft" style="animation-delay: 400ms">
-        <a th:href="@{/task-list}" class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300 inline-block">
+        <a th:href="@{/task/list}" class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300 inline-block">
           代行を探す
         </a>
-        <a th:href="@{/helper-onboarding}" class="border border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors focus:outline-none focus:ring-4 focus:ring-white inline-block">
+        <a th:href="@{/helper/onboarding}" class="border border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors focus:outline-none focus:ring-4 focus:ring-white inline-block">
           ヘルパー登録
         </a>
       </div>
@@ -33,7 +39,7 @@
       </div>
 
       <div class="grid grid-cols-2 md:grid-cols-5 gap-6">
-        <a th:href="@{/task-list(category='shopping')}" class="group bg-white border border-gray-100 p-6 rounded-2xl text-center hover:shadow-xl hover:border-green-200 hover:-translate-y-2 transition-all duration-500 cursor-pointer animate-slide-up-gentle hover:bg-gradient-to-br hover:from-green-50 hover:to-green-100" style="animation-delay: 100ms">
+        <a th:href="@{/task/list(category='shopping')}" class="group bg-white border border-gray-100 p-6 rounded-2xl text-center hover:shadow-xl hover:border-green-200 hover:-translate-y-2 transition-all duration-500 cursor-pointer animate-slide-up-gentle hover:bg-gradient-to-br hover:from-green-50 hover:to-green-100" style="animation-delay: 100ms">
           <div class="w-16 h-16 bg-gradient-to-br from-green-400 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg animate-float-subtle">
             <i class="fas fa-shopping-cart text-2xl text-white" aria-hidden="true"></i>
           </div>
@@ -41,7 +47,7 @@
           <p class="text-sm text-gray-600 group-hover:text-green-600 transition-colors">スーパー、コンビニ</p>
         </a>
 
-        <a th:href="@{/task-list(category='cleaning')}" class="group bg-white border border-gray-100 p-6 rounded-2xl text-center hover:shadow-xl hover:border-blue-200 hover:-translate-y-2 transition-all duration-500 cursor-pointer animate-slide-up-gentle hover:bg-gradient-to-br hover:from-blue-50 hover:to-blue-100" style="animation-delay: 200ms">
+        <a th:href="@{/task/list(category='cleaning')}" class="group bg-white border border-gray-100 p-6 rounded-2xl text-center hover:shadow-xl hover:border-blue-200 hover:-translate-y-2 transition-all duration-500 cursor-pointer animate-slide-up-gentle hover:bg-gradient-to-br hover:from-blue-50 hover:to-blue-100" style="animation-delay: 200ms">
           <div class="w-16 h-16 bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg animate-float-subtle">
             <i class="fas fa-broom text-2xl text-white" aria-hidden="true"></i>
           </div>
@@ -49,7 +55,7 @@
           <p class="text-sm text-gray-600 group-hover:text-blue-600 transition-colors">家の片付け、掃除</p>
         </a>
 
-        <a th:href="@{/task-list(category='delivery')}" class="group bg-white border border-gray-100 p-6 rounded-2xl text-center hover:shadow-xl hover:border-orange-200 hover:-translate-y-2 transition-all duration-500 cursor-pointer animate-slide-up-gentle hover:bg-gradient-to-br hover:from-orange-50 hover:to-orange-100" style="animation-delay: 300ms">
+        <a th:href="@{/task/list(category='delivery')}" class="group bg-white border border-gray-100 p-6 rounded-2xl text-center hover:shadow-xl hover:border-orange-200 hover:-translate-y-2 transition-all duration-500 cursor-pointer animate-slide-up-gentle hover:bg-gradient-to-br hover:from-orange-50 hover:to-orange-100" style="animation-delay: 300ms">
           <div class="w-16 h-16 bg-gradient-to-br from-orange-400 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg animate-float-subtle">
             <i class="fas fa-truck text-2xl text-white" aria-hidden="true"></i>
           </div>
@@ -57,7 +63,7 @@
           <p class="text-sm text-gray-600 group-hover:text-orange-600 transition-colors">収取、配送</p>
         </a>
 
-        <a th:href="@{/task-list(category='petcare')}" class="group bg-white border border-gray-100 p-6 rounded-2xl text-center hover:shadow-xl hover:border-purple-200 hover:-translate-y-2 transition-all duration-500 cursor-pointer animate-slide-up-gentle hover:bg-gradient-to-br hover:from-purple-50 hover:to-purple-100" style="animation-delay: 400ms">
+        <a th:href="@{/task/list(category='petcare')}" class="group bg-white border border-gray-100 p-6 rounded-2xl text-center hover:shadow-xl hover:border-purple-200 hover:-translate-y-2 transition-all duration-500 cursor-pointer animate-slide-up-gentle hover:bg-gradient-to-br hover:from-purple-50 hover:to-purple-100" style="animation-delay: 400ms">
           <div class="w-16 h-16 bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg animate-float-subtle">
             <i class="fas fa-paw text-2xl text-white" aria-hidden="true"></i>
           </div>
@@ -65,7 +71,7 @@
           <p class="text-sm text-gray-600 group-hover:text-purple-600 transition-colors">散歩、お世話</p>
         </a>
 
-        <a th:href="@{/task-list(category='repairs')}" class="group bg-white border border-gray-100 p-6 rounded-2xl text-center hover:shadow-xl hover:border-red-200 hover:-translate-y-2 transition-all duration-500 cursor-pointer animate-slide-up-gentle hover:bg-gradient-to-br hover:from-red-50 hover:to-red-100" style="animation-delay: 500ms">
+        <a th:href="@{/task/list(category='repairs')}" class="group bg-white border border-gray-100 p-6 rounded-2xl text-center hover:shadow-xl hover:border-red-200 hover:-translate-y-2 transition-all duration-500 cursor-pointer animate-slide-up-gentle hover:bg-gradient-to-br hover:from-red-50 hover:to-red-100" style="animation-delay: 500ms">
           <div class="w-16 h-16 bg-gradient-to-br from-red-400 to-red-600 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg animate-float-subtle">
             <i class="fas fa-tools text-2xl text-white" aria-hidden="true"></i>
           </div>
@@ -214,13 +220,15 @@
         初回の代行は手数料なしで無料でご利用いただけます
       </p>
       <div class="flex flex-col sm:flex-row gap-4 justify-center animate-bounce-gentle" style="animation-delay: 400ms">
-        <a th:href="@{/task-create}" class="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300 inline-block">
+        <a th:href="@{/task/create}" class="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300 inline-block">
           代行を登録する
         </a>
-        <a th:href="@{/helper-onboarding}" class="border border-blue-600 text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300 inline-block">
+        <a th:href="@{/helper/onboarding}" class="border border-blue-600 text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300 inline-block">
           ヘルパーになる
         </a>
       </div>
     </div>
   </section>
 </div>
+
+</html>

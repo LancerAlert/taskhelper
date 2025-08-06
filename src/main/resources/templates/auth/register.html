@@ -1,96 +1,10 @@
 <!DOCTYPE html>
-<html lang="ja" class="scroll-smooth">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>新規登録 - TaskHelper | 近所の信頼できる代行サービス</title>
-  
-  <!-- CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    // Suppress Tailwind CDN production warning for development
-    if (typeof tailwind !== 'undefined') {
-      tailwind.config = { devtools: false };
-    }
-  </script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  
-  <!-- CSS Libraries -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-  
-  <!-- Additional UI Libraries -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.1/sweetalert2.min.css" rel="stylesheet">
-  
-  <!-- Custom CSS -->
-  <style>
-    .error-field {
-      border-color: #dc2626 !important;
-      background-color: #fef2f2 !important;
-    }
-    
-    .success-field {
-      border-color: #10b981 !important;
-      background-color: #f0fdf4 !important;
-    }
-  </style>
-  
-</head>
-<body class="bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen" style="font-family: Inter, sans-serif;">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}"
+      th:with="title='新規登録 - TaskHelper | 近所の信頼できる代行サービス'">
 
-<!-- Navigation -->
-<nav class="bg-white shadow-sm fixed top-0 left-0 right-0 z-50">
-  <div class="max-w-7xl mx-auto px-4">
-    <div class="flex items-center h-16">
-      <!-- Logo -->
-      <div class="flex items-center space-x-2">
-        <i class="fas fa-hands-helping text-2xl text-blue-600" aria-hidden="true"></i>
-        <span class="text-xl font-bold text-gray-900">TaskHelper</span>
-      </div>
-      
-      <!-- Desktop Menu (centered) -->
-      <div class="hidden md:flex items-center space-x-8 mx-auto">
-        <a href="../index.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">ホーム</a>
-        <a href="../tasks/task-list.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">依頼一覧</a>
-        <a href="../tasks/task-create.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">依頼投稿</a>
-        <a href="../user/profile.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">プロフィール</a>
-        <a href="../tasks/my-tasks.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">マイタスク</a>
-      </div>
-      
-      <!-- Auth Buttons -->
-      <div class="hidden md:flex items-center space-x-3">
-        <a href="login.html" class="border border-blue-600 text-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-blue-50 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300" style="border: 1px solid #2563eb !important;">ログイン</a>
-        <a href="register.html" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">始める</a>
-      </div>
-      
-      <!-- Mobile Menu Button -->
-      <div class="md:hidden ml-auto">
-        <button id="mobile-menu-button" class="text-gray-700 hover:text-blue-600 p-2 transition-all duration-300 ease-in-out" aria-expanded="false">
-          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path id="menu-icon" class="transition-opacity duration-300" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-            <path id="close-icon" class="transition-opacity duration-300 opacity-0" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-        </button>
-      </div>
-    </div>
-    
-    <!-- Mobile Menu -->
-    <div id="mobile-menu" class="hidden md:hidden pb-4 transition-all duration-300 ease-in-out transform">
-      <div class="flex flex-col space-y-2">
-        <a href="../index.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">ホーム</a>
-        <a href="../tasks/task-list.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">依頼一覧</a>
-        <a href="../tasks/task-create.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">依頼投稿</a>
-        <a href="../user/profile.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">プロフィール</a>
-        <a href="../tasks/my-tasks.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">マイタスク</a>
-        <hr class="my-3">
-        <div class="flex gap-2 justify-center">
-          <a href="login.html" class="border border-blue-600 text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-50 text-center transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300" style="border: 1px solid #2563eb !important;">ログイン</a>
-          <a href="register.html" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 text-center transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">始める</a>
-        </div>
-      </div>
-    </div>
-  </div>
-</nav>
+<div layout:fragment="content" class="bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen" style="font-family: Inter, sans-serif;">
 
 <!-- Main Content -->
 <section class="bg-gradient-to-r from-blue-500 to-purple-600 text-white py-20 pt-32" aria-labelledby="register-title">
@@ -100,7 +14,7 @@
       <div class="text-center">
         <h1 id="register-title" class="text-3xl sm:text-4xl font-bold mb-4">
           始めましょう
-        </h1>  
+        </h1>
         <p class="text-lg text-blue-100">
           TaskHelper アカウントを作成
         </p>
@@ -113,7 +27,7 @@
           <!-- 基本情報 -->
           <fieldset class="space-y-5">
             <legend class="sr-only">基本情報</legend>
-            
+
             <div class="space-y-1">
               <label for="name" class="block text-sm font-medium text-gray-700">お名前</label>
               <div class="relative">
@@ -194,7 +108,7 @@
           <!-- User Type Selection -->
           <div class="space-y-4">
             <h3 class="text-lg font-semibold text-gray-900 text-center">どのようにご利用予定ですか？</h3>
-            
+
             <div class="grid grid-cols-1 gap-4">
               <label class="relative">
                 <input type="radio" name="role" value="user" class="sr-only user-type-radio" checked>
@@ -244,10 +158,10 @@
             <legend class="sr-only">ヘルパー追加情報</legend>
             <div class="border-t pt-4">
               <h4 class="font-medium text-gray-900 mb-3">ヘルパー追加情報</h4>
-              
+
               <div>
                 <label for="bio" class="block text-sm font-medium text-gray-700 mb-1">自己紹介</label>
-                <textarea id="bio" name="bio" rows="3" 
+                <textarea id="bio" name="bio" rows="3"
                           class="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400"
                           placeholder="簡単な自己紹介を作成してください"></textarea>
               </div>
@@ -283,7 +197,7 @@
               <input type="checkbox" id="agreeAll" class="mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
               <span class="ml-2 text-sm text-gray-700 font-medium">全ての利用規約に同意します</span>
             </label>
-            
+
             <div class="pl-6 space-y-2">
               <label class="flex items-center justify-between">
                 <div class="flex items-center">
@@ -292,7 +206,7 @@
                 </div>
                 <button type="button" id="showServiceTerms" class="text-blue-600 hover:text-blue-700 text-sm underline">表示</button>
               </label>
-              
+
               <label class="flex items-center justify-between">
                 <div class="flex items-center">
                   <input type="checkbox" name="terms" value="privacy" required class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 terms-checkbox">
@@ -300,7 +214,7 @@
                 </div>
                 <button type="button" id="showPrivacyPolicy" class="text-blue-600 hover:text-blue-700 text-sm underline">表示</button>
               </label>
-              
+
               <label class="flex items-center justify-between">
                 <div class="flex items-center">
                   <input type="checkbox" name="terms" value="marketing" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 terms-checkbox">
@@ -313,11 +227,11 @@
           <p id="termsError" class="text-xs mt-1 text-red-500 hidden"></p>
 
           <!-- Submit Button -->
-          <button type="submit" id="registerBtn" 
+          <button type="submit" id="registerBtn"
                   class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-4 rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]">
             アカウント作成
           </button>
-          
+
           <!-- Divider -->
           <div class="relative my-6">
             <div class="absolute inset-0 flex items-center">
@@ -335,34 +249,34 @@
               <i class="fab fa-line text-white text-lg group-hover:scale-110 transition-transform duration-200" aria-hidden="true"></i>
               <span class="ml-2 text-sm font-medium">LINE</span>
             </button>
-            
+
             <!-- Yahoo Japan Register -->
             <button type="button" class="group flex items-center justify-center py-3 px-4 bg-red-600 hover:bg-red-700 rounded-xl text-white transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]" id="yahooRegister" title="Yahoo! JAPAN IDで登録">
               <i class="fab fa-yahoo text-white text-lg group-hover:scale-110 transition-transform duration-200" aria-hidden="true"></i>
               <span class="ml-2 text-sm font-medium">Yahoo!</span>
             </button>
           </div>
-          
+
           <!-- Additional Social Login -->
           <div class="grid grid-cols-3 gap-3 mt-3">
             <button type="button" class="group flex items-center justify-center py-3 px-4 border border-gray-300 rounded-xl bg-white hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]" id="googleRegister" title="Googleアカウントで登録">
               <i class="fab fa-google text-red-500 text-lg group-hover:scale-110 transition-transform duration-200" aria-hidden="true"></i>
             </button>
-            
+
             <button type="button" class="group flex items-center justify-center py-3 px-4 border border-gray-300 rounded-xl bg-black hover:bg-gray-800 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]" id="twitterRegister" title="X(Twitter)で登録">
-              <i class="fab fa-x-twitter text-white text-lg group-hover:scale-110 transition-transform duration-200" aria-hidden="true"></i>
+              <span class="text-white text-lg font-bold group-hover:scale-110 transition-transform duration-200">𝕏</span>
             </button>
-            
+
             <button type="button" class="group flex items-center justify-center py-3 px-4 border border-gray-300 rounded-xl bg-black hover:bg-gray-800 text-white transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]" id="appleRegister" title="Apple IDで登録">
               <i class="fab fa-apple text-white text-lg group-hover:scale-110 transition-transform duration-200" aria-hidden="true"></i>
             </button>
           </div>
-          
+
           <!-- Login prompt -->
           <div class="text-center mt-6 pt-6 border-t border-gray-100">
             <p class="text-sm text-gray-600">
               すでにアカウントをお持ちですか？
-              <a href="login.html" class="text-blue-600 hover:text-blue-700 font-medium hover:underline transition-colors ml-1">
+              <a th:href="@{/auth/login}" class="text-blue-600 hover:text-blue-700 font-medium hover:underline transition-colors ml-1">
                 ログイン
               </a>
             </p>
@@ -374,579 +288,12 @@
   </div>
 </section>
 
-<!-- Footer -->
-<footer class="bg-gray-900 text-white py-12">
-  <div class="max-w-7xl mx-auto px-4">
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-      <!-- Brand Section -->
-      <div>
-        <div class="flex items-center space-x-2 mb-4">
-          <i class="fas fa-hands-helping text-2xl text-blue-500" aria-hidden="true"></i>
-          <span class="text-xl font-bold">TaskHelper</span>
-        </div>
-        <p class="text-gray-400">近所の方々と一緒に信頼できる代行サービス</p>
-      </div>
-      
-      <!-- Services Section -->
-      <div>
-        <h4 class="font-semibold mb-4">サービス</h4>
-        <ul class="space-y-2 text-gray-400">
-          <li><a href="task-list.html?category=shopping" class="hover:text-white transition-colors">買い物代行</a></li>
-          <li><a href="task-list.html?category=cleaning" class="hover:text-white transition-colors">清掃サービス</a></li>
-          <li><a href="task-list.html?category=delivery" class="hover:text-white transition-colors">配達・運搬</a></li>
-          <li><a href="task-list.html?category=petcare" class="hover:text-white transition-colors">ペットケア</a></li>
-        </ul>
-      </div>
-      
-      <!-- Support Section -->
-      <div>
-        <h4 class="font-semibold mb-4">サポート</h4>
-        <ul class="space-y-2 text-gray-400">
-          <li><a href="#" class="hover:text-white transition-colors">ヘルプセンター</a></li>
-          <li><a href="#" class="hover:text-white transition-colors">お問い合わせ</a></li>
-          <li><a href="#" class="hover:text-white transition-colors">利用規約</a></li>
-          <li><a href="#" class="hover:text-white transition-colors">プライバシーポリシー</a></li>
-        </ul>
-      </div>
-      
-      <!-- Follow Section -->
-      <div>
-        <h4 class="font-semibold mb-4">フォロー</h4>
-        <div class="flex space-x-4">
-          <a href="#" class="text-gray-400 hover:text-white transition-colors" aria-label="Twitter">
-            <i class="fab fa-twitter text-xl"></i>
-          </a>
-          <a href="#" class="text-gray-400 hover:text-white transition-colors" aria-label="Facebook">
-            <i class="fab fa-facebook text-xl"></i>
-          </a>
-          <a href="#" class="text-gray-400 hover:text-white transition-colors" aria-label="Instagram">
-            <i class="fab fa-instagram text-xl"></i>
-          </a>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Copyright Section -->
-    <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-      <p>&copy; 2025 <span lang="en">TaskHelper</span>. <span lang="en">All rights reserved</span>.</p>
-    </div>
-  </div>
-</footer>
 
-<!-- JS Libraries -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.1/sweetalert2.all.min.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  
-  // Mobile menu functionality
-  const mobileMenuButton = document.getElementById('mobile-menu-button');
-  const mobileMenu = document.getElementById('mobile-menu');
-  
-  if (mobileMenuButton && mobileMenu) {
-    mobileMenuButton.addEventListener('click', function() {
-      const isExpanded = this.getAttribute('aria-expanded') === 'true';
-      this.setAttribute('aria-expanded', !isExpanded);
-      mobileMenu.classList.toggle('hidden');
-      
-      // Toggle menu/close icons
-      const menuIcon = document.getElementById('menu-icon');
-      const closeIcon = document.getElementById('close-icon');
-      if (menuIcon && closeIcon) {
-        menuIcon.classList.toggle('opacity-0');
-        closeIcon.classList.toggle('opacity-0');
-      }
-    });
-  }
-  
-  // Password toggle functionality
-  document.getElementById('togglePassword').addEventListener('click', function() {
-    const passwordInput = document.getElementById('password');
-    const icon = this.querySelector('i');
-    
-    const isPassword = passwordInput.type === 'password';
-    passwordInput.type = isPassword ? 'text' : 'password';
-    
-    icon.classList.toggle('fa-eye', !isPassword);
-    icon.classList.toggle('fa-eye-slash', isPassword);
-    
-    const newLabel = isPassword ? 'パスワードを非表示' : 'パスワードを表示';
-    this.setAttribute('aria-label', newLabel);
-    this.setAttribute('title', newLabel);
-  });
+</div>
 
-  document.getElementById('toggleConfirmPassword').addEventListener('click', function() {
-    const confirmPasswordInput = document.getElementById('confirmPassword');
-    const icon = this.querySelector('i');
-    
-    const isPassword = confirmPasswordInput.type === 'password';
-    confirmPasswordInput.type = isPassword ? 'text' : 'password';
-    
-    icon.classList.toggle('fa-eye', !isPassword);
-    icon.classList.toggle('fa-eye-slash', isPassword);
-    
-    const newLabel = isPassword ? 'パスワード確認を非表示' : 'パスワード確認を表示';
-    this.setAttribute('aria-label', newLabel);
-    this.setAttribute('title', newLabel);
-  });
+<!-- Page-specific JavaScript -->
+<th:block layout:fragment="extra-scripts">
+  <script th:src="@{/js/register.js}"></script>
+</th:block>
 
-  // Password validation with visual feedback
-  document.getElementById('password').addEventListener('input', function() {
-    const password = this.value;
-    const requirements = document.querySelectorAll('.password-requirement');
-    
-    // Check length (8+ characters)
-    const lengthReq = requirements[0];
-    if (password.length >= 8) {
-      lengthReq.querySelector('i').className = 'fas fa-check text-green-500 mr-2 text-xs';
-      lengthReq.classList.remove('text-gray-500');
-      lengthReq.classList.add('text-green-600');
-    } else {
-      lengthReq.querySelector('i').className = 'fas fa-circle text-gray-400 mr-2 text-xs';
-      lengthReq.classList.remove('text-green-600');
-      lengthReq.classList.add('text-gray-500');
-    }
-    
-    // Check alphanumeric
-    const alphaNumReq = requirements[1];
-    const hasLetter = /[a-zA-Z]/.test(password);
-    const hasNumber = /\d/.test(password);
-    
-    if (hasLetter && hasNumber) {
-      alphaNumReq.querySelector('i').className = 'fas fa-check text-green-500 mr-2 text-xs';
-      alphaNumReq.classList.remove('text-gray-500');
-      alphaNumReq.classList.add('text-green-600');
-    } else {
-      alphaNumReq.querySelector('i').className = 'fas fa-circle text-gray-400 mr-2 text-xs';
-      alphaNumReq.classList.remove('text-green-600');
-      alphaNumReq.classList.add('text-gray-500');
-    }
-    
-    // Check special characters
-    const specialReq = requirements[2];
-    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-    
-    if (hasSpecial) {
-      specialReq.querySelector('i').className = 'fas fa-check text-green-500 mr-2 text-xs';
-      specialReq.classList.remove('text-gray-500');
-      specialReq.classList.add('text-green-600');
-    } else {
-      specialReq.querySelector('i').className = 'fas fa-circle text-gray-400 mr-2 text-xs';
-      specialReq.classList.remove('text-green-600');
-      specialReq.classList.add('text-gray-500');
-    }
-    
-    checkFormValidity();
-  });
-
-  // Enter key registration functionality and real-time validation
-  ['name', 'email', 'password', 'confirmPassword'].forEach(fieldId => {
-    const field = document.getElementById(fieldId);
-    field.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        document.getElementById('registerBtn').click();
-      }
-    });
-    if (fieldId !== 'password') {
-      field.addEventListener('input', checkFormValidity);
-    }
-  });
-
-  // Password confirmation validation
-  document.getElementById('confirmPassword').addEventListener('input', function() {
-    const password = document.getElementById('password').value;
-    const confirmPassword = this.value;
-    const confirmPasswordError = document.getElementById('confirmPasswordError');
-    
-    if (confirmPassword && password !== confirmPassword) {
-      confirmPasswordError.textContent = 'パスワードが一致しません';
-      confirmPasswordError.classList.remove('hidden');
-      this.classList.add('error-field');
-    } else {
-      confirmPasswordError.classList.add('hidden');
-      this.classList.remove('error-field');
-    }
-    
-    checkFormValidity();
-  });
-
-  // User type selection
-  document.querySelectorAll('.user-type-radio').forEach(radio => {
-    radio.addEventListener('change', function() {
-      // Update card styles
-      document.querySelectorAll('.user-type-card').forEach(card => {
-        card.classList.remove('border-blue-500', 'bg-blue-50', 'border-purple-500', 'bg-purple-50');
-        card.querySelector('.check-icon').classList.add('hidden');
-      });
-
-      const selectedCard = this.parentElement.querySelector('.user-type-card');
-      const checkIcon = selectedCard.querySelector('.check-icon');
-      
-      if (this.value === 'user') {
-        selectedCard.classList.add('border-blue-500', 'bg-blue-50');
-        document.getElementById('helperInfo').classList.add('hidden');
-      } else {
-        selectedCard.classList.add('border-purple-500', 'bg-purple-50');
-        document.getElementById('helperInfo').classList.remove('hidden');
-      }
-      
-      checkIcon.classList.remove('hidden');
-      checkFormValidity();
-    });
-  });
-
-  // Set initial user type selection state
-  function setInitialUserTypeState() {
-    const checkedRadio = document.querySelector('.user-type-radio:checked');
-    if (checkedRadio) {
-      const selectedCard = checkedRadio.parentElement.querySelector('.user-type-card');
-      const checkIcon = selectedCard.querySelector('.check-icon');
-      
-      if (checkedRadio.value === 'user') {
-        selectedCard.classList.add('border-blue-500', 'bg-blue-50');
-        document.getElementById('helperInfo').classList.add('hidden');
-      } else {
-        selectedCard.classList.add('border-purple-500', 'bg-purple-50');
-        document.getElementById('helperInfo').classList.remove('hidden');
-      }
-      
-      checkIcon.classList.remove('hidden');
-    }
-  }
-
-  // Initialize page state
-  setInitialUserTypeState();
-
-  // Configure Toastr
-  toastr.options = {
-    "closeButton": true,
-    "progressBar": true,
-    "positionClass": "toast-top-right",
-    "timeOut": "4000"
-  };
-
-  // Terms agreement
-  document.getElementById('agreeAll').addEventListener('change', function() {
-    const termsCheckboxes = document.querySelectorAll('.terms-checkbox');
-    termsCheckboxes.forEach(checkbox => {
-      checkbox.checked = this.checked;
-    });
-    checkFormValidity();
-  });
-
-  document.querySelectorAll('.terms-checkbox').forEach(checkbox => {
-    checkbox.addEventListener('change', function() {
-      const allTerms = document.querySelectorAll('.terms-checkbox');
-      const checkedTerms = document.querySelectorAll('.terms-checkbox:checked');
-      const agreeAll = document.getElementById('agreeAll');
-      
-      agreeAll.checked = allTerms.length === checkedTerms.length;
-      checkFormValidity();
-    });
-  });
-
-  // Form validation
-  function checkFormValidity() {
-    const name = document.getElementById('name').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
-    const role = document.querySelector('input[name="role"]:checked');
-    const requiredTerms = document.querySelectorAll('input[name="terms"][value="service"], input[name="terms"][value="privacy"]');
-    
-    const hasLetter = /[a-zA-Z]/.test(password);
-    const hasNumber = /\d/.test(password);
-    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-    const isPasswordValid = password.length >= 8 && hasLetter && hasNumber && hasSpecial;
-    const isPasswordMatch = password === confirmPassword && confirmPassword !== '';
-    const areRequiredTermsChecked = Array.from(requiredTerms).every(term => term.checked);
-    
-    const registerBtn = document.getElementById('registerBtn');
-    
-    if (name && email && role && isPasswordValid && isPasswordMatch && areRequiredTermsChecked) {
-      registerBtn.disabled = false;
-      registerBtn.className = 'w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-4 rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]';
-    } else {
-      registerBtn.disabled = true;
-      registerBtn.className = 'w-full bg-gray-300 text-gray-500 py-3 px-4 rounded-xl font-semibold transition-all duration-200 cursor-not-allowed';
-    }
-  }
-
-  // Simple form validation
-  function validateForm() {
-    const name = document.getElementById('name');
-    const email = document.getElementById('email');
-    const password = document.getElementById('password');
-    const confirmPassword = document.getElementById('confirmPassword');
-    const role = document.querySelector('input[name="role"]:checked');
-    const requiredTerms = document.querySelectorAll('input[name="terms"][value="service"], input[name="terms"][value="privacy"]');
-    
-    const nameError = document.getElementById('nameError');
-    const emailError = document.getElementById('emailError');
-    const passwordError = document.getElementById('passwordError');
-    const confirmPasswordError = document.getElementById('confirmPasswordError');
-    const roleError = document.getElementById('roleError');
-    const termsError = document.getElementById('termsError');
-    
-    let isValid = true;
-    
-    // Clear previous errors
-    [nameError, emailError, passwordError, confirmPasswordError, roleError, termsError].forEach(el => el.classList.add('hidden'));
-    [name, email, password, confirmPassword].forEach(el => el.classList.remove('error-field'));
-    
-    // Name validation
-    if (!name.value.trim()) {
-      nameError.textContent = 'お名前を入力してください。';
-      nameError.classList.remove('hidden');
-      name.classList.add('error-field');
-      isValid = false;
-    } else if (name.value.trim().length < 2) {
-      nameError.textContent = 'お名前は2文字以上で入力してください。';
-      nameError.classList.remove('hidden');
-      name.classList.add('error-field');
-      isValid = false;
-    }
-    
-    // Email validation
-    if (!email.value.trim()) {
-      emailError.textContent = 'メールアドレスを入力してください。';
-      emailError.classList.remove('hidden');
-      email.classList.add('error-field');
-      isValid = false;
-    } else if (!email.validity.valid) {
-      emailError.textContent = '有効なメールアドレスを入力してください。';
-      emailError.classList.remove('hidden');
-      email.classList.add('error-field');
-      isValid = false;
-    }
-    
-    // Password validation
-    if (!password.value) {
-      passwordError.textContent = 'パスワードを入力してください。';
-      passwordError.classList.remove('hidden');
-      password.classList.add('error-field');
-      isValid = false;
-    } else if (password.value.length < 8) {
-      passwordError.textContent = 'パスワードは8文字以上で入力してください。';
-      passwordError.classList.remove('hidden');
-      password.classList.add('error-field');
-      isValid = false;
-    }
-    
-    // Confirm password validation
-    if (!confirmPassword.value) {
-      confirmPasswordError.textContent = 'パスワード確認を入力してください。';
-      confirmPasswordError.classList.remove('hidden');
-      confirmPassword.classList.add('error-field');
-      isValid = false;
-    } else if (password.value !== confirmPassword.value) {
-      confirmPasswordError.textContent = 'パスワードが一致しません。';
-      confirmPasswordError.classList.remove('hidden');
-      confirmPassword.classList.add('error-field');
-      isValid = false;
-    }
-    
-    // Role validation
-    if (!role) {
-      roleError.textContent = '登録タイプを選択してください。';
-      roleError.classList.remove('hidden');
-      isValid = false;
-    }
-    
-    // Terms validation
-    const areRequiredTermsChecked = Array.from(requiredTerms).every(term => term.checked);
-    if (!areRequiredTermsChecked) {
-      termsError.textContent = '必須利用規約に同意してください。';
-      termsError.classList.remove('hidden');
-      isValid = false;
-    }
-    
-    return isValid;
-  }
-
-  // Form submission
-  document.getElementById('registerForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
-      
-    const name = document.getElementById('name').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value;
-    const role = document.querySelector('input[name="role"]:checked').value;
-    const registerBtn = document.getElementById('registerBtn');
-    
-    // Simulate registration process
-    registerBtn.disabled = true;
-    registerBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>アカウント作成中...';
-    
-    setTimeout(() => {
-      // Simulate successful registration
-      Swal.fire({
-        icon: 'success',
-        title: '登録完了！',
-        text: `${role === 'helper' ? 'ヘルパー' : '利用者'}として登録されました`,
-        timer: 2000,
-        showConfirmButton: false
-      });
-      
-      setTimeout(() => {
-        // Redirect to login page for authentication
-        window.location.href = 'login.html';
-      }, 1500);
-    }, 2000);
-  });
-
-  // Terms display functionality
-  document.getElementById('showServiceTerms').addEventListener('click', function(e) {
-    e.preventDefault();
-    Swal.fire({
-      title: 'サービス利用規約',
-      html: `
-        <div class="text-left text-sm space-y-3">
-          <h4 class="font-semibold">第1条（利用規約の適用）</h4>
-          <p>本規約は、TaskHelperが提供するサービスの利用に関して適用されます。</p>
-          
-          <h4 class="font-semibold">第2条（利用者の責任）</h4>
-          <p>利用者は、本サービスを適切に利用し、他の利用者に迷惑をかけないよう努めます。</p>
-          
-          <h4 class="font-semibold">第3条（禁止事項）</h4>
-          <p>以下の行為を禁止します：<br>
-          - 違法行為<br>
-          - 他者への迷惑行為<br>
-          - システムの不正利用</p>
-          
-          <h4 class="font-semibold">第4条（サービスの変更・停止）</h4>
-          <p>当社は必要に応じてサービス内容の変更や一時停止を行う場合があります。</p>
-        </div>
-      `,
-      width: '600px',
-      confirmButtonText: '確認',
-      confirmButtonColor: '#3b82f6'
-    });
-  });
-
-  document.getElementById('showPrivacyPolicy').addEventListener('click', function(e) {
-    e.preventDefault();
-    Swal.fire({
-      title: '個人情報保護方針',
-      html: `
-        <div class="text-left text-sm space-y-3">
-          <h4 class="font-semibold">1. 収集する個人情報</h4>
-          <p>氏名、メールアドレス、電話番号等の基本情報を収集します。</p>
-          
-          <h4 class="font-semibold">2. 利用目的</h4>
-          <p>サービス提供、ユーザーサポート、安全性確保のために利用します。</p>
-          
-          <h4 class="font-semibold">3. 第三者への提供</h4>
-          <p>ユーザーの同意なく第三者に個人情報を提供することはありません。</p>
-          
-          <h4 class="font-semibold">4. 情報の管理</h4>
-          <p>適切なセキュリティ対策を講じて個人情報を保護します。</p>
-          
-          <h4 class="font-semibold">5. お問い合わせ</h4>
-          <p>個人情報に関するお問い合わせは privacy@taskhelper.com までご連絡ください。</p>
-        </div>
-      `,
-      width: '600px',
-      confirmButtonText: '確認',
-      confirmButtonColor: '#3b82f6'
-    });
-  });
-
-  document.getElementById('showMarketingTerms').addEventListener('click', function(e) {
-    e.preventDefault();
-    Swal.fire({
-      title: 'マーケティング情報受信について',
-      html: `
-        <div class="text-left text-sm space-y-3">
-          <h4 class="font-semibold">配信内容</h4>
-          <p>新機能のお知らせ、キャンペーン情報、サービス改善のアンケート等をお送りします。</p>
-          
-          <h4 class="font-semibold">配信方法</h4>
-          <p>メール、アプリ内通知、SMS等でお送りする場合があります。</p>
-          
-          <h4 class="font-semibold">同意の撤回</h4>
-          <p>いつでもマイページから配信停止の設定が可能です。</p>
-          
-          <h4 class="font-semibold">配信頻度</h4>
-          <p>月1〜2回程度を予定しています。重要なお知らせの場合は追加で配信する場合があります。</p>
-        </div>
-      `,
-      width: '600px',
-      confirmButtonText: '確認',
-      confirmButtonColor: '#3b82f6'
-    });
-  });
-
-  // Social registration providers
-  const socialProviders = {
-    line: {
-      name: 'LINE',
-      url: '/oauth/line',
-      color: '#00C300'
-    },
-    yahoo: {
-      name: 'Yahoo! JAPAN',
-      url: '/oauth/yahoo',
-      color: '#FF0033'
-    },
-    google: {
-      name: 'Google',
-      url: '/oauth/google',
-      color: '#DB4437'
-    },
-    twitter: {
-      name: 'X (Twitter)',
-      url: '/oauth/twitter',
-      color: '#000000'
-    },
-    apple: {
-      name: 'Apple',
-      url: '/oauth/apple',
-      color: '#000000'
-    }
-  };
-
-  // Social registration handler function
-  function handleSocialRegister(provider) {
-    const providerInfo = socialProviders[provider];
-    
-    Swal.fire({
-      icon: 'info',
-      title: '開発環境',
-      text: `${providerInfo.name} 登録はシミュレーションです。\n実際の環境では ${providerInfo.url} にリダイレクトされます。`,
-      confirmButtonText: 'OK',
-      confirmButtonColor: providerInfo.color
-    });
-  }
-
-  // Social registration event listeners
-  document.getElementById('lineRegister').addEventListener('click', function(e) {
-    handleSocialRegister('line');
-  });
-
-  document.getElementById('yahooRegister').addEventListener('click', function(e) {
-    handleSocialRegister('yahoo');
-  });
-
-  document.getElementById('googleRegister').addEventListener('click', function(e) {
-    handleSocialRegister('google');
-  });
-
-  document.getElementById('twitterRegister').addEventListener('click', function(e) {
-    handleSocialRegister('twitter');
-  });
-
-  document.getElementById('appleRegister').addEventListener('click', function(e) {
-    handleSocialRegister('apple');
-  });
-
-});
-</script>
-
-</body>
 </html>
