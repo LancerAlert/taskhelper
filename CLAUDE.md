@@ -49,10 +49,13 @@ TaskHelper is a Japanese neighborhood task assistance service website built as a
 - **components/**: Reusable UI components (ui-components.html)
 
 #### **Static Assets (static/)**
-- **css/**: Page-specific stylesheets (task-list.css, my.css)
+- **css/**: Page-specific stylesheets
+  - **Root**: styles.css, header.css, index.css, task-list.css
+  - **task/**: detail.css, my.css, helper.css
 - **js/**: Page-specific JavaScript
-  - **task/**: Task-related scripts (create.js, list.js, my.js, helper.js, application.js)
-  - **auth/**: Authentication scripts (register.js)
+  - **Root**: header.js, index.js, task-list.js
+  - **auth/**: register.js
+  - **task/**: create.js, detail.js, my.js, helper.js, application.js
 
 ## Template System
 
@@ -669,6 +672,11 @@ set statusFilter(value) {
   - **SweetAlert2 Integration**: Modern modal dialogs for helper selection and messaging
   - **Responsive Grid**: Mobile-optimized 1-2 column layout with scale animations
   - **External JS**: Logic separated to `/js/task/application.js`
+- **Dashboard System**:
+  - **User Main Dashboard**: Central hub after login with role-based content
+  - **Statistics Overview**: Task counts, ratings, and activity summary
+  - **Quick Actions**: Role-specific action buttons and navigation
+  - **Responsive Layout**: Mobile-optimized card grid system
 
 ### 📱 Mobile UX Optimizations (2025-08-09)
 - **Scroll Jump Prevention**: Service cards use scale transforms instead of translateY
@@ -733,17 +741,24 @@ set statusFilter(value) {
 
 ## Database Status & Future Enhancements
 
-### ✅ Current Database State
-All core tables are properly implemented with correct relationships:
-- **task_application** table includes `task_id` field with proper foreign key constraints
-- Unique constraint prevents duplicate applications (task_id, helper_id)
-- Performance indexes are in place for efficient querying
+### ✅ Current Database State (2025-08-15)
+**Production-Ready Schema with 13 Tables:**
+- **Master Tables**: role (3 roles), category (6 types), options (4 options), image
+- **Core Tables**: user, task  
+- **Relationship Tables**: task_application, task_image, task_options, review
+- **Q&A System**: question, answer (with hierarchical replies)
 
-**Task Application Status Values:**
-- `pending` - 지원 대기 중 (default)
-- `accepted` - 선택됨
-- `rejected` - 거절됨  
-- `withdrawn` - 지원 철회
+**Key Improvements from Initial Design:**
+- Added ADMIN role for administration features
+- Implemented image deduplication with hash
+- Added task options for flexible requirements
+- Hierarchical answer system for nested replies
+- Comprehensive indexes for query optimization
+
+**Status Enum Values:**
+- Task Status: `RECRUITING`, `INPROGRESS`, `COMPLETED`, `CANCELLED`
+- Application Status: `PENDING`, `ACCEPTED`, `REJECTED`, `WITHDRAWN`
+- Task Time: `MORNING`, `AFTERNOON`, `EVENING`, `ANYTIME`
 
 ### 🔄 Future Enhancements
 **Tables to Add Later:**
@@ -751,5 +766,7 @@ All core tables are properly implemented with correct relationships:
 - **message** - 메시지 시스템
 - **notification** - 알림 관리
 - **transaction** - 거래 내역
+- **favorite** - 즐겨찾기 기능
+- **report** - 신고 관리
 
 This documentation serves as the definitive guide for maintaining and extending TaskHelper's codebase with consistent mobile-optimized user experience.
