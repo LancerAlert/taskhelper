@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}"
+      th:with="title='ヘルパーダッシュボード - TaskHelper | 近所の信頼できる代行サービス'">
+
+<!-- Main Content -->
+<th:block layout:fragment="content">
+
+  <!-- Hero Section with Helper Statistics -->
+  <section class="bg-gradient-to-r from-purple-900 via-indigo-900 to-purple-900 py-16">
+    <div class="max-w-7xl mx-auto px-4">
+      <!-- Page Header -->
+      <div class="text-center text-white mb-12">
+        <div class="w-24 h-24 bg-gradient-to-br from-white/20 to-white/10 rounded-full flex items-center justify-center text-white text-4xl font-bold shadow-2xl backdrop-blur-sm border border-white/20 mx-auto mb-6">
+          <i class="fas fa-hands-helping"></i>
+        </div>
+        <h1 class="text-4xl lg:text-5xl font-bold mb-4">ヘルパーダッシュボード</h1>
+        <p class="text-xl opacity-90 max-w-2xl mx-auto">あなたの活動実績と収入状況を確認</p>
+      </div>
+
+      <!-- Helper Stats Grid -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6" x-data="{
+        stats: {
+          appliedTasks: 15,
+          completedTasks: 12,
+          totalEarnings: 45000,
+          avgRating: 4.9
+        }
+      }">
+        <!-- Applied Tasks -->
+        <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-4 lg:p-6 border border-white/20 hover:bg-white/15 transition-all duration-300">
+          <div class="flex flex-col items-center text-center">
+            <i class="fas fa-hand-paper text-2xl lg:text-3xl text-purple-300 mb-2"></i>
+            <p class="text-2xl lg:text-3xl font-bold text-white" x-text="stats.appliedTasks"></p>
+            <p class="text-sm lg:text-base text-white/80">応募した案件</p>
+          </div>
+        </div>
+
+        <!-- Completed Tasks -->
+        <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-4 lg:p-6 border border-white/20 hover:bg-white/15 transition-all duration-300">
+          <div class="flex flex-col items-center text-center">
+            <i class="fas fa-check-circle text-2xl lg:text-3xl text-green-300 mb-2"></i>
+            <p class="text-2xl lg:text-3xl font-bold text-white" x-text="stats.completedTasks"></p>
+            <p class="text-sm lg:text-base text-white/80">完了した案件</p>
+          </div>
+        </div>
+
+        <!-- Total Earnings -->
+        <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-4 lg:p-6 border border-white/20 hover:bg-white/15 transition-all duration-300">
+          <div class="flex flex-col items-center text-center">
+            <i class="fas fa-yen-sign text-2xl lg:text-3xl text-yellow-300 mb-2"></i>
+            <p class="text-xl lg:text-2xl font-bold text-white">¥<span x-text="stats.totalEarnings.toLocaleString()"></span></p>
+            <p class="text-sm lg:text-base text-white/80">累計収入</p>
+          </div>
+        </div>
+
+        <!-- Average Rating -->
+        <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-4 lg:p-6 border border-white/20 hover:bg-white/15 transition-all duration-300">
+          <div class="flex flex-col items-center text-center">
+            <i class="fas fa-star text-2xl lg:text-3xl text-yellow-400 mb-2"></i>
+            <p class="text-2xl lg:text-3xl font-bold text-white"><span x-text="stats.avgRating"></span>/5.0</p>
+            <p class="text-sm lg:text-base text-white/80">平均評価</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="flex justify-center mt-8">
+        <a th:href="@{/tasks/list}" 
+           class="bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-8 py-4 rounded-xl font-semibold hover:from-purple-600 hover:to-indigo-700 hover:scale-105 transition-all duration-300 shadow-lg text-center text-lg">
+          <i class="fas fa-search mr-2"></i>新しい案件を探す
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content Area -->
+  <section class="py-12 -mt-6" x-data="helperTasksManager()">
+    <div class="max-w-7xl mx-auto px-4">
+
+      <!-- Tab Navigation (Helper Only) -->
+      <div class="bg-white rounded-2xl shadow-lg p-2 mb-8">
+        <div class="grid grid-cols-2 gap-2">
+          <button 
+            @click="activeView = 'applied'"
+            :class="activeView === 'applied' ? 'bg-purple-500 text-white shadow-md' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'"
+            class="px-4 py-3 rounded-xl font-semibold transition-all duration-300 text-center"
+          >
+            <i class="fas fa-hand-paper mr-2"></i>
+            <span class="hidden sm:inline">応募した</span>案件
+          </button>
+          <button 
+            @click="activeView = 'completed'"
+            :class="activeView === 'completed' ? 'bg-green-500 text-white shadow-md' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'"
+            class="px-4 py-3 rounded-xl font-semibold transition-all duration-300 text-center"
+          >
+            <i class="fas fa-check-circle mr-2"></i>
+            <span class="hidden sm:inline">完了した</span>案件
+          </button>
+        </div>
+      </div>
+
+      <!-- Status Filter Tabs (context-aware) -->
+      <div class="mb-6">
+        <div class="flex flex-wrap gap-2 justify-center lg:justify-start">
+          <button 
+            @click="statusFilter = 'all'"
+            :class="statusFilter === 'all' ? 'bg-gray-800 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'"
+            class="px-4 py-2 rounded-full font-medium transition-all duration-300 shadow-sm border"
+          >
+            すべて
+          </button>
+          <!-- Applied tab filters -->
+          <button 
+            x-show="activeView === 'applied'"
+            @click="statusFilter = 'pending'"
+            :class="statusFilter === 'pending' ? 'bg-yellow-500 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'"
+            class="px-4 py-2 rounded-full font-medium transition-all duration-300 shadow-sm border"
+          >
+            選考中
+          </button>
+          <button 
+            x-show="activeView === 'applied'"
+            @click="statusFilter = 'accepted'"
+            :class="statusFilter === 'accepted' ? 'bg-green-500 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'"
+            class="px-4 py-2 rounded-full font-medium transition-all duration-300 shadow-sm border"
+          >
+            採用済み
+          </button>
+          <button 
+            x-show="activeView === 'applied'"
+            @click="statusFilter = 'in-progress'"
+            :class="statusFilter === 'in-progress' ? 'bg-blue-500 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'"
+            class="px-4 py-2 rounded-full font-medium transition-all duration-300 shadow-sm border"
+          >
+            進行中
+          </button>
+          <button 
+            x-show="activeView === 'applied'"
+            @click="statusFilter = 'rejected'"
+            :class="statusFilter === 'rejected' ? 'bg-gray-500 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'"
+            class="px-4 py-2 rounded-full font-medium transition-all duration-300 shadow-sm border"
+          >
+            不採用
+          </button>
+          <!-- Completed tab filters -->
+          <button 
+            x-show="activeView === 'completed'"
+            @click="statusFilter = 'pending-payment'"
+            :class="statusFilter === 'pending-payment' ? 'bg-yellow-500 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'"
+            class="px-4 py-2 rounded-full font-medium transition-all duration-300 shadow-sm border"
+          >
+            入金待ち
+          </button>
+          <button 
+            x-show="activeView === 'completed'"
+            @click="statusFilter = 'paid'"
+            :class="statusFilter === 'paid' ? 'bg-green-500 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'"
+            class="px-4 py-2 rounded-full font-medium transition-all duration-300 shadow-sm border"
+          >
+            入金完了
+          </button>
+        </div>
+      </div>
+
+      <!-- Task Cards Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        
+        <!-- Dynamic Task Cards -->
+        <template x-for="task in getFilteredTasks()" :key="task.id">
+          <div class="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 border border-gray-100"
+               x-transition:enter="transition ease-out duration-300"
+               x-transition:enter-start="opacity-0 scale-95"
+               x-transition:enter-end="opacity-100 scale-100">
+          
+          <!-- Card Header -->
+          <div class="flex justify-between items-start mb-4">
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-2">
+                <!-- Status Badge -->
+                <span :class="getHelperStatusBadgeClass(task.status)" class="px-3 py-1 rounded-full text-sm font-medium">
+                  <template x-if="task.status === 'pending'">
+                    <span><i class="fas fa-hourglass-half mr-1"></i>選考中</span>
+                  </template>
+                  <template x-if="task.status === 'accepted'">
+                    <span><i class="fas fa-check mr-1"></i>採用済み</span>
+                  </template>
+                  <template x-if="task.status === 'in-progress'">
+                    <span><i class="fas fa-cog mr-1"></i>進行中</span>
+                  </template>
+                  <template x-if="task.status === 'rejected'">
+                    <span><i class="fas fa-times mr-1"></i>不採用</span>
+                  </template>
+                  <template x-if="task.status === 'pending-payment'">
+                    <span><i class="fas fa-hourglass-half mr-1"></i>入金待ち</span>
+                  </template>
+                  <template x-if="task.status === 'paid'">
+                    <span><i class="fas fa-check-circle mr-1"></i>入金完了</span>
+                  </template>
+                </span>
+                <!-- Category Badge -->
+                <span :class="'bg-' + (task.category === 'shopping' ? 'green' : task.category === 'cleaning' ? 'blue' : task.category === 'delivery' ? 'orange' : task.category === 'petcare' ? 'purple' : task.category === 'repairs' ? 'red' : 'gray') + '-100 text-' + (task.category === 'shopping' ? 'green' : task.category === 'cleaning' ? 'blue' : task.category === 'delivery' ? 'orange' : task.category === 'petcare' ? 'purple' : task.category === 'repairs' ? 'red' : 'gray') + '-800'" class="px-2 py-1 rounded text-xs">
+                  <i :class="getCategoryIcon(task.category)" class="mr-1"></i>
+                  <span x-text="task.category === 'shopping' ? '買い物' : task.category === 'cleaning' ? '掃除' : task.category === 'delivery' ? '配送' : task.category === 'petcare' ? 'ペットケア' : task.category === 'repairs' ? '修理' : 'その他'"></span>
+                </span>
+              </div>
+              <h3 class="text-lg font-bold text-gray-800 mb-1" x-text="task.title"></h3>
+              <p class="text-sm text-gray-500">
+                <template x-if="activeView === 'applied'">
+                  <span x-text="(task.appliedAt || task.acceptedAt || task.startedAt) + 'に' + (task.status === 'pending' ? '応募' : task.status === 'accepted' ? '採用' : task.status === 'in-progress' ? '開始' : '更新')"></span>
+                </template>
+                <template x-if="activeView === 'completed'">
+                  <span x-text="task.completedAt + 'に完了'"></span>
+                </template>
+              </p>
+            </div>
+            <div class="text-right">
+              <p class="text-2xl font-bold text-purple-600" x-text="formatPrice(task.price)"></p>
+              <template x-if="activeView === 'applied' && task.competitors !== undefined">
+                <p class="text-xs text-gray-500">競合 <span x-text="task.competitors"></span>名</p>
+              </template>
+              <template x-if="activeView === 'completed' && task.rating">
+                <div class="flex items-center justify-end text-yellow-400 text-sm">
+                  <i class="fas fa-star"></i>
+                  <span class="ml-1 text-gray-600" x-text="task.rating"></span>
+                </div>
+              </template>
+            </div>
+          </div>
+
+          <!-- Card Content -->
+          <p class="text-gray-600 text-sm mb-4 line-clamp-2" x-text="task.description || '詳細な説明はまだ追加されていません。'"></p>
+
+          <!-- Card Meta -->
+          <div class="flex items-center text-xs text-gray-500 mb-4 space-x-4">
+            <span><i class="fas fa-map-marker-alt mr-1"></i><span x-text="task.location"></span></span>
+            <template x-if="activeView === 'applied'">
+              <template x-if="task.status === 'pending'">
+                <span><i class="fas fa-users mr-1"></i>選考中</span>
+              </template>
+            </template>
+            <template x-if="activeView === 'applied'">
+              <template x-if="task.status === 'accepted'">
+                <span><i class="fas fa-calendar mr-1"></i><span x-text="task.scheduledFor || '未定'"></span></span>
+              </template>
+            </template>
+            <template x-if="activeView === 'applied'">
+              <template x-if="task.status === 'in-progress'">
+                <span><i class="fas fa-clock mr-1"></i>作業中</span>
+              </template>
+            </template>
+            <template x-if="activeView === 'completed'">
+              <template x-if="task.status === 'paid'">
+                <span><i class="fas fa-check-circle mr-1 text-green-500"></i>完了済み</span>
+              </template>
+            </template>
+          </div>
+
+          <!-- Card Actions -->
+          <div class="flex gap-2">
+            <!-- Applied tab: Always show detail button -->
+            <template x-if="activeView === 'applied'">
+              <button class="flex-1 bg-purple-600 text-white py-2.5 px-4 rounded-lg font-semibold hover:bg-purple-700 transition-all duration-200 shadow-sm" @click="viewTaskDetail(task.id)">
+                <i class="fas fa-eye mr-1.5"></i>詳細を見る
+              </button>
+            </template>
+            
+            <!-- Applied tab: Show withdraw button for pending status only -->
+            <template x-if="activeView === 'applied' && task.status === 'pending'">
+              <button class="px-3 py-2.5 text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200" @click="withdrawApplication(task.id)" title="取り下げ">
+                <i class="fas fa-times"></i>
+              </button>
+            </template>
+            
+            <!-- Applied tab: Show contact button for accepted status -->
+            <template x-if="activeView === 'applied' && task.status === 'accepted'">
+              <button class="flex-1 border border-gray-300 bg-white text-gray-700 py-2.5 px-4 rounded-lg font-medium hover:bg-gray-50 transition-all duration-200" @click="contactRequester(task.id)">
+                <i class="fas fa-comments mr-1.5"></i>連絡
+              </button>
+            </template>
+            
+            <!-- Applied tab: Show progress button for in-progress status -->
+            <template x-if="activeView === 'applied' && task.status === 'in-progress'">
+              <button class="flex-1 border border-gray-300 bg-white text-gray-700 py-2.5 px-4 rounded-lg font-medium hover:bg-gray-50 transition-all duration-200" @click="reportProgress(task.id)">
+                <i class="fas fa-tasks mr-1.5"></i>進捗報告
+              </button>
+            </template>
+            
+            <!-- Completed tab: Always show detail button -->
+            <template x-if="activeView === 'completed'">
+              <button class="flex-1 bg-purple-600 text-white py-2.5 px-4 rounded-lg font-semibold hover:bg-purple-700 transition-all duration-200 shadow-sm" @click="viewTaskDetail(task.id)">
+                <i class="fas fa-eye mr-1.5"></i>詳細を見る
+              </button>
+            </template>
+            
+            <!-- Completed tab: Show rate requester button for pending-payment status -->
+            <template x-if="activeView === 'completed' && task.status === 'pending-payment' && !task.requesterRated">
+              <button class="flex-1 bg-yellow-500 text-white py-2.5 px-4 rounded-lg font-semibold hover:bg-yellow-600 transition-all duration-200 shadow-sm" @click="rateRequester(task.id)">
+                <i class="fas fa-star mr-1.5"></i>依頼者を評価
+              </button>
+            </template>
+            
+            <!-- Completed tab: Show earnings button for paid status -->
+            <template x-if="activeView === 'completed' && task.status === 'paid'">
+              <button class="flex-1 border border-gray-300 bg-white text-gray-700 py-2.5 px-4 rounded-lg font-medium hover:bg-gray-50 transition-all duration-200" @click="viewEarnings(task.id)">
+                <i class="fas fa-yen-sign mr-1.5"></i>収入確認
+              </button>
+            </template>
+            
+            <!-- Completed tab: Show rating confirmation for already rated requesters -->
+            <template x-if="activeView === 'completed' && task.requesterRated">
+              <button class="flex-1 border border-gray-300 bg-white text-gray-700 py-2.5 px-4 rounded-lg font-medium hover:bg-gray-50 transition-all duration-200" @click="viewRating(task.id)">
+                <i class="fas fa-star mr-1.5"></i>評価確認
+              </button>
+            </template>
+          </div>
+        </template>
+
+        <!-- Empty State -->
+        <template x-if="getFilteredTasks().length === 0">
+          <div class="col-span-full text-center py-12">
+            <i class="fas fa-search text-6xl text-gray-300 mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-500 mb-2">該当する案件がありません</h3>
+            <p class="text-gray-400">フィルターを変更するか、新しい案件を探してください。</p>
+          </div>
+        </template>
+
+      </div>
+
+      <!-- Load More Button -->
+      <div class="text-center">
+        <button class="bg-white border-2 border-gray-300 text-gray-700 px-8 py-3 rounded-full font-semibold hover:bg-gray-50 hover:border-gray-400 hover:scale-105 transition-all duration-300 shadow-sm">
+          <i class="fas fa-plus mr-2"></i>さらに表示
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+</th:block>
+
+<!-- Extra Scripts -->
+<th:block layout:fragment="extra-scripts">
+  <link rel="stylesheet" th:href="@{/css/task/helper.css}">
+  <script th:src="@{/js/task/helper.js}"></script>
+</th:block>
+
+</html>

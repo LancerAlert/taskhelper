@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}"
+      th:with="title='応募者一覧 - TaskHelper | 近所の信頼できる代行サービス'">
+
+<!-- Main Content -->
+<div layout:fragment="content" x-data="applicantsManager()">
+
+  <!-- Hero Section -->
+  <section class="relative bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 text-white py-12 lg:py-16">
+    <!-- Background Gradient Overlay -->
+    <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/30"></div>
+
+    <div class="relative max-w-7xl mx-auto px-4">
+      
+      <!-- Task Summary -->
+      <div class="mb-8">
+        <div class="flex items-center gap-4 mb-4">
+          <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center text-white text-2xl shadow-lg" 
+               :class="getCategoryColorClass(task.category)">
+            <i :class="getCategoryIcon(task.category)"></i>
+          </div>
+          <div class="flex-1">
+            <h1 class="text-2xl lg:text-3xl font-bold text-white mb-2" x-text="task.title"></h1>
+            <p class="text-gray-200">あなたのタスクに応募したヘルパーを確認し、最適な方を選択してください。</p>
+          </div>
+          <span class="px-4 py-2 rounded-full text-sm font-medium bg-green-100 text-green-800">
+            <i class="fas fa-clock mr-1"></i>募集中
+          </span>
+        </div>
+
+        <!-- Task Details Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+            <div class="flex items-center gap-3">
+              <i class="fas fa-calendar-alt text-blue-400 text-xl"></i>
+              <div>
+                <p class="text-xs text-gray-300">希望日時</p>
+                <p class="font-semibold text-white" x-text="task.date"></p>
+                <p class="text-xs text-gray-300" x-text="task.timeSlot"></p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+            <div class="flex items-center gap-3">
+              <i class="fas fa-map-marker-alt text-green-400 text-xl"></i>
+              <div>
+                <p class="text-xs text-gray-300">実施場所</p>
+                <p class="font-semibold text-white" x-text="task.location"></p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+            <div class="flex items-center gap-3">
+              <i class="fas fa-yen-sign text-purple-400 text-xl"></i>
+              <div>
+                <p class="text-xs text-gray-300">予算</p>
+                <p class="font-semibold text-white" x-text="formatPrice(task.price)"></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+            <div class="flex items-center gap-3">
+              <i class="fas fa-users text-orange-400 text-xl"></i>
+              <div>
+                <p class="text-xs text-gray-300">応募者数</p>
+                <p class="font-semibold text-white text-xl" x-text="applicants.length + '名'"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+  </section>
+
+  <!-- Applicants Section -->
+  <section class="py-12 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4">
+
+      <!-- Filter Bar -->
+      <div class="bg-white rounded-2xl shadow-sm p-4 mb-8 border border-gray-200">
+        <div class="flex flex-wrap gap-2 items-center justify-between">
+          <div class="flex flex-wrap gap-2">
+            <button 
+              @click="sortBy = 'rating'"
+              :class="sortBy === 'rating' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+              class="px-4 py-2 rounded-lg font-medium transition-all duration-300"
+            >
+              <i class="fas fa-star mr-1"></i>評価順
+            </button>
+            <button 
+              @click="sortBy = 'experience'"
+              :class="sortBy === 'experience' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+              class="px-4 py-2 rounded-lg font-medium transition-all duration-300"
+            >
+              <i class="fas fa-medal mr-1"></i>経験順
+            </button>
+            <button 
+              @click="sortBy = 'distance'"
+              :class="sortBy === 'distance' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+              class="px-4 py-2 rounded-lg font-medium transition-all duration-300"
+            >
+              <i class="fas fa-map-marker-alt mr-1"></i>距離順
+            </button>
+            <button 
+              @click="sortBy = 'applied'"
+              :class="sortBy === 'applied' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+              class="px-4 py-2 rounded-lg font-medium transition-all duration-300"
+            >
+              <i class="fas fa-clock mr-1"></i>応募順
+            </button>
+          </div>
+          
+          <div class="flex items-center gap-2 text-sm text-gray-600">
+            <i class="fas fa-info-circle text-blue-500"></i>
+            <span>ヘルパーを選択すると他の応募者には自動で通知されます</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Applicants Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        
+        <!-- Applicant Cards -->
+        <template x-for="applicant in getSortedApplicants()" :key="applicant.id">
+          <div class="bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 p-6 border border-gray-200 hover:scale-105">
+            
+            <!-- Applicant Header -->
+            <div class="flex items-start gap-4 mb-4">
+              <div class="relative">
+                <img :src="applicant.profileImage" 
+                     :alt="applicant.name + 'のプロフィール画像'"
+                     class="w-16 h-16 rounded-full object-cover border-2 border-gray-200">
+                <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-2 border-white flex items-center justify-center"
+                     x-show="applicant.isOnline">
+                  <i class="fas fa-circle text-xs text-white"></i>
+                </div>
+              </div>
+              
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-1">
+                  <h3 class="text-lg font-bold text-gray-800" x-text="applicant.name"></h3>
+                  <template x-if="applicant.isVerified">
+                    <span class="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      <i class="fas fa-check-circle mr-1"></i>認証済み
+                    </span>
+                  </template>
+                </div>
+                
+                <!-- Rating -->
+                <div class="flex items-center gap-2 mb-2">
+                  <div class="flex items-center text-yellow-400">
+                    <template x-for="i in 5" :key="i">
+                      <i :class="i <= Math.floor(applicant.rating) ? 'fas fa-star' : 'far fa-star'"></i>
+                    </template>
+                  </div>
+                  <span class="text-sm text-gray-600">
+                    <span x-text="applicant.rating.toFixed(1)"></span> (<span x-text="applicant.reviewCount"></span>件)
+                  </span>
+                </div>
+                
+                <!-- Stats -->
+                <div class="flex items-center gap-4 text-sm text-gray-600">
+                  <span><i class="fas fa-medal mr-1 text-orange-500"></i><span x-text="applicant.completedTasks"></span>件完了</span>
+                  <span><i class="fas fa-map-marker-alt mr-1 text-blue-500"></i><span x-text="applicant.distance"></span></span>
+                  <span><i class="fas fa-clock mr-1 text-green-500"></i><span x-text="getRelativeTime(applicant.appliedAt)"></span></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Application Message -->
+            <div class="bg-gray-50 rounded-lg p-4 mb-4">
+              <h4 class="font-semibold text-gray-800 mb-2">
+                <i class="fas fa-comment-alt mr-2 text-blue-500"></i>応募メッセージ
+              </h4>
+              <p class="text-gray-700 text-sm leading-relaxed" x-text="applicant.message"></p>
+            </div>
+
+            <!-- Specialty Tags -->
+            <div class="flex flex-wrap gap-2 mb-4" x-show="applicant.specialties.length > 0">
+              <template x-for="specialty in applicant.specialties" :key="specialty">
+                <span class="px-2 py-1 rounded text-xs" 
+                      :class="getCategoryBadgeClass(specialty)" 
+                      x-text="specialty"></span>
+              </template>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex gap-2">
+              <button 
+                class="flex-1 bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 hover:scale-105 transition-all duration-200 shadow-sm"
+                @click="selectHelper(applicant)"
+              >
+                <i class="fas fa-user-check mr-2"></i>このヘルパーを選ぶ
+              </button>
+              <button 
+                class="px-4 py-3 border border-gray-300 bg-white text-gray-700 rounded-lg font-medium hover:bg-gray-50 hover:scale-105 transition-all duration-200"
+                @click="viewProfile(applicant.id)"
+                title="プロフィールを見る"
+              >
+                <i class="fas fa-user"></i>
+              </button>
+              <button 
+                class="px-4 py-3 border border-gray-300 bg-white text-gray-700 rounded-lg font-medium hover:bg-gray-50 hover:scale-105 transition-all duration-200"
+                @click="sendMessage(applicant.id)"
+                title="メッセージを送る"
+              >
+                <i class="fas fa-envelope"></i>
+              </button>
+            </div>
+          </div>
+        </template>
+
+        <!-- Empty State -->
+        <template x-if="applicants.length === 0">
+          <div class="col-span-full text-center py-12">
+            <i class="fas fa-user-friends text-6xl text-gray-300 mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-500 mb-2">まだ応募者がいません</h3>
+            <p class="text-gray-400 mb-6">しばらくお待ちいただくか、タスクの内容を見直してみてください。</p>
+            <a th:href="@{/tasks/my}" 
+               class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-all duration-200">
+              <i class="fas fa-arrow-left mr-2"></i>タスク一覧に戻る
+            </a>
+          </div>
+        </template>
+
+      </div>
+
+      <!-- Back Button -->
+      <div class="text-center">
+        <a th:href="@{/tasks/my}" 
+           class="inline-flex items-center bg-white border-2 border-gray-300 text-gray-700 px-6 py-3 rounded-full font-semibold hover:bg-gray-50 hover:border-gray-400 hover:scale-105 transition-all duration-300 shadow-sm">
+          <i class="fas fa-arrow-left mr-2"></i>マイタスクに戻る
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+</div>
+
+<!-- Extra Scripts -->
+<th:block layout:fragment="extra-scripts">
+  <script th:src="@{/js/task/application.js}"></script>
+</th:block>
+
+</html>
