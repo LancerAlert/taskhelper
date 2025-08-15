@@ -1,0 +1,13 @@
+/* Header Navigation Styles - Minimal Library-First Approach */
+
+/* Alpine.js [x-cloak] utility to prevent flash of unstyled content */
+[x-cloak] { 
+  display: none !important; 
+}
+
+/* Ensure smooth transitions for Alpine.js animations work with Tailwind CSS */
+.transition-transform {
+  transition-property: transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}

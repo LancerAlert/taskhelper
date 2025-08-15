@@ -1,0 +1,79 @@
+/* Task Detail Page - Minimized Custom CSS */
+/* Following CLAUDE.md: Custom CSS Minimization + Tailwind First approach */
+
+/* Essential custom animations that cannot be replicated with Tailwind alone */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Q&A section gradient backgrounds - Complex gradients requiring custom CSS */
+.qa-question {
+    background: linear-gradient(to right, #eff6ff, transparent);
+    border-left: 4px solid #3b82f6;
+}
+
+.qa-answer {
+    background: linear-gradient(to right, #ecfdf5, transparent);
+    border-left: 4px solid #10b981;
+}
+
+/* Image modal backdrop filter - Not available in Tailwind */
+.image-modal {
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+/* Sticky sidebar using native CSS position: sticky */
+.sticky-sidebar {
+    position: -webkit-sticky;
+    position: sticky;
+    top: calc(4rem + 2rem); /* Header height (4rem) + spacing (2rem) = 6rem */
+    align-self: flex-start; /* Important: prevents stretching */
+}
+
+/* Disable sticky on mobile for better UX */
+@media (max-width: 1023px) {
+    .sticky-sidebar {
+        position: static !important;
+        top: auto !important;
+    }
+}
+
+/* Apply button subtle pulse - Custom animation timing */
+.apply-button {
+    animation: subtle-pulse 3s infinite;
+}
+
+@keyframes subtle-pulse {
+    0%, 100% {
+        box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3);
+    }
+    50% {
+        box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.5);
+    }
+}
+
+/* Scroll to top button behavior - Complex opacity/visibility control */
+.scroll-to-top {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 50;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.scroll-to-top.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* All other styles converted to Tailwind utilities */

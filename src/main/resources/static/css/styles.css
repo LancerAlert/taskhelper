@@ -1,0 +1,98 @@
+/**
+ * Global Styles - Library-First Approach
+ * Uses: Tailwind CSS, Animate.css, MicroModal
+ * Custom CSS minimized to essential utilities only
+ */
+
+/* Global Reset - Using Tailwind's Preflight (automatically included) */
+html {
+  height: 100%;
+  min-height: 100vh;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Mobile Responsive Fixes */
+@media (max-width: 640px) {
+  input, textarea {
+    max-width: 100% !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+}
+
+/* Checkbox Styling - Native HTML enhancement */
+input[type="checkbox"] {
+  appearance: none;
+  width: 1rem;
+  height: 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.25rem;
+  background-color: white;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+input[type="checkbox"]:checked {
+  background-color: #2563eb;
+  border-color: #2563eb;
+  background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='m12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022Z'/%3e%3c/svg%3e");
+  background-size: 0.75rem;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* MicroModal Styles - Using Animate.css classes */
+.modal {
+  display: none;
+}
+
+.modal.is-open {
+  display: block;
+}
+
+.modal__overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modal__container {
+  background-color: white;
+  padding: 0;
+  max-width: 90vw;
+  border-radius: 1rem;
+  overflow-y: auto;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* MicroModal with Animate.css animations */
+.modal[aria-hidden="false"] .modal__overlay {
+  animation-name: fadeIn;
+  animation-duration: 0.3s;
+}
+
+.modal[aria-hidden="false"] .modal__container {
+  animation-name: slideInUp;
+  animation-duration: 0.3s;
+}
+
+.modal[aria-hidden="true"] .modal__overlay {
+  animation-name: fadeOut;
+  animation-duration: 0.3s;
+}
+
+.modal[aria-hidden="true"] .modal__container {
+  animation-name: slideOutDown;
+  animation-duration: 0.3s;
+}
