@@ -304,7 +304,7 @@
         <a href="index.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">ホーム</a>
         <a th:href="@{/task/list}" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">依頼一覧</a>
         <a th:href="@{/task/create}" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">依頼投稿</a>
-        <a href="../user/user-profile.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">プロフィール</a>
+        <a href="../user/profile.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">プロフィール</a>
         <a th:href="@{/task/my}" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">マイタスク</a>
       </div>
       
@@ -331,7 +331,7 @@
         <a href="index.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">ホーム</a>
         <a th:href="@{/task/list}" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">依頼一覧</a>
         <a th:href="@{/task/create}" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">依頼投稿</a>
-        <a href="../user/user-profile.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">プロフィール</a>
+        <a href="../user/profile.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">プロフィール</a>
         <a th:href="@{/task/my}" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">マイタスク</a>
         <hr class="my-3">
         <div class="flex gap-2 justify-center">
@@ -935,7 +935,7 @@ document.addEventListener('DOMContentLoaded', function() {
     contactBtn.addEventListener('click', function() {
       const taskId = 'task_shopping_001'; // 実際の環境では URL パラメータから 取得
       const conversationId = 'conv_' + Math.random().toString(36).substr(2, 9);
-      window.location.href = `../user/user-messages.html?conversation=${conversationId}&task=${taskId}&action=contact`;
+      window.location.href = `../user/messages.html`;
     });
   }
   
@@ -967,7 +967,7 @@ document.addEventListener('DOMContentLoaded', function() {
               // メッセージ ページで 新しい 会話を 開始
               const taskId = 'task_' + Math.random().toString(36).substr(2, 9);
               const conversationId = 'conv_' + Math.random().toString(36).substr(2, 9);
-              window.location.href = `../user/user-messages.html?conversation=${conversationId}&task=${taskId}&action=new`;
+              window.location.href = `../user/messages.html`;
             }
           });
         }

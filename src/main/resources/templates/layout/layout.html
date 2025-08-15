@@ -104,6 +104,11 @@
   
   <!-- Common JavaScript -->
   <div th:replace="~{fragments/common-scripts :: common-scripts}"></div>
+  
+  <!-- Page-specific JavaScript -->
+  <th:block layout:fragment="extra-scripts">
+    <!-- Page-specific scripts will be inserted here -->
+  </th:block>
 
 </body>
 </html>

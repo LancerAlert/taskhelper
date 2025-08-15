@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}"
+      th:with="title='代行依頼を投稿 - TaskHelper | 近所の信頼できる代行サービス'">
+
+<!-- Main Content -->
+<th:block layout:fragment="content">
+
+  <section class="bg-gradient-to-r from-blue-500 to-purple-600 text-white py-20 pt-32" aria-labelledby="create-task-title">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Header -->
+      <div class="text-center mb-12">
+        <h1 id="create-task-title" class="text-3xl sm:text-4xl font-bold mb-4">
+          代行依頼を投稿
+        </h1>
+        <p class="text-lg text-blue-100">
+          お困りのことがあれば、近所のヘルパーに依頼してみましょう
+        </p>
+        <div class="w-20 h-1 bg-white mx-auto mt-4 rounded-full"></div>
+      </div>
+
+      <!-- Task Creation Form -->
+      <div class="bg-white rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8">
+        <form id="createTaskForm" class="space-y-8" novalidate>
+
+          <!-- Step 1: Category Selection -->
+          <div class="space-y-6">
+            <div class="flex items-center space-x-2 mb-6">
+              <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">1</div>
+              <h2 class="text-xl font-semibold text-gray-900">カテゴリを選択 <span class="text-red-500">*</span></h2>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 ml-8 sm:ml-10">
+              <label class="category-card relative">
+                <input type="radio" name="category" value="shopping" class="sr-only category-radio" required>
+                <div class="category-inner border border-gray-200 p-4 text-center cursor-pointer">
+                  <div class="check-mark">
+                    <i class="fas fa-check"></i>
+                  </div>
+                  <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <i class="fas fa-shopping-cart text-green-600 text-xl"></i>
+                  </div>
+                  <h3 class="font-semibold text-gray-900 text-sm">買い物</h3>
+                  <p class="text-xs text-gray-600 mt-1">スーパー、コンビニ</p>
+                </div>
+              </label>
+
+              <label class="category-card relative">
+                <input type="radio" name="category" value="cleaning" class="sr-only category-radio" required>
+                <div class="category-inner border border-gray-200 p-4 text-center cursor-pointer">
+                  <div class="check-mark">
+                    <i class="fas fa-check"></i>
+                  </div>
+                  <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <i class="fas fa-broom text-blue-600 text-xl"></i>
+                  </div>
+                  <h3 class="font-semibold text-gray-900 text-sm">掃除</h3>
+                  <p class="text-xs text-gray-600 mt-1">家の片付け、掃除</p>
+                </div>
+              </label>
+
+              <label class="category-card relative">
+                <input type="radio" name="category" value="delivery" class="sr-only category-radio" required>
+                <div class="category-inner border border-gray-200 p-4 text-center cursor-pointer">
+                  <div class="check-mark">
+                    <i class="fas fa-check"></i>
+                  </div>
+                  <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <i class="fas fa-truck text-orange-600 text-xl"></i>
+                  </div>
+                  <h3 class="font-semibold text-gray-900 text-sm">配送</h3>
+                  <p class="text-xs text-gray-600 mt-1">荷物の配送</p>
+                </div>
+              </label>
+
+              <label class="category-card relative">
+                <input type="radio" name="category" value="petcare" class="sr-only category-radio" required>
+                <div class="category-inner border border-gray-200 p-4 text-center cursor-pointer">
+                  <div class="check-mark">
+                    <i class="fas fa-check"></i>
+                  </div>
+                  <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <i class="fas fa-paw text-purple-600 text-xl"></i>
+                  </div>
+                  <h3 class="font-semibold text-gray-900 text-sm">ペットケア</h3>
+                  <p class="text-xs text-gray-600 mt-1">散歩、お世話</p>
+                </div>
+              </label>
+
+              <label class="category-card relative">
+                <input type="radio" name="category" value="repair" class="sr-only category-radio" required>
+                <div class="category-inner border border-gray-200 p-4 text-center cursor-pointer">
+                  <div class="check-mark">
+                    <i class="fas fa-check"></i>
+                  </div>
+                  <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <i class="fas fa-tools text-red-600 text-xl"></i>
+                  </div>
+                  <h3 class="font-semibold text-gray-900 text-sm">修理</h3>
+                  <p class="text-xs text-gray-600 mt-1">組み立て、小修理</p>
+                </div>
+              </label>
+            </div>
+            <p id="categoryError" class="text-xs mt-1 text-red-500 hidden ml-8 sm:ml-10"></p>
+          </div>
+
+          <!-- Step 2: Task Details -->
+          <div class="space-y-6">
+            <div class="flex items-center space-x-2 mb-6">
+              <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">2</div>
+              <h2 class="text-xl font-semibold text-gray-900">依頼内容</h2>
+            </div>
+
+            <div class="space-y-1 ml-8 sm:ml-10">
+              <label for="title" class="block text-sm font-medium text-gray-700">タイトル <span class="text-red-500">*</span></label>
+              <div class="relative w-full">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <i class="fas fa-edit text-gray-400 text-sm" aria-hidden="true"></i>
+                </div>
+                <input type="text" id="title" name="title" required
+                       maxlength="50" minlength="5"
+                       class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400"
+                       placeholder="例：買い物代行をお願いします">
+              </div>
+              <p id="titleError" class="text-xs mt-1 text-red-500 hidden"></p>
+            </div>
+
+            <div class="space-y-1 ml-8 sm:ml-10">
+              <label for="description" class="block text-sm font-medium text-gray-700">詳細説明 <span class="text-red-500">*</span></label>
+              <div class="w-full">
+                <textarea id="description" name="description" required
+                          rows="4" maxlength="500" minlength="15"
+                          class="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400"
+                          placeholder="依頼の詳細を具体的に書いてください。"></textarea>
+                <div class="flex justify-between text-xs text-gray-500">
+                  <span>15文字以上入力してください</span>
+                  <span id="charCount">0/500</span>
+                </div>
+              </div>
+              <p id="descriptionError" class="text-xs mt-1 text-red-500 hidden"></p>
+            </div>
+          </div>
+
+          <!-- Step 3: Location & Schedule -->
+          <div class="space-y-6">
+            <div class="flex items-center space-x-2 mb-6">
+              <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">3</div>
+              <h2 class="text-xl font-semibold text-gray-900">場所と日時</h2>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6 max-w-4xl ml-8 sm:ml-10">
+              <div class="space-y-1">
+                <label for="location" class="block text-sm font-medium text-gray-700">実施場所 <span class="text-red-500">*</span></label>
+                <div class="relative">
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fas fa-map-marker-alt text-gray-400 text-sm" aria-hidden="true"></i>
+                  </div>
+                  <input type="text" id="location" name="location" required
+                         maxlength="100"
+                         class="max-w-xs w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400"
+                         placeholder="例：渋谷区恵比寿">
+                </div>
+                <p class="text-xs text-gray-500 mt-1">正確にご記入ください（ヘルパーが見つけやすくなります）</p>
+                <p id="locationError" class="text-xs mt-1 text-red-500 hidden"></p>
+              </div>
+
+              <div class="space-y-1">
+                <label for="budget" class="block text-sm font-medium text-gray-700">予算 <span class="text-red-500">*</span></label>
+                <div class="relative">
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <span class="text-gray-400 text-sm">¥</span>
+                  </div>
+                  <input type="number" id="budget" name="budget" required
+                         min="500" max="50000" step="100"
+                         class="max-w-48 w-full pl-8 pr-8 py-3 border border-gray-300 rounded-xl bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400"
+                         placeholder="3000 円">
+                </div>
+                <p class="text-xs text-gray-500 mt-1">サービス手数料別途</p>
+                <p id="budgetError" class="text-xs mt-1 text-red-500 hidden"></p>
+              </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6 max-w-4xl ml-8 sm:ml-10">
+              <div class="space-y-1">
+                <label for="preferred_date" class="block text-sm font-medium text-gray-700">希望日 <span class="text-red-500">*</span></label>
+                <div class="relative">
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fas fa-calendar text-gray-400 text-sm" aria-hidden="true"></i>
+                  </div>
+                  <input type="date" id="preferred_date" name="preferred_date" required
+                         class="max-w-xs w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
+                </div>
+                <p id="dateError" class="text-xs mt-1 text-red-500 hidden"></p>
+              </div>
+
+              <div class="space-y-1">
+                <label for="preferred_time" class="block text-sm font-medium text-gray-700">希望時間 <span class="text-red-500">*</span></label>
+                <div class="relative">
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fas fa-clock text-gray-400 text-sm" aria-hidden="true"></i>
+                  </div>
+                  <select id="preferred_time" name="preferred_time" required
+                          class="max-w-sm w-full pl-10 pr-10 py-3 border border-gray-300 rounded-xl bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 appearance-none">
+                    <option value="">時間を選択</option>
+                    <option value="morning">午前中 (9:00-12:00)</option>
+                    <option value="afternoon">午後 (13:00-17:00)</option>
+                    <option value="evening">夕方 (17:00-20:00)</option>
+                    <option value="anytime">いつでも</option>
+                  </select>
+                  <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                    <i class="fas fa-chevron-down text-gray-400 text-sm"></i>
+                  </div>
+                </div>
+                <p id="timeError" class="text-xs mt-1 text-red-500 hidden"></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 4: Additional Options -->
+          <div class="space-y-6">
+            <div class="flex items-center space-x-2 mb-6">
+              <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">4</div>
+              <h2 class="text-xl font-semibold text-gray-900">追加オプション</h2>
+            </div>
+
+            <div class="space-y-4 ml-8 sm:ml-10">
+              <div class="flex items-start">
+                <input type="checkbox" id="urgent" name="urgent" class="w-4 h-4 mt-1 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                <label for="urgent" class="ml-3 text-sm text-gray-700">
+                  <span class="font-medium">緊急依頼</span>
+                  <span class="block text-gray-500">24時間以内に実施希望（追加料金 +20%）</span>
+                </label>
+              </div>
+
+              <div class="flex items-start">
+                <input type="checkbox" id="photo_required" name="photo_required" class="w-4 h-4 mt-1 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                <label for="photo_required" class="ml-3 text-sm text-gray-700">
+                  <span class="font-medium">完了写真を希望</span>
+                  <span class="block text-gray-500">作業完了時の写真撮影をお願いします</span>
+                </label>
+              </div>
+
+              <div class="flex items-start">
+                <input type="checkbox" id="contact_phone" name="contact_phone" class="w-4 h-4 mt-1 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                <label for="contact_phone" class="ml-3 text-sm text-gray-700">
+                  <span class="font-medium">電話連絡可能</span>
+                  <span class="block text-gray-500">緊急時に電話での連絡を許可します</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Submit Section -->
+          <div class="border-t pt-6">
+            <div class="bg-blue-50 rounded-xl p-4 mb-6">
+              <div class="flex items-start">
+                <i class="fas fa-info-circle text-blue-600 mt-1 mr-3"></i>
+                <div class="text-sm text-blue-800">
+                  <p class="font-medium mb-1">投稿前にご確認ください</p>
+                  <ul class="space-y-1 text-blue-700">
+                    <li>依頼内容は具体的に記載してください</li>
+                    <li>適正な予算を設定してください</li>
+                    <li>ヘルパーからの質問には迅速に回答してください</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex justify-end gap-4">
+              <button type="button" id="cancelBtn"
+                      class="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 hover:border-gray-400 transition-all duration-200">
+                <i class="fas fa-times mr-2"></i>
+                キャンセル
+              </button>
+              <button type="button" id="previewBtn"
+                      class="px-6 py-3 border border-blue-600 text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition-all duration-200">
+                <i class="fas fa-eye mr-2"></i>
+                プレビュー
+              </button>
+              <button type="submit" id="submitBtn"
+                      class="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-200 border-0">
+                <i class="fas fa-paper-plane mr-2"></i>
+                依頼を登録
+              </button>
+            </div>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <script>
+
+  document.addEventListener('DOMContentLoaded', function() {
+
+    // Mobile menu functionality
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    if (mobileMenuButton && mobileMenu) {
+      mobileMenuButton.addEventListener('click', function() {
+        const isExpanded = this.getAttribute('aria-expanded') === 'true';
+        this.setAttribute('aria-expanded', !isExpanded);
+        mobileMenu.classList.toggle('hidden');
+
+        // Toggle menu/close icons
+        const menuIcon = document.getElementById('menu-icon');
+        const closeIcon = document.getElementById('close-icon');
+        if (menuIcon && closeIcon) {
+          menuIcon.classList.toggle('opacity-0');
+          closeIcon.classList.toggle('opacity-0');
+        }
+      });
+    }
+
+    // Configure Toastr
+    toastr.options = {
+      "closeButton": true,
+      "progressBar": true,
+      "positionClass": "toast-top-right",
+      "timeOut": "4000"
+    };
+
+    // Character counter for description
+    const descriptionTextarea = document.getElementById('description');
+    const charCount = document.getElementById('charCount');
+
+    if (descriptionTextarea && charCount) {
+      descriptionTextarea.addEventListener('input', function() {
+        const currentLength = this.value.length;
+        charCount.textContent = `${currentLength}/500`;
+
+        if (currentLength < 15) {
+          charCount.classList.add('text-red-500');
+          charCount.classList.remove('text-gray-500');
+        } else {
+          charCount.classList.remove('text-red-500');
+          charCount.classList.add('text-gray-500');
+        }
+      });
+    }
+
+    // Set minimum date to today
+    const dateInput = document.getElementById('preferred_date');
+    if (dateInput) {
+      const today = new Date().toISOString().split('T')[0];
+      dateInput.min = today;
+    }
+
+    // Category selection
+    document.querySelectorAll('.category-radio').forEach(radio => {
+      radio.addEventListener('change', function() {
+        // Remove selection from all cards
+        document.querySelectorAll('.category-card').forEach(card => {
+          card.classList.remove('selected');
+        });
+
+        // Add selection to chosen card
+        const selectedCard = this.closest('.category-card');
+        if (selectedCard) {
+          selectedCard.classList.add('selected');
+        }
+
+        clearError('categoryError');
+      });
+    });
+
+    // Real-time validation
+    const formFields = ['title', 'description', 'location', 'budget', 'preferred_date', 'preferred_time'];
+
+    formFields.forEach(fieldId => {
+      const field = document.getElementById(fieldId);
+      if (field) {
+        field.addEventListener('input', function() {
+          validateField(fieldId);
+        });
+        field.addEventListener('blur', function() {
+          validateField(fieldId);
+        });
+      }
+    });
+
+    // Clear error function
+    function clearError(errorId) {
+      const errorElement = document.getElementById(errorId);
+      if (errorElement) {
+        errorElement.classList.add('hidden');
+      }
+    }
+
+    // Field validation function
+    function validateField(fieldId) {
+      const field = document.getElementById(fieldId);
+      const errorElement = document.getElementById(fieldId + 'Error');
+
+      if (!field || !errorElement) {
+        return true; // Skip validation if elements don't exist
+      }
+
+      const value = field.value.trim();
+
+      // Clear previous error
+      field.classList.remove('error-field');
+      errorElement.classList.add('hidden');
+
+      let isValid = true;
+      let errorMessage = '';
+
+      switch(fieldId) {
+        case 'title':
+          if (!value) {
+            errorMessage = 'タイトルを入力してください。';
+            isValid = false;
+          } else if (value.length < 5) {
+            errorMessage = 'タイトルは5文字以上で入力してください。';
+            isValid = false;
+          }
+          break;
+
+        case 'description':
+          if (!value) {
+            errorMessage = '詳細説明を入力してください。';
+            isValid = false;
+          } else if (value.length < 15) {
+            errorMessage = '詳細説明は15文字以上で入力してください。';
+            isValid = false;
+          }
+          break;
+
+        case 'location':
+          if (!value) {
+            errorMessage = '実施場所を入力してください。';
+            isValid = false;
+          }
+          break;
+
+        case 'budget':
+          const budgetValue = parseInt(value);
+          if (!value) {
+            errorMessage = '予算を入力してください。';
+            isValid = false;
+          } else if (budgetValue < 500) {
+            errorMessage = '予算は500円以上で設定してください。';
+            isValid = false;
+          } else if (budgetValue > 50000) {
+            errorMessage = '予算は50,000円以下で設定してください。';
+            isValid = false;
+          }
+          break;
+
+        case 'preferred_date':
+          if (!value) {
+            errorMessage = '希望日を選択してください。';
+            isValid = false;
+          } else {
+            const selectedDate = new Date(value);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            if (selectedDate < today) {
+              errorMessage = '本日以降の日付を選択してください。';
+              isValid = false;
+            }
+          }
+          break;
+
+        case 'preferred_time':
+          if (!value) {
+            errorMessage = '希望時間を選択してください。';
+            isValid = false;
+          }
+          break;
+      }
+
+      if (!isValid) {
+        field.classList.add('error-field');
+        errorElement.textContent = errorMessage;
+        errorElement.classList.remove('hidden');
+      }
+
+      return isValid;
+    }
+
+    // Form validation
+    function validateForm() {
+      let isValid = true;
+
+      // Validate category selection
+      const categorySelected = document.querySelector('input[name="category"]:checked');
+      if (!categorySelected) {
+        document.getElementById('categoryError').textContent = 'カテゴリを選択してください。';
+        document.getElementById('categoryError').classList.remove('hidden');
+        isValid = false;
+      } else {
+        clearError('categoryError');
+      }
+
+      // Validate all fields
+      formFields.forEach(fieldId => {
+        if (!validateField(fieldId)) {
+          isValid = false;
+        }
+      });
+
+      return isValid;
+    }
+
+    // Preview functionality
+    document.getElementById('previewBtn').addEventListener('click', function() {
+      if (!validateForm()) {
+        toastr.error('入力内容を確認してください。');
+        return;
+      }
+
+      const categoryContainer = document.querySelector('[x-data*="categorySelector"]');
+      let category = null;
+
+      if (categoryContainer && typeof Alpine !== 'undefined') {
+        try {
+          const categoryComponent = Alpine.$data(categoryContainer);
+          category = categoryComponent ? categoryComponent.selectedCategory : null;
+        } catch (e) {
+          console.warn('Could not access Alpine data, falling back to form data');
+          const radioInput = document.querySelector('input[name="category"]:checked');
+          category = radioInput ? radioInput.value : null;
+        }
+      } else {
+        const radioInput = document.querySelector('input[name="category"]:checked');
+        category = radioInput ? radioInput.value : null;
+      }
+      const formData = new FormData(document.getElementById('createTaskForm'));
+      const title = formData.get('title');
+      const description = formData.get('description');
+      const location = formData.get('location');
+      const budget = formData.get('budget');
+      const date = formData.get('preferred_date');
+      const time = formData.get('preferred_time');
+
+      const categoryNames = {
+        'shopping': '買い物',
+        'cleaning': '掃除',
+        'delivery': '配送',
+        'petcare': 'ペットケア',
+        'repair': '修理'
+      };
+
+      const timeNames = {
+        'morning': '午前中 (9:00-12:00)',
+        'afternoon': '午後 (13:00-17:00)',
+        'evening': '夕方 (17:00-20:00)',
+        'anytime': 'いつでも'
+      };
+
+      Swal.fire({
+        title: 'プレビュー',
+        html: `
+          <div class="text-left space-y-4">
+            <div>
+              <span class="inline-block px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm font-medium">${categoryNames[category]}</span>
+            </div>
+            <h3 class="text-lg font-semibold">${title}</h3>
+            <p class="text-gray-600 whitespace-pre-line">${description}</p>
+            <div class="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <strong>場所:</strong> ${location}
+              </div>
+              <div>
+                <strong>予算:</strong> ¥${parseInt(budget).toLocaleString()}
+              </div>
+              <div>
+                <strong>希望日:</strong> ${date}
+              </div>
+              <div>
+                <strong>希望時間:</strong> ${timeNames[time]}
+              </div>
+            </div>
+          </div>
+        `,
+        width: '600px',
+        confirmButtonText: '編集に戻る',
+        confirmButtonColor: '#3b82f6'
+      });
+    });
+
+    // Form submission
+    document.getElementById('createTaskForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      if (!validateForm()) {
+        toastr.error('入力内容を確認してください。');
+        return;
+      }
+
+      const submitBtn = document.getElementById('submitBtn');
+
+      // Simulate submission process
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>投稿中...';
+
+      setTimeout(() => {
+        Swal.fire({
+          icon: 'success',
+          title: '投稿完了！',
+          text: '代行依頼が正常に投稿されました。ヘルパーからの応募をお待ちください。',
+          timer: 3000,
+          showConfirmButton: false
+        });
+
+        setTimeout(() => {
+          // Redirect to dashboard or task list
+          window.location.th:href = 'dashboard.html';
+        }, 2000);
+      }, 2000);
+    });
+
+    // Cancel button functionality
+    document.getElementById('cancelBtn').addEventListener('click', function() {
+      Swal.fire({
+        title: '確認',
+        text: '入力内容が破棄されます。よろしいですか？',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'はい',
+        cancelButtonText: 'いいえ',
+        confirmButtonColor: '#d33'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.history.back();
+        }
+      });
+    });
+
+  });
+  </script>
+</th:block>
+</html>

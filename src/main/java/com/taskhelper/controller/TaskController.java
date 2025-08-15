@@ -11,8 +11,4 @@ public class IndexController {
         return "index";
     }
 
-    @GetMapping("register")
-    public String register() {
-        return "auth/register";
-    }
 }
