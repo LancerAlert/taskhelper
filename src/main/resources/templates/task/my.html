@@ -1,813 +1,322 @@
 <!DOCTYPE html>
-<html lang="ja" class="scroll-smooth">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>マイタスク - TaskHelper | 近所の信頼できる代行サービス</title>
-  
-  <!-- CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  
-  <!-- CSS Libraries -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-  
-  <!-- Additional UI Libraries -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.1/sweetalert2.min.css" rel="stylesheet">
-  
-  <!-- Alpine.js -->
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-  
-  <!-- Custom CSS -->
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-    
-    body {
-      font-family: 'Inter', sans-serif;
-    }
-    
-    .glass-card {
-      background: rgba(255, 255, 255, 0.9);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-    
-    .hero-icon {
-      background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.1) 100%);
-      backdrop-filter: blur(10px);
-    }
-    
-    .task-card {
-      transition: all 0.3s ease;
-    }
-    
-    .task-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-    }
-    
-    .status-badge {
-      display: inline-flex;
-      align-items: center;
-      padding: 0.25rem 0.75rem;
-      border-radius: 9999px;
-      font-size: 0.75rem;
-      font-weight: 600;
-    }
-    
-    .status-active {
-      background-color: #dbeafe;
-      color: #1e40af;
-    }
-    
-    .status-completed {
-      background-color: #dcfce7;
-      color: #166534;
-    }
-    
-    .status-cancelled {
-      background-color: #fee2e2;
-      color: #dc2626;
-    }
-    
-    .status-in-progress {
-      background-color: #fef3c7;
-      color: #d97706;
-    }
-    
-    .status-pending {
-      background-color: #f3e8ff;
-      color: #7c3aed;
-    }
-    
-    .tab-button {
-      padding: 1rem 1.5rem;
-      font-weight: 600;
-      border-radius: 0.75rem;
-      transition: all 0.3s ease;
-      border: 2px solid transparent;
-    }
-    
-    .tab-button.active {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-    }
-    
-    .tab-button:not(.active) {
-      background: white;
-      color: #6b7280;
-      border-color: #e5e7eb;
-    }
-    
-    .tab-button:not(.active):hover {
-      border-color: #667eea;
-      color: #667eea;
-    }
-    
-    .stat-card {
-      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-      color: white;
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .stat-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-      transition: left 0.5s;
-    }
-    
-    .stat-card:hover::before {
-      left: 100%;
-    }
-    
-    .stat-card.green {
-      background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
-    }
-    
-    .stat-card.orange {
-      background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
-    }
-    
-    .stat-card.purple {
-      background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
-    }
-    
-    .stat-card.red {
-      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-    }
-    
-    .empty-state {
-      text-align: center;
-      padding: 3rem;
-      color: #9ca3af;
-    }
-  </style>
-</head>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}"
+      th:with="title='マイタスク - TaskHelper | 近所の信頼できる代行サービス'">
 
-<body class="bg-gray-50 min-h-screen">
+<!-- Main Content -->
+<th:block layout:fragment="content">
 
-<!-- Navigation -->
-<nav class="bg-white shadow-sm fixed top-0 left-0 right-0 z-50">
-  <div class="max-w-7xl mx-auto px-4">
-    <div class="flex items-center h-16">
-      <!-- Logo -->
-      <div class="flex items-center space-x-2">
-        <i class="fas fa-hands-helping text-2xl text-blue-600" aria-hidden="true"></i>
-        <span class="text-xl font-bold text-gray-900">TaskHelper</span>
-      </div>
-      
-      <!-- Desktop Menu (centered) -->
-      <div class="hidden md:flex items-center space-x-8 mx-auto">
-        <a href="index.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">ホーム</a>
-        <a href="list.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">依頼一覧</a>
-        <a href="create.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">依頼投稿</a>
-        <a href="profile.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">プロフィール</a>
-        <a href="my.html" class="text-blue-600 font-semibold hover:text-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">マイタスク</a>
-      </div>
-      
-      <!-- Auth Buttons -->
-      <div class="hidden md:flex items-center space-x-3">
-        <a href="login.html" class="border border-blue-600 text-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-blue-50 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300" style="border: 1px solid #2563eb !important;">ログイン</a>
-        <a href="register.html" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">始める</a>
-      </div>
-      
-      <!-- Mobile Menu Button -->
-      <div class="md:hidden ml-auto">
-        <button id="mobile-menu-button" class="text-gray-700 hover:text-blue-600 p-2 transition-all duration-300 ease-in-out" aria-expanded="false">
-          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path id="menu-icon" class="transition-opacity duration-300" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-            <path id="close-icon" class="transition-opacity duration-300 opacity-0" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-        </button>
-      </div>
-    </div>
-    
-    <!-- Mobile Menu -->
-    <div id="mobile-menu" class="hidden md:hidden pb-4 transition-all duration-300 ease-in-out transform">
-      <div class="flex flex-col space-y-2">
-        <a href="index.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">ホーム</a>
-        <a href="list.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">依頼一覧</a>
-        <a href="create.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">依頼投稿</a>
-        <a href="profile.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">プロフィール</a>
-        <a href="my.html" class="block px-3 py-2 text-blue-600 font-semibold hover:text-blue-700 hover:bg-blue-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">マイタスク</a>
-        <hr class="my-3">
-        <div class="flex gap-2 justify-center">
-          <a href="login.html" class="border border-blue-600 text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-50 text-center transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300" style="border: 1px solid #2563eb !important;">ログイン</a>
-          <a href="register.html" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 text-center transition-colors focus:outline-none focus:ring-4 focus:ring-blue-300">始める</a>
-        </div>
-      </div>
-    </div>
-  </div>
-</nav>
-
-<main class="pt-16">
-  <!-- Hero Section -->
-  <section class="bg-gradient-to-r from-blue-600 to-purple-600 py-16">
+  <!-- Hero Section with Statistics -->
+  <section class="bg-gradient-to-r from-gray-900 via-blue-900 to-gray-900 py-16">
     <div class="max-w-7xl mx-auto px-4">
-      <div class="flex flex-col lg:flex-row items-center gap-8">
-        <!-- Task Icon -->
-        <div class="w-32 h-32 bg-gradient-to-br from-white/20 to-white/10 rounded-full flex items-center justify-center text-white text-5xl font-bold shadow-2xl backdrop-blur-sm border border-white/20">
-          <i class="fas fa-tasks"></i>
+      <!-- Page Header -->
+      <div class="text-center text-white mb-12">
+        <div class="w-24 h-24 bg-gradient-to-br from-white/20 to-white/10 rounded-full flex items-center justify-center text-white text-4xl font-bold shadow-2xl backdrop-blur-sm border border-white/20 mx-auto mb-6">
+          <i class="fas fa-user-circle"></i>
         </div>
-        
-        <!-- Task Info -->
-        <div class="text-white text-center lg:text-left flex-1">
-          <h1 class="text-4xl font-bold mb-2">マイタスク管理</h1>
-          <p class="text-xl opacity-90 mb-4">あなたの依頼と応募状況を一元管理</p>
-          <div class="flex flex-wrap justify-center lg:justify-start gap-2">
-            <span class="bg-white/20 px-3 py-1 rounded-full text-sm">📊 統計ダッシュボード</span>
-            <span class="bg-white/20 px-3 py-1 rounded-full text-sm">📄 タスク管理</span>
-            <span class="bg-white/20 px-3 py-1 rounded-full text-sm">🔔 リアルタイム更新</span>
-          </div>
-        </div>
-        
-        <!-- Quick Action Button -->
-        <div class="lg:ml-auto">
-          <button class="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 hover:scale-105 transition-all duration-300 shadow-lg">
-            <i class="fas fa-plus mr-2"></i>
-            新しい依頼を作成
-          </button>
-        </div>
+        <h1 class="text-4xl lg:text-5xl font-bold mb-4">マイダッシュボード</h1>
+        <p class="text-xl opacity-90 max-w-2xl mx-auto">あなたの活動状況と実績を一目で確認</p>
       </div>
-    </div>
-  </section>
 
-  <!-- Stats Section -->
-  <section class="py-12 -mt-6" x-data="{ stats: { posted: 8, applied: 15, completed: 12, cancelled: 1 } }">
-    <div class="max-w-7xl mx-auto px-4">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <!-- Requester Stats Grid -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6" x-data="{
+        stats: {
+          postedTasks: 8,
+          completedTasks: 12,
+          savedHours: 150,
+          avgSatisfaction: 4.8
+        }
+      }">
         <!-- Posted Tasks -->
-        <div class="stat-card p-6 rounded-2xl shadow-xl hover:scale-105 transition-all duration-300">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-white/80 text-sm">投稿した依頼</p>
-              <p class="text-3xl font-bold" x-text="stats.posted"></p>
-            </div>
-            <i class="fas fa-plus-circle text-2xl opacity-80"></i>
+        <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-4 lg:p-6 border border-white/20 hover:bg-white/15 transition-all duration-300">
+          <div class="flex flex-col items-center text-center">
+            <i class="fas fa-clipboard-list text-2xl lg:text-3xl text-blue-300 mb-2"></i>
+            <p class="text-2xl lg:text-3xl font-bold text-white" x-text="stats.postedTasks"></p>
+            <p class="text-sm lg:text-base text-white/80">投稿した依頼</p>
           </div>
         </div>
-        
-        <!-- Applied Tasks -->
-        <div class="stat-card green p-6 rounded-2xl shadow-xl hover:scale-105 transition-all duration-300">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-white/80 text-sm">応募した依頼</p>
-              <p class="text-3xl font-bold" x-text="stats.applied"></p>
-            </div>
-            <i class="fas fa-hand-paper text-2xl opacity-80"></i>
-          </div>
-        </div>
-        
+
         <!-- Completed Tasks -->
-        <div class="stat-card orange p-6 rounded-2xl shadow-xl hover:scale-105 transition-all duration-300">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-white/80 text-sm">完了した依頼</p>
-              <p class="text-3xl font-bold" x-text="stats.completed"></p>
-            </div>
-            <i class="fas fa-check-circle text-2xl opacity-80"></i>
+        <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-4 lg:p-6 border border-white/20 hover:bg-white/15 transition-all duration-300">
+          <div class="flex flex-col items-center text-center">
+            <i class="fas fa-check-circle text-2xl lg:text-3xl text-green-300 mb-2"></i>
+            <p class="text-2xl lg:text-3xl font-bold text-white" x-text="stats.completedTasks"></p>
+            <p class="text-sm lg:text-base text-white/80">完了した依頼</p>
           </div>
         </div>
-        
-        <!-- Cancelled Tasks -->
-        <div class="stat-card red p-6 rounded-2xl shadow-xl hover:scale-105 transition-all duration-300">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-white/80 text-sm">キャンセル</p>
-              <p class="text-3xl font-bold" x-text="stats.cancelled"></p>
-            </div>
-            <i class="fas fa-times-circle text-2xl opacity-80"></i>
+
+        <!-- Saved Hours -->
+        <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-4 lg:p-6 border border-white/20 hover:bg-white/15 transition-all duration-300">
+          <div class="flex flex-col items-center text-center">
+            <i class="fas fa-clock text-2xl lg:text-3xl text-yellow-300 mb-2"></i>
+            <p class="text-xl lg:text-2xl font-bold text-white"><span x-text="stats.savedHours"></span>時間</p>
+            <p class="text-sm lg:text-base text-white/80">節約した時間</p>
           </div>
         </div>
+
+        <!-- Average Satisfaction -->
+        <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-4 lg:p-6 border border-white/20 hover:bg-white/15 transition-all duration-300">
+          <div class="flex flex-col items-center text-center">
+            <i class="fas fa-star text-2xl lg:text-3xl text-orange-300 mb-2"></i>
+            <p class="text-2xl lg:text-3xl font-bold text-white"><span x-text="stats.avgSatisfaction"></span>/5.0</p>
+            <p class="text-sm lg:text-base text-white/80">平均満足度</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="flex justify-center mt-8">
+        <a th:href="@{/tasks/create}" 
+           class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-8 py-4 rounded-xl font-semibold hover:from-blue-600 hover:to-blue-700 hover:scale-105 transition-all duration-300 shadow-lg text-center text-lg">
+          <i class="fas fa-plus mr-2"></i>新しい依頼を作成
+        </a>
       </div>
     </div>
   </section>
 
-  <!-- Tab Navigation -->
-  <section class="py-8" x-data="{ activeTab: 'posted' }">
+  <!-- Main Content Area -->
+  <section class="py-12 -mt-6" x-data="myTasksManager()">
     <div class="max-w-7xl mx-auto px-4">
-      <div class="bg-white p-2 rounded-2xl shadow-lg mb-8 overflow-x-auto">
-        <div class="flex space-x-2 min-w-max">
+
+      <!-- Tab Navigation (Requester Only) -->
+      <div class="bg-white rounded-2xl shadow-lg p-2 mb-8">
+        <div class="grid grid-cols-2 gap-2">
           <button 
-            @click="activeTab = 'posted'"
-            :class="activeTab === 'posted' ? 'tab-button active' : 'tab-button'"
-            class="whitespace-nowrap"
+            @click="activeView = 'posted'"
+            :class="activeView === 'posted' ? 'bg-blue-500 text-white shadow-md' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'"
+            class="px-4 py-3 rounded-xl font-semibold transition-all duration-300 text-center"
           >
-            <i class="fas fa-plus-circle mr-2"></i>
-            投稿した依頼 (8)
+            <i class="fas fa-clipboard-list mr-2"></i>
+            <span class="hidden sm:inline">投稿した</span>依頼
           </button>
           <button 
-            @click="activeTab = 'applied'"
-            :class="activeTab === 'applied' ? 'tab-button active' : 'tab-button'"
-            class="whitespace-nowrap"
-          >
-            <i class="fas fa-hand-paper mr-2"></i>
-            応募した依頼 (15)
-          </button>
-          <button 
-            @click="activeTab = 'completed'"
-            :class="activeTab === 'completed' ? 'tab-button active' : 'tab-button'"
-            class="whitespace-nowrap"
+            @click="activeView = 'completed'"
+            :class="activeView === 'completed' ? 'bg-green-500 text-white shadow-md' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'"
+            class="px-4 py-3 rounded-xl font-semibold transition-all duration-300 text-center"
           >
             <i class="fas fa-check-circle mr-2"></i>
-            完了した依頼 (12)
+            <span class="hidden sm:inline">完了した</span>依頼
           </button>
         </div>
       </div>
 
-      <!-- Tab Content -->
-      <div class="space-y-6">
+      <!-- Status Filter Tabs (context-aware) -->
+      <div class="mb-6">
+        <div class="flex flex-wrap gap-2 justify-center lg:justify-start">
+          <button 
+            @click="statusFilter = 'all'"
+            :class="statusFilter === 'all' ? 'bg-gray-800 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'"
+            class="px-4 py-2 rounded-full font-medium transition-all duration-300 shadow-sm border"
+          >
+            すべて
+          </button>
+          <!-- Posted tab filters -->
+          <button 
+            x-show="activeView === 'posted'"
+            @click="statusFilter = 'recruiting'"
+            :class="statusFilter === 'recruiting' ? 'bg-green-500 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'"
+            class="px-4 py-2 rounded-full font-medium transition-all duration-300 shadow-sm border"
+          >
+            募集中
+          </button>
+          <button 
+            x-show="activeView === 'posted'"
+            @click="statusFilter = 'in-progress'"
+            :class="statusFilter === 'in-progress' ? 'bg-blue-500 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'"
+            class="px-4 py-2 rounded-full font-medium transition-all duration-300 shadow-sm border"
+          >
+            進行中
+          </button>
+          <button 
+            x-show="activeView === 'posted'"
+            @click="statusFilter = 'pending-payment'"
+            :class="statusFilter === 'pending-payment' ? 'bg-yellow-500 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'"
+            class="px-4 py-2 rounded-full font-medium transition-all duration-300 shadow-sm border"
+          >
+            入金待ち
+          </button>
+          <!-- Completed tab filters -->
+          <button 
+            x-show="activeView === 'completed'"
+            @click="statusFilter = 'unrated'"
+            :class="statusFilter === 'unrated' ? 'bg-yellow-500 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'"
+            class="px-4 py-2 rounded-full font-medium transition-all duration-300 shadow-sm border"
+          >
+            評価待ち
+          </button>
+          <button 
+            x-show="activeView === 'completed'"
+            @click="statusFilter = 'rated'"
+            :class="statusFilter === 'rated' ? 'bg-green-500 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'"
+            class="px-4 py-2 rounded-full font-medium transition-all duration-300 shadow-sm border"
+          >
+            評価済み
+          </button>
+        </div>
+      </div>
+
+      <!-- Task Cards Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         
-        <!-- Posted Tasks Tab -->
-        <div x-show="activeTab === 'posted'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0">
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Dynamic Task Cards -->
+        <template x-for="task in getFilteredTasks()" :key="task.id">
+          <div class="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 border border-gray-100"
+               x-transition:enter="transition ease-out duration-300"
+               x-transition:enter-start="opacity-0 scale-95"
+               x-transition:enter-end="opacity-100 scale-100">
             
-            <!-- Posted Task 1 -->
-            <div class="task-card glass-card p-6 rounded-2xl shadow-lg">
-              <div class="flex justify-between items-start mb-4">
-                <div>
-                  <span class="status-badge status-active">募集中</span>
-                  <h3 class="text-lg font-bold mt-2">買い物代行をお願いします</h3>
+            <!-- Card Header -->
+            <div class="flex justify-between items-start mb-4">
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-2">
+                  <!-- Status Badge -->
+                  <span :class="getStatusBadgeClass(task.status)" class="px-3 py-1 rounded-full text-sm font-medium">
+                    <template x-if="task.status === 'recruiting'">
+                      <span><i class="fas fa-clock mr-1"></i>募集中</span>
+                    </template>
+                    <template x-if="task.status === 'in-progress'">
+                      <span><i class="fas fa-cog mr-1"></i>進行中</span>
+                    </template>
+                    <template x-if="task.status === 'pending-payment'">
+                      <span><i class="fas fa-credit-card mr-1"></i>入金待ち</span>
+                    </template>
+                    <template x-if="task.status === 'rated'">
+                      <span><i class="fas fa-star mr-1"></i>評価済み</span>
+                    </template>
+                    <template x-if="task.status === 'unrated'">
+                      <span><i class="fas fa-hourglass-half mr-1"></i>評価待ち</span>
+                    </template>
+                  </span>
+                  <!-- Category Badge -->
+                  <span :class="'bg-' + (task.category === 'shopping' ? 'green' : task.category === 'cleaning' ? 'blue' : task.category === 'delivery' ? 'orange' : task.category === 'petcare' ? 'purple' : task.category === 'repairs' ? 'red' : 'gray') + '-100 text-' + (task.category === 'shopping' ? 'green' : task.category === 'cleaning' ? 'blue' : task.category === 'delivery' ? 'orange' : task.category === 'petcare' ? 'purple' : task.category === 'repairs' ? 'red' : 'gray') + '-800'" class="px-2 py-1 rounded text-xs">
+                    <i :class="getCategoryIcon(task.category)" class="mr-1"></i>
+                    <span x-text="task.category === 'shopping' ? '買い物' : task.category === 'cleaning' ? '掃除' : task.category === 'delivery' ? '配送' : task.category === 'petcare' ? 'ペットケア' : task.category === 'repairs' ? '修理' : 'その他'"></span>
+                  </span>
                 </div>
-                <div class="text-right">
-                  <p class="text-2xl font-bold text-blue-600">¥2,500</p>
-                  <p class="text-sm text-gray-500">3日前に投稿</p>
-                </div>
+                <h3 class="text-lg font-bold text-gray-800 mb-1" x-text="task.title"></h3>
+                <p class="text-sm text-gray-500" x-text="(task.createdAt || task.completedAt) + (activeView === 'posted' ? 'に投稿' : 'に完了')"></p>
               </div>
-              
-              <p class="text-gray-600 text-sm mb-4">
-                渋谷区の食材を中心とした買い物代行をお願いします。重い物もあるので車での移動が可能な方を希望します。
-              </p>
-              
-              <div class="flex items-center justify-between mb-4">
-                <div class="flex items-center space-x-4 text-sm text-gray-500">
-                  <span><i class="fas fa-map-marker-alt mr-1"></i>渋谷区</span>
-                  <span><i class="fas fa-clock mr-1"></i>2時間以内</span>
-                  <span><i class="fas fa-users mr-1"></i>応募者 5名</span>
-                </div>
+              <div class="text-right">
+                <p class="text-2xl font-bold" :class="task.status === 'recruiting' ? 'text-blue-600' : 'text-green-600'" x-text="formatPrice(task.price)"></p>
+                <template x-if="activeView === 'posted' && task.applicants !== undefined">
+                  <p class="text-xs" :class="task.applicants > 0 ? 'text-blue-600 font-semibold' : 'text-gray-500'">
+                    <i class="fas fa-users mr-1"></i>応募者 <span x-text="task.applicants"></span>名
+                  </p>
+                </template>
+                <template x-if="activeView === 'completed' && task.rating">
+                  <div class="flex items-center justify-end text-yellow-400 text-sm">
+                    <i class="fas fa-star"></i>
+                    <span class="ml-1 text-gray-600" x-text="task.rating"></span>
+                  </div>
+                </template>
               </div>
-              
-              <div class="flex space-x-2">
-                <button class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-blue-700 hover:scale-105 transition-all duration-300">
-                  <i class="fas fa-eye mr-2"></i>詳細を見る
+            </div>
+
+            <!-- Card Content -->
+            <p class="text-gray-600 text-sm mb-4 line-clamp-2" x-text="task.description || '詳細な説明はまだ追加されていません。'"></p>
+
+            <!-- Card Meta -->
+            <div class="flex items-center text-xs text-gray-500 mb-4 space-x-4">
+              <span><i class="fas fa-map-marker-alt mr-1"></i><span x-text="task.location"></span></span>
+              <template x-if="task.status === 'recruiting'">
+                <span><i class="fas fa-users mr-1"></i>募集中</span>
+              </template>
+              <template x-if="task.status === 'in-progress'">
+                <span><i class="fas fa-clock mr-1"></i>作業中</span>
+              </template>
+              <template x-if="task.status === 'pending-payment'">
+                <span><i class="fas fa-credit-card mr-1"></i>支払待ち</span>
+              </template>
+              <template x-if="task.status === 'rated'">
+                <span><i class="fas fa-check-circle mr-1 text-green-500"></i>完了済み</span>
+              </template>
+            </div>
+
+            <!-- Card Actions -->
+            <div class="flex gap-2">
+              <!-- Posted tab: Show detail button always -->
+              <template x-if="activeView === 'posted'">
+                <button class="flex-1 bg-blue-600 text-white py-2.5 px-4 rounded-lg font-semibold hover:bg-blue-700 transition-all duration-200 shadow-sm" @click="viewTaskDetail(task.id)">
+                  <i class="fas fa-eye mr-1.5"></i>詳細を見る
                 </button>
-                <button class="flex-1 border border-gray-300 text-gray-700 py-2 px-4 rounded-lg font-semibold hover:bg-gray-50 hover:scale-105 transition-all duration-300">
-                  <i class="fas fa-edit mr-2"></i>編集
+              </template>
+              <!-- Posted tab: Show applicants button only for recruiting status with applicants -->
+              <template x-if="activeView === 'posted' && task.status === 'recruiting' && task.applicants > 0">
+                <button class="flex-1 border border-gray-300 bg-white text-gray-700 py-2.5 px-4 rounded-lg font-medium hover:bg-gray-50 transition-all duration-200" @click="viewApplicants(task.id)">
+                  <i class="fas fa-users mr-1.5"></i>応募者を見る
                 </button>
-                <button class="px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg font-semibold hover:from-red-600 hover:to-red-700 hover:scale-105 transition-all duration-300 shadow-md hover:shadow-lg">
+              </template>
+              <!-- Posted tab: Show edit button only for recruiting status -->
+              <template x-if="activeView === 'posted' && task.status === 'recruiting'">
+                <button class="flex-1 border border-gray-300 bg-white text-gray-700 py-2.5 px-4 rounded-lg font-medium hover:bg-gray-50 transition-all duration-200" @click="editTaskWithWarning(task.id, task.applicants)">
+                  <i class="fas fa-edit mr-1.5"></i>編集
+                  <template x-if="task.applicants > 0">
+                    <span class="text-xs text-red-500 block">※応募者リセット</span>
+                  </template>
+                </button>
+              </template>
+              <!-- Posted tab: Show message button for in-progress status -->
+              <template x-if="activeView === 'posted' && task.status === 'in-progress'">
+                <button class="flex-1 border border-gray-300 bg-white text-gray-700 py-2.5 px-4 rounded-lg font-medium hover:bg-gray-50 transition-all duration-200" @click="messageHelper(task.id)">
+                  <i class="fas fa-comments mr-1.5"></i>連絡
+                </button>
+              </template>
+              <!-- Posted tab: Show payment button for pending-payment -->
+              <template x-if="activeView === 'posted' && task.status === 'pending-payment'">
+                <button class="flex-1 bg-green-600 text-white py-2.5 px-4 rounded-lg font-semibold hover:bg-green-700 transition-all duration-200 shadow-sm" @click="makePayment(task.id)">
+                  <i class="fas fa-credit-card mr-1.5"></i>入金する
+                </button>
+              </template>
+              <!-- Posted tab: Show delete button only for recruiting status -->
+              <template x-if="activeView === 'posted' && task.status === 'recruiting'">
+                <button class="px-3 py-2.5 text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200" @click="deleteTask(task.id)" title="削除">
                   <i class="fas fa-trash"></i>
                 </button>
-              </div>
+              </template>
+              <!-- Completed tab: Show rate button for unrated -->
+              <template x-if="activeView === 'completed' && task.status === 'unrated'">
+                <button class="flex-1 bg-yellow-500 text-white py-2.5 px-4 rounded-lg font-semibold hover:bg-yellow-600 transition-all duration-200 shadow-sm">
+                  <i class="fas fa-star mr-1.5"></i>評価する
+                </button>
+              </template>
+              <!-- Completed tab: Show detail button for rated -->
+              <template x-if="activeView === 'completed' && task.status === 'rated'">
+                <button class="flex-1 bg-blue-600 text-white py-2.5 px-4 rounded-lg font-semibold hover:bg-blue-700 transition-all duration-200 shadow-sm" @click="viewTaskDetail(task.id)">
+                  <i class="fas fa-eye mr-1.5"></i>詳細を見る
+                </button>
+              </template>
             </div>
-            
-            <!-- Posted Task 2 -->
-            <div class="task-card glass-card p-6 rounded-2xl shadow-lg">
-              <div class="flex justify-between items-start mb-4">
-                <div>
-                  <span class="status-badge status-completed">完了</span>
-                  <h3 class="text-lg font-bold mt-2">アパート清掃代行</h3>
-                </div>
-                <div class="text-right">
-                  <p class="text-2xl font-bold text-green-600">¥8,000</p>
-                  <p class="text-sm text-gray-500">1週間前に投稿</p>
-                </div>
-              </div>
-              
-              <p class="text-gray-600 text-sm mb-4">
-                1Kアパートの清掃をお願いします。キッチン、バスルーム、リビングの清掃が必要です。
-              </p>
-              
-              <div class="flex items-center justify-between mb-4">
-                <div class="flex items-center space-x-4 text-sm text-gray-500">
-                  <span><i class="fas fa-map-marker-alt mr-1"></i>新宿区</span>
-                  <span><i class="fas fa-clock mr-1"></i>半日</span>
-                  <span><i class="fas fa-star text-yellow-400 mr-1"></i>評価済み</span>
-                </div>
-              </div>
-              
-              <div class="flex space-x-2">
-                <button class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-blue-700 hover:scale-105 transition-all duration-300">
-                  <i class="fas fa-check mr-2"></i>完了済み
-                </button>
-                <button class="flex-1 border border-gray-300 text-gray-700 py-2 px-4 rounded-lg font-semibold hover:bg-gray-50 hover:scale-105 transition-all duration-300">
-                  <i class="fas fa-star mr-2"></i>評価を見る
-                </button>
-              </div>
-            </div>
-            
-            <!-- Posted Task 3 -->
-            <div class="task-card glass-card p-6 rounded-2xl shadow-lg">
-              <div class="flex justify-between items-start mb-4">
-                <div>
-                  <span class="status-badge status-in-progress">進行中</span>
-                  <h3 class="text-lg font-bold mt-2">ペット散歩代行</h3>
-                </div>
-                <div class="text-right">
-                  <p class="text-2xl font-bold text-orange-600">¥1,500</p>
-                  <p class="text-sm text-gray-500">5日前に投稿</p>
-                </div>
-              </div>
-              
-              <p class="text-gray-600 text-sm mb-4">
-                柴犬（3歳）の散歩をお願いします。1時間程度の散歩で、近所の公園まで行っていただければと思います。
-              </p>
-              
-              <div class="flex items-center justify-between mb-4">
-                <div class="flex items-center space-x-4 text-sm text-gray-500">
-                  <span><i class="fas fa-map-marker-alt mr-1"></i>世田谷区</span>
-                  <span><i class="fas fa-clock mr-1"></i>1時間</span>
-                  <span><i class="fas fa-user mr-1"></i>担当者: 佐藤さん</span>
-                </div>
-              </div>
-              
-              <div class="flex space-x-2">
-                <button class="flex-1 bg-orange-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-orange-700 hover:scale-105 transition-all duration-300">
-                  <i class="fas fa-comments mr-2"></i>メッセージ
-                </button>
-                <button class="flex-1 border border-gray-300 text-gray-700 py-2 px-4 rounded-lg font-semibold hover:bg-gray-50 hover:scale-105 transition-all duration-300">
-                  <i class="fas fa-eye mr-2"></i>進捗確認
-                </button>
-              </div>
-            </div>
-            
           </div>
-          
-          <!-- Show More Button -->
-          <div class="text-center mt-8">
-            <button class="bg-white border-2 border-blue-600 text-blue-600 px-8 py-3 rounded-full font-semibold hover:bg-blue-600 hover:text-white hover:scale-105 transition-all duration-300 shadow-md hover:shadow-lg">
-              <i class="fas fa-plus mr-2"></i>
-              さらに表示 (5件)
-            </button>
-          </div>
-        </div>
-
-        <!-- Applied Tasks Tab -->
-        <div x-show="activeTab === 'applied'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0">
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            
-            <!-- Applied Task 1 -->
-            <div class="task-card glass-card p-6 rounded-2xl shadow-lg">
-              <div class="flex justify-between items-start mb-4">
-                <div>
-                  <span class="status-badge status-pending">選考中</span>
-                  <h3 class="text-lg font-bold mt-2">配達代行サービス</h3>
-                </div>
-                <div class="text-right">
-                  <p class="text-2xl font-bold text-purple-600">¥3,000</p>
-                  <p class="text-sm text-gray-500">2日前に応募</p>
-                </div>
-              </div>
-              
-              <p class="text-gray-600 text-sm mb-4">
-                港区から品川区への書類配達をお願いします。急ぎの案件のため、即日対応可能な方を希望します。
-              </p>
-              
-              <div class="flex items-center justify-between mb-4">
-                <div class="flex items-center space-x-4 text-sm text-gray-500">
-                  <span><i class="fas fa-map-marker-alt mr-1"></i>港区→品川区</span>
-                  <span><i class="fas fa-clock mr-1"></i>即日</span>
-                  <span><i class="fas fa-users mr-1"></i>競合 3名</span>
-                </div>
-              </div>
-              
-              <div class="flex space-x-2">
-                <button class="flex-1 bg-purple-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-purple-700 hover:scale-105 transition-all duration-300">
-                  <i class="fas fa-eye mr-2"></i>詳細を見る
-                </button>
-                <button class="flex-1 border border-blue-600 text-blue-600 py-2 px-4 rounded-lg font-semibold hover:bg-blue-50 hover:scale-105 transition-all duration-300" style="border: 1px solid #2563eb !important;">
-                  <i class="fas fa-edit mr-2"></i>応募内容編集
-                </button>
-                <button class="px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg font-semibold hover:from-red-600 hover:to-red-700 hover:scale-105 transition-all duration-300 shadow-md hover:shadow-lg">
-                  <i class="fas fa-times"></i>
-                </button>
-              </div>
-            </div>
-            
-            <!-- Applied Task 2 -->
-            <div class="task-card glass-card p-6 rounded-2xl shadow-lg">
-              <div class="flex justify-between items-start mb-4">
-                <div>
-                  <span class="status-badge status-active">採用決定</span>
-                  <h3 class="text-lg font-bold mt-2">引越し手伝い</h3>
-                </div>
-                <div class="text-right">
-                  <p class="text-2xl font-bold text-blue-600">¥12,000</p>
-                  <p class="text-sm text-gray-500">1週間前に応募</p>
-                </div>
-              </div>
-              
-              <p class="text-gray-600 text-sm mb-4">
-                1DKマンションから2LDKマンションへの引越し作業をお手伝いください。大型家具の移動もあります。
-              </p>
-              
-              <div class="flex items-center justify-between mb-4">
-                <div class="flex items-center space-x-4 text-sm text-gray-500">
-                  <span><i class="fas fa-map-marker-alt mr-1"></i>目黒区</span>
-                  <span><i class="fas fa-clock mr-1"></i>1日</span>
-                  <span><i class="fas fa-calendar mr-1"></i>明日実施予定</span>
-                </div>
-              </div>
-              
-              <div class="flex space-x-2">
-                <button class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-blue-700 hover:scale-105 transition-all duration-300">
-                  <i class="fas fa-comments mr-2"></i>依頼者と連絡
-                </button>
-                <button class="flex-1 border border-blue-600 text-blue-600 py-2 px-4 rounded-lg font-semibold hover:bg-blue-50 hover:scale-105 transition-all duration-300" style="border: 1px solid #2563eb !important;">
-                  <i class="fas fa-map mr-2"></i>場所確認
-                </button>
-              </div>
-            </div>
-            
-            <!-- Applied Task 3 -->
-            <div class="task-card glass-card p-6 rounded-2xl shadow-lg">
-              <div class="flex justify-between items-start mb-4">
-                <div>
-                  <span class="status-badge status-cancelled">不採用</span>
-                  <h3 class="text-lg font-bold mt-2">庭の手入れ作業</h3>
-                </div>
-                <div class="text-right">
-                  <p class="text-2xl font-bold text-gray-500">¥5,000</p>
-                  <p class="text-sm text-gray-500">3日前に応募</p>
-                </div>
-              </div>
-              
-              <p class="text-gray-600 text-sm mb-4">
-                一戸建ての庭の草むしりと簡単な剪定作業をお願いします。半日程度の作業を予定しています。
-              </p>
-              
-              <div class="flex items-center justify-between mb-4">
-                <div class="flex items-center space-x-4 text-sm text-gray-500">
-                  <span><i class="fas fa-map-marker-alt mr-1"></i>杉並区</span>
-                  <span><i class="fas fa-clock mr-1"></i>半日</span>
-                  <span><i class="fas fa-info-circle mr-1"></i>他の方が選ばれました</span>
-                </div>
-              </div>
-              
-              <div class="flex space-x-2">
-                <button class="flex-1 border border-blue-600 text-blue-600 py-2 px-4 rounded-lg font-semibold hover:bg-blue-50 hover:scale-105 transition-all duration-300" style="border: 1px solid #2563eb !important;">
-                  <i class="fas fa-eye mr-2"></i>詳細を見る
-                </button>
-                <button class="flex-1 border border-blue-600 text-blue-600 py-2 px-4 rounded-lg font-semibold hover:bg-blue-50 hover:scale-105 transition-all duration-300" style="border: 1px solid #2563eb !important;">
-                  <i class="fas fa-search mr-2"></i>類似案件を探す
-                </button>
-              </div>
-            </div>
-            
-          </div>
-          
-          <!-- Show More Button -->
-          <div class="text-center mt-8">
-            <button class="bg-white border-2 border-blue-600 text-blue-600 px-8 py-3 rounded-full font-semibold hover:bg-blue-600 hover:text-white hover:scale-105 transition-all duration-300 shadow-md hover:shadow-lg">
-              <i class="fas fa-plus mr-2"></i>
-              さらに表示 (12件)
-            </button>
-          </div>
-        </div>
-
-        <!-- Completed Tasks Tab -->
-        <div x-show="activeTab === 'completed'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0">
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            
-            <!-- Completed Task 1 -->
-            <div class="task-card glass-card p-6 rounded-2xl shadow-lg">
-              <div class="flex justify-between items-start mb-4">
-                <div>
-                  <span class="status-badge status-completed">完了済み</span>
-                  <h3 class="text-lg font-bold mt-2">スーパーでの買い物代行</h3>
-                </div>
-                <div class="text-right">
-                  <p class="text-2xl font-bold text-green-600">¥2,000</p>
-                  <p class="text-sm text-gray-500">2週間前に完了</p>
-                </div>
-              </div>
-              
-              <p class="text-gray-600 text-sm mb-4">
-                近所のスーパーでの食材購入代行。リストに従って正確に商品を選んでいただきました。
-              </p>
-              
-              <div class="flex items-center justify-between mb-4">
-                <div class="flex items-center space-x-4 text-sm text-gray-500">
-                  <span><i class="fas fa-map-marker-alt mr-1"></i>渋谷区</span>
-                  <span><i class="fas fa-star text-yellow-400 mr-1"></i>5.0 (評価済み)</span>
-                  <span><i class="fas fa-yen-sign mr-1"></i>支払済み</span>
-                </div>
-              </div>
-              
-              <div class="flex space-x-2">
-                <button class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-blue-700 hover:scale-105 transition-all duration-300">
-                  <i class="fas fa-star mr-2"></i>評価・レビュー
-                </button>
-                <button class="flex-1 border border-blue-600 text-blue-600 py-2 px-4 rounded-lg font-semibold hover:bg-blue-50 hover:scale-105 transition-all duration-300" style="border: 1px solid #2563eb !important;">
-                  <i class="fas fa-receipt mr-2"></i>詳細を見る
-                </button>
-              </div>
-            </div>
-            
-            <!-- More completed tasks would go here -->
-            <div class="empty-state">
-              <i class="fas fa-check-circle text-6xl text-gray-300 mb-4"></i>
-              <h3 class="text-xl font-semibold text-gray-500 mb-2">その他の完了タスク</h3>
-              <p class="text-gray-400">完了したタスクがここに表示されます</p>
-            </div>
-            
-          </div>
-          
-          <!-- Show More Button -->
-          <div class="text-center mt-8">
-            <button class="bg-white border-2 border-blue-600 text-blue-600 px-8 py-3 rounded-full font-semibold hover:bg-blue-600 hover:text-white hover:scale-105 transition-all duration-300 shadow-md hover:shadow-lg">
-              <i class="fas fa-plus mr-2"></i>
-              さらに表示 (11件)
-            </button>
-          </div>
-        </div>
+        </template>
         
+        <!-- Empty State -->
+        <template x-if="getFilteredTasks().length === 0">
+          <div class="col-span-full text-center py-12">
+            <i class="fas fa-search text-6xl text-gray-300 mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-500 mb-2">該当する依頼がありません</h3>
+            <p class="text-gray-400">フィルターを変更するか、新しい依頼を作成してください。</p>
+          </div>
+        </template>
+
       </div>
+
+      <!-- Load More Button -->
+      <div class="text-center">
+        <button class="bg-white border-2 border-gray-300 text-gray-700 px-8 py-3 rounded-full font-semibold hover:bg-gray-50 hover:border-gray-400 hover:scale-105 transition-all duration-300 shadow-sm">
+          <i class="fas fa-plus mr-2"></i>さらに表示
+        </button>
+      </div>
+
     </div>
   </section>
-</main>
 
-<!-- Footer -->
-<footer class="bg-gray-900 text-white py-12">
-  <div class="max-w-7xl mx-auto px-4">
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-      <div>
-        <div class="flex items-center space-x-2 mb-4">
-          <i class="fas fa-hands-helping text-2xl text-blue-500"></i>
-          <span class="text-xl font-bold">TaskHelper</span>
-        </div>
-        <p class="text-gray-400">近所の方々と一緒に信頼できる代行サービス</p>
-      </div>
-      <div>
-        <h4 class="font-semibold mb-4">サービス</h4>
-        <ul class="space-y-2 text-gray-400">
-          <li><a href="#" class="hover:text-white transition-colors">買い物代行</a></li>
-          <li><a href="#" class="hover:text-white transition-colors">清掃サービス</a></li>
-          <li><a href="#" class="hover:text-white transition-colors">配達・運搬</a></li>
-          <li><a href="#" class="hover:text-white transition-colors">ペットケア</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4 class="font-semibold mb-4">サポート</h4>
-        <ul class="space-y-2 text-gray-400">
-          <li><a href="#" class="hover:text-white transition-colors">ヘルプセンター</a></li>
-          <li><a href="#" class="hover:text-white transition-colors">お問い合わせ</a></li>
-          <li><a href="#" class="hover:text-white transition-colors">利用規約</a></li>
-          <li><a href="#" class="hover:text-white transition-colors">プライバシー</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4 class="font-semibold mb-4">フォロー</h4>
-        <div class="flex space-x-4">
-          <a href="#" class="text-gray-400 hover:text-white transition-colors">
-            <i class="fab fa-twitter text-xl"></i>
-          </a>
-          <a href="#" class="text-gray-400 hover:text-white transition-colors">
-            <i class="fab fa-facebook text-xl"></i>
-          </a>
-          <a href="#" class="text-gray-400 hover:text-white transition-colors">
-            <i class="fab fa-instagram text-xl"></i>
-          </a>
-        </div>
-      </div>
-    </div>
-    <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-      <p>&copy; 2025 TaskHelper. All rights reserved.</p>
-    </div>
-  </div>
-</footer>
+</th:block>
 
-<!-- JS Libraries -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.1/sweetalert2.all.min.js"></script>
+<!-- Extra Scripts -->
+<th:block layout:fragment="extra-scripts">
+  <link rel="stylesheet" th:href="@{/css/task/my.css}">
+  <script th:src="@{/js/task/my.js}"></script>
+</th:block>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  
-  // Mobile menu functionality
-  const mobileMenuButton = document.getElementById('mobile-menu-button');
-  const mobileMenu = document.getElementById('mobile-menu');
-  
-  if (mobileMenuButton && mobileMenu) {
-    mobileMenuButton.addEventListener('click', function() {
-      const isExpanded = this.getAttribute('aria-expanded') === 'true';
-      this.setAttribute('aria-expanded', !isExpanded);
-      mobileMenu.classList.toggle('hidden');
-      
-      // Toggle menu/close icons
-      const menuIcon = document.getElementById('menu-icon');
-      const closeIcon = document.getElementById('close-icon');
-      if (menuIcon && closeIcon) {
-        menuIcon.classList.toggle('opacity-0');
-        closeIcon.classList.toggle('opacity-0');
-      }
-    });
-  }
-  
-  // Task action handlers
-  document.addEventListener('click', function(e) {
-    const target = e.target.closest('button');
-    if (!target) return;
-    
-    const buttonText = target.textContent.trim();
-    
-    // Handle different button types
-    if (buttonText.includes('詳細を見る')) {
-      // Navigate to task detail page
-      window.location.href = 'task-detail.html';
-    } else if (buttonText.includes('編集')) {
-      toastr.info('編集機能は準備中です', '開発中');
-    } else if (buttonText.includes('メッセージ') || buttonText.includes('連絡')) {
-      toastr.info('メッセージ機能は準備中です', '開発中');
-    } else if (buttonText.includes('削除') || target.querySelector('i.fa-trash')) {
-      // Delete confirmation
-      Swal.fire({
-        title: '本当に削除しますか？',
-        text: 'この操作は取り消せません',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#dc2626',
-        cancelButtonColor: '#6b7280',
-        confirmButtonText: '削除する',
-        cancelButtonText: 'キャンセル'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          toastr.success('タスクが削除されました');
-          // Here you would actually delete the task
-        }
-      });
-    } else if (buttonText.includes('キャンセル') || target.querySelector('i.fa-times')) {
-      // Cancel application
-      Swal.fire({
-        title: '応募をキャンセルしますか？',
-        text: 'この操作は取り消せません',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#dc2626',
-        cancelButtonColor: '#6b7280',
-        confirmButtonText: 'キャンセルする',
-        cancelButtonText: '戻る'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          toastr.success('応募がキャンセルされました');
-          // Here you would actually cancel the application
-        }
-      });
-    } else if (buttonText.includes('類似案件')) {
-      window.location.href = 'task-list.html';
-    } else if (buttonText.includes('評価')) {
-      toastr.info('評価・レビュー機能は準備中です', '開発中');
-    }
-  });
-  
-  // Initialize tooltips for status badges
-  const statusBadges = document.querySelectorAll('.status-badge');
-  statusBadges.forEach(badge => {
-    badge.addEventListener('mouseenter', function() {
-      const status = this.textContent.trim();
-      let tooltip = '';
-      
-      switch(status) {
-        case '募集中':
-          tooltip = '現在応募者を募集しています';
-          break;
-        case '選考中':
-          tooltip = '依頼者が応募者を選考中です';
-          break;
-        case '採用決定':
-          tooltip = 'あなたが選ばれました！';
-          break;
-        case '進行中':
-          tooltip = '作業が進行中です';
-          break;
-        case '完了':
-        case '完了済み':
-          tooltip = '作業が完了しました';
-          break;
-        case 'キャンセル':
-        case '不採用':
-          tooltip = '残念ながら選ばれませんでした';
-          break;
-      }
-      
-      if (tooltip) {
-        this.setAttribute('title', tooltip);
-      }
-    });
-  });
-  
-});
-</script>
-
-</body>
 </html>

@@ -1,937 +1,294 @@
 <!DOCTYPE html>
-<html lang="ja" class="scroll-smooth">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>依頼一覧 - TaskHelper | 近所の信頼できる代行サービス</title>
-  
-  <!-- CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    // Suppress Tailwind CDN production warning for development
-    if (typeof tailwind !== 'undefined') {
-      tailwind.config = {
-        corePlugins: {
-          preflight: false,
-        }
-      };
-    }
-  </script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  
-  <!-- CSS Libraries -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-  
-  <!-- Additional UI Libraries -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.1/sweetalert2.min.css" rel="stylesheet">
-  
-  <!-- Alpine.js -->
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-  
-  <!-- Custom CSS -->
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-    
-    a {
-      text-decoration: none;
-    }
-    
-    a:hover {
-      text-decoration: none;
-    }
-    
-    .task-card {
-      transition: all 0.3s ease;
-      cursor: pointer;
-    }
-    
-    .task-card:hover {
-      transform: translateY(-2px) scale(1.02);
-    }
-    
-    .status-badge {
-      transition: all 0.2s ease;
-    }
-    
-    .filter-button {
-      transition: all 0.2s ease;
-    }
-    
-    .filter-button.active {
-      background-color: #2563eb;
-      color: white;
-    }
-    
-    .modern-button {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      border: none !important;
-      border-radius: 0.75rem;
-      color: white;
-      font-weight: 600;
-      padding: 0.75rem 1.5rem;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .modern-button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
-    }
-    
-    .modern-button:active {
-      transform: translateY(0);
-    }
-    
-    .modern-button::after {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 0;
-      height: 0;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.3);
-      transform: translate(-50%, -50%);
-      transition: width 0.6s, height 0.6s;
-    }
-    
-    .modern-button:active::after {
-      width: 300px;
-      height: 300px;
-    }
-    
-    .modern-button:disabled {
-      background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
-      cursor: not-allowed;
-      opacity: 0.7;
-    }
-    
-    .modern-button:disabled:hover {
-      transform: none;
-      box-shadow: none;
-    }
-  </style>
-</head>
-
-<body class="font-sans bg-gray-50 text-gray-900">
-
-<!-- Navigation -->
-<nav class="bg-white shadow-sm fixed top-0 left-0 right-0 z-50">
-  <div class="max-w-7xl mx-auto px-4">
-    <div class="flex items-center h-16">
-      <!-- Logo -->
-      <div class="flex items-center space-x-2">
-        <i class="fas fa-hands-helping text-2xl text-blue-600" aria-hidden="true"></i>
-        <span class="text-xl font-bold text-gray-900">TaskHelper</span>
-      </div>
-      
-      <!-- Desktop Menu (centered) -->
-      <div class="hidden md:flex items-center space-x-8 mx-auto">
-        <a href="index.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">ホーム</a>
-        <a href="list.html" class="text-blue-600 font-semibold hover:text-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">依頼一覧</a>
-        <a href="create.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">依頼投稿</a>
-        <a href="profile.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">プロフィール</a>
-        <a href="my.html" class="text-gray-700 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:rounded px-2 py-1 no-underline">マイタスク</a>
-      </div>
-      
-      <!-- Auth Buttons -->
-      <div class="hidden md:flex items-center space-x-3">
-        <a href="login.html" class="border border-blue-600 text-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-blue-50 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-blue-300" style="border: 1px solid #2563eb !important;">ログイン</a>
-        <a href="register.html" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-blue-300">始める</a>
-      </div>
-      
-      <!-- Mobile Menu Button -->
-      <div class="md:hidden ml-auto">
-        <button id="mobile-menu-button" class="text-gray-700 hover:text-blue-600 p-2 transition-all duration-300 ease-in-out" aria-expanded="false">
-          <svg class="w-6 h-6 transition-transform duration-300 ease-in-out" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path id="menu-icon" class="transition-opacity duration-300" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-            <path id="close-icon" class="transition-opacity duration-300 opacity-0" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-        </button>
-      </div>
-    </div>
-    
-    <!-- Mobile Menu -->
-    <div id="mobile-menu" class="hidden md:hidden pb-4 transition-all duration-300 ease-in-out transform">
-      <div class="flex flex-col space-y-2">
-        <a href="index.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">ホーム</a>
-        <a href="list.html" class="block px-3 py-2 text-blue-600 font-semibold hover:text-blue-700 hover:bg-blue-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">依頼一覧</a>
-        <a href="create.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">利用方법</a>
-        <a href="profile.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">プロフィール</a>
-        <a href="my.html" class="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded focus:outline-none focus:ring-2 focus:ring-blue-400">マイタスク</a>
-        <hr class="my-3">
-        <div class="flex gap-2 justify-center">
-          <a href="login.html" class="border border-blue-600 text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-50 text-center transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-blue-300" style="border: 1px solid #2563eb !important;">ログイン</a>
-          <a href="register.html" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 text-center transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-blue-300">始める</a>
-        </div>
-      </div>
-    </div>
-  </div>
-</nav>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout}"
+      th:with="title='依頼一覧 - TaskHelper | 近所の信頼できる代行サービス'">
 
 <!-- Main Content -->
-<section class="bg-gradient-to-r from-blue-500 to-purple-600 text-white py-12 pt-32">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <!-- Header -->
-    <div class="text-center mb-8">
-      <h1 class="text-3xl sm:text-4xl font-bold mb-4">依頼一覧</h1>
-      <p class="text-lg text-blue-100">お近くの代行依頼を見つけて、お手伝いしませんか？</p>
-      <div class="w-20 h-1 bg-white mx-auto mt-4 rounded-full"></div>
-    </div>
-  </div>
-</section>
+<th:block layout:fragment="content">
 
-<!-- Task List Container -->
-<section class="py-12">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    
-    <!-- Filters and Search -->
-    <div class="bg-white rounded-2xl border p-6 mb-8">
-      <div class="flex flex-col lg:flex-row gap-6">
-        
-        <!-- Search Bar -->
-        <div class="flex-1">
-          <div class="relative">
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <i class="fas fa-search text-gray-400" aria-hidden="true"></i>
-            </div>
-            <input type="text" id="searchInput" placeholder="キーワードで検索..." 
-                   class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
-          </div>
-        </div>
-        
-        <!-- Category Filter -->
-        <div class="flex flex-wrap gap-2">
-          <button class="filter-button active px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium" data-category="all">
-            すべて
-          </button>
-          <button class="filter-button px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium hover:bg-gray-50" data-category="shopping">
-            <i class="fas fa-shopping-cart mr-1"></i>買い物
-          </button>
-          <button class="filter-button px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium hover:bg-gray-50" data-category="cleaning">
-            <i class="fas fa-broom mr-1"></i>掃除
-          </button>
-          <button class="filter-button px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium hover:bg-gray-50" data-category="delivery">
-            <i class="fas fa-truck mr-1"></i>配送
-          </button>
-          <button class="filter-button px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium hover:bg-gray-50" data-category="petcare">
-            <i class="fas fa-paw mr-1"></i>ペットケア
-          </button>
-          <button class="filter-button px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium hover:bg-gray-50" data-category="repair">
-            <i class="fas fa-tools mr-1"></i>修理
-          </button>
-        </div>
-        
-        <!-- Location Filter -->
-        <div class="lg:w-48">
-          <div class="relative">
-            <select id="locationFilter" class="w-full px-4 py-3 pr-10 border border-gray-300 rounded-xl bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 appearance-none">
-              <option value="">エリアを選択</option>
-              <option value="shibuya">渋谷区</option>
-              <option value="shinjuku">新宿区</option>
-              <option value="minato">港区</option>
-              <option value="chiyoda">千代田区</option>
-            </select>
-            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-              <i class="fas fa-chevron-down text-gray-400 text-sm"></i>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Sort Filter -->
-        <div class="lg:w-48">
-          <div class="relative">
-            <select id="sortFilter" class="w-full px-4 py-3 pr-10 border border-gray-300 rounded-xl bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 appearance-none">
-              <option value="newest">最新順</option>
-              <option value="distance">距離順</option>
-              <option value="price-high">報酬高い順</option>
-              <option value="price-low">報酬安い順</option>
-            </select>
-            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-              <i class="fas fa-sort text-gray-400 text-sm"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Task Grid -->
-    <div id="taskGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      
-      <!-- Sample Task Card 1 -->
-      <div class="task-card bg-white rounded-2xl border overflow-hidden" data-category="shopping" data-location="shibuya" onclick="location.href='task-detail.html?id=1'">
-        <div class="p-6">
-          <!-- Header -->
-          <div class="flex items-start justify-between mb-4 flex-nowrap">
-            <div class="flex items-center space-x-3">
-              <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                <i class="fas fa-shopping-cart text-green-600 text-xl"></i>
-              </div>
-              <div>
-                <h3 class="font-semibold text-gray-900">買い物代行をお願いします</h3>
-                <p class="text-sm text-gray-500 relative-time" data-time="2025-08-03T10:00:00">2時間前に投稿</p>
-              </div>
-            </div>
-            <span class="status-badge bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap flex-shrink-0">新規</span>
-          </div>
-          
-          <!-- Description -->
-          <p class="text-gray-600 mb-4 line-clamp-2">スーパーでの食材購入をお願いします。重いものもあるので車でお越しいただける方を希望します。</p>
-          
-          <!-- Details -->
-          <div class="space-y-2 mb-4">
-            <div class="flex items-center text-sm text-gray-600">
-              <i class="fas fa-map-marker-alt w-4 h-4 mr-2"></i>
-              <span>渋谷区恵比寿</span>
-            </div>
-            <div class="flex items-center text-sm text-gray-600">
-              <i class="fas fa-yen-sign w-4 h-4 mr-2"></i>
-              <span>¥3,000</span>
-            </div>
-            <div class="flex items-center text-sm text-gray-600">
-              <i class="fas fa-clock w-4 h-4 mr-2"></i>
-              <span>明日 午前中</span>
-            </div>
-          </div>
-          
-          <!-- Tags -->
-          <div class="flex flex-wrap gap-2 mb-4">
-            <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">緊急</span>
-            <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">車必須</span>
-          </div>
-          
-          <!-- Actions -->
-          <div class="flex gap-2">
-            <button class="flex-1 modern-button">
-              応募する
-            </button>
-            <button class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-blue-300" style="border: 1px solid #d1d5db !important;">
-              <i class="fas fa-heart text-gray-400"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Sample Task Card 2 -->
-      <div class="task-card bg-white rounded-2xl border overflow-hidden" data-category="cleaning" data-location="shinjuku" onclick="location.href='task-detail.html?id=2'">
-        <div class="p-6">
-          <!-- Header -->
-          <div class="flex items-start justify-between mb-4 flex-nowrap">
-            <div class="flex items-center space-x-3">
-              <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                <i class="fas fa-broom text-blue-600 text-xl"></i>
-              </div>
-              <div>
-                <h3 class="font-semibold text-gray-900">アパートの掃除をお手伝いください</h3>
-                <p class="text-sm text-gray-500 relative-time" data-time="2025-08-03T07:00:00">5時間前に投稿</p>
-              </div>
-            </div>
-            <span class="status-badge bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap flex-shrink-0">進行中</span>
-          </div>
-          
-          <!-- Description -->
-          <p class="text-gray-600 mb-4 line-clamp-2">1LDKアパートの掃除をお願いします。水回りとリビングを中心にお願いできればと思います。</p>
-          
-          <!-- Details -->
-          <div class="space-y-2 mb-4">
-            <div class="flex items-center text-sm text-gray-600">
-              <i class="fas fa-map-marker-alt w-4 h-4 mr-2"></i>
-              <span>新宿区西新宿</span>
-            </div>
-            <div class="flex items-center text-sm text-gray-600">
-              <i class="fas fa-yen-sign w-4 h-4 mr-2"></i>
-              <span>¥5,000</span>
-            </div>
-            <div class="flex items-center text-sm text-gray-600">
-              <i class="fas fa-clock w-4 h-4 mr-2"></i>
-              <span>今週末</span>
-            </div>
-          </div>
-          
-          <!-- Tags -->
-          <div class="flex flex-wrap gap-2 mb-4">
-            <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">掃除用具提供</span>
-          </div>
-          
-          <!-- Actions -->
-          <div class="flex gap-2">
-            <button class="flex-1 modern-button">
-              応募する
-            </button>
-            <button class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-blue-300" style="border: 1px solid #d1d5db !important;">
-              <i class="fas fa-heart text-gray-400"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Sample Task Card 3 -->
-      <div class="task-card bg-white rounded-2xl border overflow-hidden" data-category="delivery" data-location="minato" onclick="location.href='task-detail.html?id=3'">
-        <div class="p-6">
-          <!-- Header -->
-          <div class="flex items-start justify-between mb-4 flex-nowrap">
-            <div class="flex items-center space-x-3">
-              <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
-                <i class="fas fa-truck text-orange-600 text-xl"></i>
-              </div>
-              <div>
-                <h3 class="font-semibold text-gray-900">荷物の配送をお願いします</h3>
-                <p class="text-sm text-gray-500 relative-time" data-time="2025-08-02T12:00:00">1日前に投稿</p>
-              </div>
-            </div>
-            <span class="status-badge bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap flex-shrink-0">新規</span>
-          </div>
-          
-          <!-- Description -->
-          <p class="text-gray-600 mb-4 line-clamp-2">家具の配送をお手伝いいただける方を探しています。小さなテーブルと椅子2脚です。</p>
-          
-          <!-- Details -->
-          <div class="space-y-2 mb-4">
-            <div class="flex items-center text-sm text-gray-600">
-              <i class="fas fa-map-marker-alt w-4 h-4 mr-2"></i>
-              <span>港区六本木</span>
-            </div>
-            <div class="flex items-center text-sm text-gray-600">
-              <i class="fas fa-yen-sign w-4 h-4 mr-2"></i>
-              <span>¥4,000</span>
-            </div>
-            <div class="flex items-center text-sm text-gray-600">
-              <i class="fas fa-clock w-4 h-4 mr-2"></i>
-              <span>今日 夕方</span>
-            </div>
-          </div>
-          
-          <!-- Tags -->
-          <div class="flex flex-wrap gap-2 mb-4">
-            <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">軽トラ希望</span>
-            <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">2名作業</span>
-          </div>
-          
-          <!-- Actions -->
-          <div class="flex gap-2">
-            <button class="flex-1 modern-button">
-              応募する
-            </button>
-            <button class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-blue-300" style="border: 1px solid #d1d5db !important;">
-              <i class="fas fa-heart text-gray-400"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Sample Task Card 4 -->
-      <div class="task-card bg-white rounded-2xl border overflow-hidden" data-category="petcare" data-location="shibuya" onclick="location.href='task-detail.html?id=4'">
-        <div class="p-6">
-          <!-- Header -->
-          <div class="flex items-start justify-between mb-4 flex-nowrap">
-            <div class="flex items-center space-x-3">
-              <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                <i class="fas fa-paw text-purple-600 text-xl"></i>
-              </div>
-              <div>
-                <h3 class="font-semibold text-gray-900">犬の散歩をお願いします</h3>
-                <p class="text-sm text-gray-500 relative-time" data-time="2025-08-03T09:00:00">3時間前に投稿</p>
-              </div>
-            </div>
-            <span class="status-badge bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap flex-shrink-0">新規</span>
-          </div>
-          
-          <!-- Description -->
-          <p class="text-gray-600 mb-4 line-clamp-2">小型犬の散歩をお願いします。人懐っこい子で、散歩が大好きです。30分程度でお願いします。</p>
-          
-          <!-- Details -->
-          <div class="space-y-2 mb-4">
-            <div class="flex items-center text-sm text-gray-600">
-              <i class="fas fa-map-marker-alt w-4 h-4 mr-2"></i>
-              <span>渋谷区代々木</span>
-            </div>
-            <div class="flex items-center text-sm text-gray-600">
-              <i class="fas fa-yen-sign w-4 h-4 mr-2"></i>
-              <span>¥2,000</span>
-            </div>
-            <div class="flex items-center text-sm text-gray-600">
-              <i class="fas fa-clock w-4 h-4 mr-2"></i>
-              <span>明日 朝</span>
-            </div>
-          </div>
-          
-          <!-- Tags -->
-          <div class="flex flex-wrap gap-2 mb-4">
-            <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">小型犬</span>
-            <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">人懐っこい</span>
-          </div>
-          
-          <!-- Actions -->
-          <div class="flex gap-2">
-            <button class="flex-1 modern-button">
-              応募する
-            </button>
-            <button class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-blue-300" style="border: 1px solid #d1d5db !important;">
-              <i class="fas fa-heart text-gray-400"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Sample Task Card 5 -->
-      <div class="task-card bg-white rounded-2xl border overflow-hidden" data-category="repair" data-location="chiyoda" onclick="location.href='task-detail.html?id=5'">
-        <div class="p-6">
-          <!-- Header -->
-          <div class="flex items-start justify-between mb-4 flex-nowrap">
-            <div class="flex items-center space-x-3">
-              <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                <i class="fas fa-tools text-red-600 text-xl"></i>
-              </div>
-              <div>
-                <h3 class="font-semibold text-gray-900">家具の組み立てをお手伝いください</h3>
-                <p class="text-sm text-gray-500 relative-time" data-time="2025-08-03T06:00:00">6時間前に投稿</p>
-              </div>
-            </div>
-            <span class="status-badge bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap flex-shrink-0">新規</span>
-          </div>
-          
-          <!-- Description -->
-          <p class="text-gray-600 mb-4 line-clamp-2">IKEAで購入した本棚とデスクの組み立てをお願いします。工具は揃っています。</p>
-          
-          <!-- Details -->
-          <div class="space-y-2 mb-4">
-            <div class="flex items-center text-sm text-gray-600">
-              <i class="fas fa-map-marker-alt w-4 h-4 mr-2"></i>
-              <span>千代田区神田</span>
-            </div>
-            <div class="flex items-center text-sm text-gray-600">
-              <i class="fas fa-yen-sign w-4 h-4 mr-2"></i>
-              <span>¥6,000</span>
-            </div>
-            <div class="flex items-center text-sm text-gray-600">
-              <i class="fas fa-clock w-4 h-4 mr-2"></i>
-              <span>土曜日 午後</span>
-            </div>
-          </div>
-          
-          <!-- Tags -->
-          <div class="flex flex-wrap gap-2 mb-4">
-            <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">工具提供</span>
-            <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">IKEA家具</span>
-          </div>
-          
-          <!-- Actions -->
-          <div class="flex gap-2">
-            <button class="flex-1 modern-button">
-              応募する
-            </button>
-            <button class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-blue-300" style="border: 1px solid #d1d5db !important;">
-              <i class="fas fa-heart text-gray-400"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Sample Task Card 6 -->
-      <div class="task-card bg-white rounded-2xl border overflow-hidden" data-category="shopping" data-location="minato" onclick="location.href='task-detail.html?id=6'">
-        <div class="p-6">
-          <!-- Header -->
-          <div class="flex items-start justify-between mb-4 flex-nowrap">
-            <div class="flex items-center space-x-3">
-              <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                <i class="fas fa-shopping-cart text-green-600 text-xl"></i>
-              </div>
-              <div>
-                <h3 class="font-semibold text-gray-900">薬局での買い物代行</h3>
-                <p class="text-sm text-gray-500 relative-time" data-time="2025-08-03T08:00:00">4時間前に投稿</p>
-              </div>
-            </div>
-            <span class="status-badge bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap flex-shrink-0">応募中</span>
-          </div>
-          
-          <!-- Description -->
-          <p class="text-gray-600 mb-4 line-clamp-2">風邪薬や日用品の購入をお願いします。リストをお渡しするので、それに従って購入してください。</p>
-          
-          <!-- Details -->
-          <div class="space-y-2 mb-4">
-            <div class="flex items-center text-sm text-gray-600">
-              <i class="fas fa-map-marker-alt w-4 h-4 mr-2"></i>
-              <span>港区赤坂</span>
-            </div>
-            <div class="flex items-center text-sm text-gray-600">
-              <i class="fas fa-yen-sign w-4 h-4 mr-2"></i>
-              <span>¥2,500</span>
-            </div>
-            <div class="flex items-center text-sm text-gray-600">
-              <i class="fas fa-clock w-4 h-4 mr-2"></i>
-              <span>今日中</span>
-            </div>
-          </div>
-          
-          <!-- Tags -->
-          <div class="flex flex-wrap gap-2 mb-4">
-            <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">薬局</span>
-            <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">リスト提供</span>
-          </div>
-          
-          <!-- Actions -->
-          <div class="flex gap-2">
-            <button class="flex-1 modern-button" disabled>
-              応募受付中
-            </button>
-            <button class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-blue-300" style="border: 1px solid #d1d5db !important;">
-              <i class="fas fa-heart text-red-400"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Empty State -->
-    <div id="emptyState" class="text-center py-16 hidden">
-      <div class="max-w-md mx-auto">
-        <i class="fas fa-search text-6xl text-gray-300 mb-6"></i>
-        <h3 class="text-xl font-semibold text-gray-700 mb-2">お探しの依頼が見つかりません</h3>
-        <p class="text-gray-500 mb-6">検索条件を変更するか、新しい依頼を投稿してみてください。</p>
-        <a href="create-task.html" class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-blue-300">
-          <i class="fas fa-plus mr-2"></i>
-          依頼を投稿する
+  <!-- Hero Section -->
+  <section class="text-white py-32 relative overflow-hidden">
+    <div class="absolute inset-0 w-full h-full bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900"></div>
+    <div class="max-w-4xl mx-auto px-4 text-center relative z-10">
+      <h1 class="text-5xl font-bold mb-6 hero-title">
+        依頼一覧
+      </h1>
+      <p class="text-xl mb-8 hero-subtitle">
+        お近くの代行依頼を見つけて、お手伝いしませんか？
+      </p>
+      <div class="space-x-4 hero-buttons">
+        <a th:href="@{/tasks/create}" class="bg-white text-gray-800 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-white/50 inline-block">
+          依頼を投稿
+        </a>
+        <a th:href="@{/helper/onboarding}" class="bg-transparent border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-gray-800 hover:shadow-lg hover:-translate-y-1 backdrop-blur-sm transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-white/50 inline-block">
+          ヘルパー登録
         </a>
       </div>
     </div>
-    
-    <!-- Load More Button -->
-    <div class="text-center mt-12">
-      <button id="loadMoreBtn" class="bg-white border-2 border-blue-600 text-blue-600 px-8 py-3 rounded-full font-semibold hover:bg-blue-600 hover:text-white hover:scale-105 transition-all duration-300 focus:outline-none shadow-md hover:shadow-lg">
-        <i class="fas fa-plus mr-2"></i>
-        さらに読み込む
-      </button>
-    </div>
-  </div>
-</section>
+  </section>
 
-<!-- Footer -->
-<footer class="bg-gray-900 text-white py-12">
-  <div class="max-w-7xl mx-auto px-4">
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-      <!-- Brand Section -->
-      <div>
-        <div class="flex items-center space-x-2 mb-4">
-          <i class="fas fa-hands-helping text-2xl text-blue-500" aria-hidden="true"></i>
-          <span class="text-xl font-bold">TaskHelper</span>
+  <!-- Task List Container -->
+  <section class="py-12" x-data="taskListData()">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      <!-- Search Bar (Top Section) -->
+      <div class="bg-white rounded-2xl border p-6 mb-6">
+        <div class="max-w-4xl mx-auto">
+          <div class="flex gap-3">
+            <!-- Search Filter Dropdown (Left Most) -->
+            <div class="relative">
+              <select x-model="searchFilter"  
+                      class="appearance-none px-4 py-4 pr-10 rounded-xl bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 text-gray-700 border border-gray-300 whitespace-nowrap">
+                <option value="all">すべて</option>
+                <option value="title">タイトル</option>
+                <option value="description">説明</option>
+                <option value="tags">タグ</option>
+                <option value="location">地域</option>
+              </select>
+              <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                <i class="fas fa-chevron-down text-gray-500 text-sm"></i>
+              </div>
+            </div>
+            
+            <!-- Main Search Input -->
+            <div class="relative flex-1">
+              <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <i class="fas fa-search text-gray-400" aria-hidden="true"></i>
+              </div>
+              <input type="text" x-model="searchTerm"  placeholder="キーワードで依頼を検索..."
+                     class="w-full pl-12 pr-4 py-4 border border-gray-300 rounded-xl bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 text-lg">
+            </div>
+          </div>
+          
+          <!-- Quick Search and Stats (Single Row) -->
+          <div class="flex flex-wrap items-center justify-between mt-4 gap-2">
+            <!-- Quick Search Buttons and Clear Button (Left Side) -->
+            <div class="flex flex-wrap items-center gap-2">
+              <button @click="quickSearch('urgent')" 
+                      :class="{'bg-red-100 text-red-700 border-red-300': quickSearchActive === 'urgent'}"
+                      class="px-3 py-2 rounded-lg border border-gray-300 text-sm font-medium hover:bg-gray-50 transition-all duration-300 whitespace-nowrap">
+                <i class="fas fa-exclamation-triangle mr-1 text-xs"></i>
+                緊急
+              </button>
+              <button @click="quickSearch('today')" 
+                      :class="{'bg-blue-100 text-blue-700 border-blue-300': quickSearchActive === 'today'}"
+                      class="px-3 py-2 rounded-lg border border-gray-300 text-sm font-medium hover:bg-gray-50 transition-all duration-300 whitespace-nowrap">
+                <i class="fas fa-clock mr-1 text-xs"></i>
+                今日
+              </button>
+              <button @click="quickSearch('high-pay')" 
+                      :class="{'bg-green-100 text-green-700 border-green-300': quickSearchActive === 'high-pay'}"
+                      class="px-3 py-2 rounded-lg border border-gray-300 text-sm font-medium hover:bg-gray-50 transition-all duration-300 whitespace-nowrap">
+                <i class="fas fa-yen-sign mr-1 text-xs"></i>
+                高報酬
+              </button>
+              <!-- Search Clear Button -->
+              <button @click="clearSearch()" x-show="searchTerm !== '' || searchFilter !== 'all' || quickSearchActive !== ''" 
+                      class="clear-btn">
+                <i class="fas fa-times text-xs"></i>
+                クリア
+              </button>
+            </div>
+            
+            <!-- Search Stats (Right Side) -->
+            <div class="flex items-center gap-2 text-sm text-gray-500">
+              <span x-text="`${filteredTasks.length}件の依頼`" class="whitespace-nowrap"></span>
+              <span x-show="searchTerm !== ''" class="flex items-center gap-1">
+                <i class="fas fa-search text-xs"></i>
+                <span x-text="`「${searchTerm}」`" class="max-w-20 truncate"></span>
+              </span>
+            </div>
+          </div>
         </div>
-        <p class="text-gray-400">近所の方々と一緒に信頼できる代行サービス</p>
       </div>
-      
-      <!-- Services Section -->
-      <div>
-        <h4 class="font-semibold mb-4">サービス</h4>
-        <ul class="space-y-2 text-gray-400">
-          <li><a href="list.html?category=shopping" class="hover:text-white transition-colors">買い物代行</a></li>
-          <li><a href="list.html?category=cleaning" class="hover:text-white transition-colors">清掃サービス</a></li>
-          <li><a href="list.html?category=delivery" class="hover:text-white transition-colors">配達・運搬</a></li>
-          <li><a href="list.html?category=petcare" class="hover:text-white transition-colors">ペットケア</a></li>
-        </ul>
+
+      <!-- Filters Section -->
+      <div class="bg-white rounded-2xl border p-6 mb-8">
+        <div class="space-y-3">
+          <!-- Category Filters (First Row) -->
+          <div class="flex flex-wrap justify-center gap-2">
+            <template x-for="category in categories" :key="category.id">
+              <button @click="selectCategory(category.id)" 
+                      :class="{
+                        'bg-blue-100 text-blue-700 border-blue-300': activeCategory === category.id,
+                        'hover:bg-gray-50': activeCategory !== category.id
+                      }"
+                      class="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium transition-all duration-300 whitespace-nowrap">
+                <i :class="category.icon + ' mr-1'" aria-hidden="true" x-show="category.icon"></i>
+                <span x-text="category.name"></span>
+              </button>
+            </template>
+          </div>
+
+          <!-- Other Filters (Second Row) -->
+          <div class="flex flex-wrap justify-center items-center gap-3">
+            <!-- Location Filter -->
+            <div class="relative">
+              <select x-model="selectedLocation"  
+                      class="appearance-none px-3 py-2 pr-8 rounded-lg bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 text-gray-700 text-sm border border-gray-300">
+                <option value="">エリア</option>
+                <option value="shibuya">渋谷区</option>
+                <option value="shinjuku">新宿区</option>
+                <option value="minato">港区</option>
+                <option value="chiyoda">千代田区</option>
+              </select>
+              <div class="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
+                <i class="fas fa-chevron-down text-gray-500 text-xs"></i>
+              </div>
+            </div>
+
+            <!-- Price Filter -->
+            <div class="relative">
+              <select x-model="priceRange"  
+                      class="appearance-none px-3 py-2 pr-8 rounded-lg bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 text-gray-700 text-sm border border-gray-300">
+                <option value="">価格</option>
+                <option value="0-2000">¥2,000以下</option>
+                <option value="2000-5000">¥2,000-5,000</option>
+                <option value="5000-10000">¥5,000-10,000</option>
+                <option value="10000+">¥10,000以上</option>
+              </select>
+              <div class="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
+                <i class="fas fa-chevron-down text-gray-500 text-xs"></i>
+              </div>
+            </div>
+
+            <!-- Time Filter -->
+            <div class="relative">
+              <select x-model="timeFilter"  
+                      class="appearance-none px-3 py-2 pr-8 rounded-lg bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 text-gray-700 text-sm border border-gray-300">
+                <option value="">時間</option>
+                <option value="today">今日</option>
+                <option value="tomorrow">明日</option>
+                <option value="this-week">今週</option>
+                <option value="flexible">相談可</option>
+              </select>
+              <div class="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
+                <i class="fas fa-chevron-down text-gray-500 text-xs"></i>
+              </div>
+            </div>
+
+            <!-- Sort Filter -->
+            <div class="relative">
+              <select x-model="sortBy" 
+                      class="appearance-none px-3 py-2 pr-8 rounded-lg bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 text-gray-700 text-sm border border-gray-300">
+                <option value="newest">最新順</option>
+                <option value="distance">距離順</option>
+                <option value="price-high">報酬高順</option>
+                <option value="price-low">報酬安順</option>
+              </select>
+              <div class="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
+                <i class="fas fa-sort text-gray-500 text-xs"></i>
+              </div>
+            </div>
+
+            <!-- Clear Filters Button -->
+            <button @click="clearAllFilters()" 
+                    class="clear-btn"
+                    :class="hasActiveFilters ? 'visible' : 'hidden'">
+              <i class="fas fa-times text-xs"></i>
+              クリア
+            </button>
+          </div>
+        </div>
       </div>
-      
-      <!-- Support Section -->
-      <div>
-        <h4 class="font-semibold mb-4">サポート</h4>
-        <ul class="space-y-2 text-gray-400">
-          <li><a href="#" class="hover:text-white transition-colors">ヘルプセンター</a></li>
-          <li><a href="#" class="hover:text-white transition-colors">お問い合わせ</a></li>
-          <li><a href="#" class="hover:text-white transition-colors">利用規約</a></li>
-          <li><a href="#" class="hover:text-white transition-colors">プライバシーポリシー</a></li>
-        </ul>
+
+      <!-- Task Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" x-show="filteredTasks.length > 0">
+        
+        <!-- Enhanced Task Cards with Mobile-Optimized Design -->
+        <template x-for="task in filteredTasks" :key="task.id">
+          <div class="service-card task-card bg-white rounded-2xl shadow-lg border border-gray-100 transition-all duration-300 hover:shadow-xl cursor-pointer overflow-hidden" 
+               :data-category="task.category" 
+               :data-location="task.location" 
+               @click="navigateToTask(task.id)">
+            <div class="p-6 sm:p-4">
+              <!-- Header -->
+              <div class="flex items-start justify-between mb-4 flex-nowrap">
+                <div class="flex items-center space-x-3">
+                  <div class="w-12 h-12 sm:w-8 sm:h-8 rounded-full flex items-center justify-center" :class="task.iconBg">
+                    <i :class="task.icon + ' text-xl sm:text-lg ' + task.iconColor"></i>
+                  </div>
+                  <div>
+                    <h3 class="font-semibold text-gray-900" x-text="task.title"></h3>
+                    <p class="text-sm text-gray-500 relative-time" :data-time="task.time" x-text="task.timeDisplay"></p>
+                  </div>
+                </div>
+                <span class="status-badge px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap flex-shrink-0" 
+                      :class="task.statusClass" x-text="task.status"></span>
+              </div>
+
+              <!-- Description -->
+              <p class="text-gray-600 mb-4 line-clamp-2" x-text="task.description"></p>
+
+              <!-- Details -->
+              <div class="space-y-3 mb-4">
+                <div class="flex items-center text-sm text-gray-600">
+                  <i class="fas fa-map-marker-alt w-4 h-4 mr-2"></i>
+                  <span x-text="task.locationName"></span>
+                </div>
+                <div class="flex items-center text-sm text-gray-600">
+                  <i class="fas fa-yen-sign w-4 h-4 mr-2"></i>
+                  <span x-text="'¥' + task.price"></span>
+                </div>
+                <div class="flex items-center text-sm text-gray-600">
+                  <i class="fas fa-clock w-4 h-4 mr-2"></i>
+                  <span x-text="task.deadline"></span>
+                </div>
+              </div>
+
+              <!-- Tags -->
+              <div class="flex flex-wrap gap-2 mb-4">
+                <template x-for="tag in task.tags" :key="tag">
+                  <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs" x-text="tag"></span>
+                </template>
+              </div>
+
+              <!-- Actions -->
+              <div class="flex gap-2">
+                <button @click.stop="applyToTask($event, task.id)" 
+                        :disabled="task.status === '完了'"
+                        class="flex-1 px-4 py-2 rounded-lg font-semibold transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-blue-300"
+                        :class="task.status === '完了' ? 'bg-gray-400 text-white cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg'">
+                  <span x-text="task.status === '完了' ? '完了済み' : '応募する'"></span>
+                </button>
+                <button @click.stop="toggleFavorite($event, task.id)" 
+                        class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-blue-300">
+                  <i class="fas fa-heart text-gray-400"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </template>
+
       </div>
-      
-      <!-- Follow Section -->
-      <div>
-        <h4 class="font-semibold mb-4">フォロー</h4>
-        <div class="flex space-x-4">
-          <a href="#" class="text-gray-400 hover:text-white transition-colors" aria-label="Twitter">
-            <i class="fab fa-twitter text-xl"></i>
-          </a>
-          <a href="#" class="text-gray-400 hover:text-white transition-colors" aria-label="Facebook">
-            <i class="fab fa-facebook text-xl"></i>
-          </a>
-          <a href="#" class="text-gray-400 hover:text-white transition-colors" aria-label="Instagram">
-            <i class="fab fa-instagram text-xl"></i>
+
+      <!-- Empty State -->
+      <div class="text-center py-16" x-show="filteredTasks.length === 0">
+        <div class="max-w-md mx-auto">
+          <i class="fas fa-search text-6xl text-gray-300 mb-6"></i>
+          <h3 class="text-xl font-semibold text-gray-700 mb-2">お探しの依頼が見つかりません</h3>
+          <p class="text-gray-500 mb-6">検索条件を変更するか、新しい依頼を投稿してみてください。</p>
+          <a th:href="@{/tasks/create}" class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-blue-300">
+            <i class="fas fa-plus mr-2"></i>
+            依頼を投稿する
           </a>
         </div>
       </div>
+
+      <!-- Load More Button -->
+      <div class="text-center mt-12">
+        <button @click="loadMore()" class="load-more-btn bg-white border-2 border-blue-600 text-blue-600 px-8 py-3 rounded-full font-semibold transition-all duration-300 focus:outline-none shadow-md">
+          <i class="fas fa-plus mr-2"></i>
+          さらに読み込む
+        </button>
+      </div>
     </div>
-    
-    <!-- Copyright Section -->
-    <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-      <p>&copy; 2025 <span lang="en">TaskHelper</span>. <span lang="en">All rights reserved</span>.</p>
-    </div>
-  </div>
-</footer>
+  </section>
 
-<!-- JavaScript -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.1/sweetalert2.all.min.js"></script>
+  <!-- External CSS and JavaScript files -->
+  <link rel="stylesheet" th:href="@{/css/task-list.css}">
+  <script th:src="@{/js/task-list.js}"></script>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  // Initialize relative time display
-  updateRelativeTimes();
-  setInterval(updateRelativeTimes, 60000); // Update every minute
-  
-  // Mobile menu toggle
-  const mobileMenuButton = document.getElementById('mobile-menu-button');
-  const mobileMenu = document.getElementById('mobile-menu');
-  
-  if (mobileMenuButton && mobileMenu) {
-    mobileMenuButton.addEventListener('click', function() {
-      const isHidden = mobileMenu.classList.contains('hidden');
-      if (isHidden) {
-        mobileMenu.classList.remove('hidden');
-        mobileMenuButton.setAttribute('aria-expanded', 'true');
-      } else {
-        mobileMenu.classList.add('hidden');
-        mobileMenuButton.setAttribute('aria-expanded', 'false');
-      }
-      
-      // Toggle menu/close icons
-      const menuIcon = document.getElementById('menu-icon');
-      const closeIcon = document.getElementById('close-icon');
-      if (menuIcon && closeIcon) {
-        menuIcon.classList.toggle('opacity-0');
-        closeIcon.classList.toggle('opacity-0');
-      }
-    });
-  }
-  
-  // Filter functionality
-  const filterButtons = document.querySelectorAll('.filter-button');
-  const taskCards = document.querySelectorAll('.task-card');
-  const searchInput = document.getElementById('searchInput');
-  const locationFilter = document.getElementById('locationFilter');
-  const sortFilter = document.getElementById('sortFilter');
-  const emptyState = document.getElementById('emptyState');
-  const taskGrid = document.getElementById('taskGrid');
-  
-  // Category filter
-  filterButtons.forEach(button => {
-    button.addEventListener('click', function() {
-      // Update active button
-      filterButtons.forEach(btn => btn.classList.remove('active'));
-      this.classList.add('active');
-      
-      const category = this.dataset.category;
-      filterTasks();
-    });
-  });
-  
-  // Search filter
-  if (searchInput) {
-    searchInput.addEventListener('input', filterTasks);
-  }
-  
-  // Location filter
-  if (locationFilter) {
-    locationFilter.addEventListener('change', filterTasks);
-  }
-  
-  // Sort filter
-  if (sortFilter) {
-    sortFilter.addEventListener('change', sortTasks);
-  }
-  
-  function filterTasks() {
-    const activeCategory = document.querySelector('.filter-button.active')?.dataset.category || 'all';
-    const searchTerm = searchInput?.value.toLowerCase() || '';
-    const selectedLocation = locationFilter?.value || '';
-    
-    let visibleCount = 0;
-    
-    taskCards.forEach(card => {
-      const cardCategory = card.dataset.category;
-      const cardLocation = card.dataset.location;
-      const cardText = card.textContent.toLowerCase();
-      
-      const categoryMatch = activeCategory === 'all' || cardCategory === activeCategory;
-      const searchMatch = searchTerm === '' || cardText.includes(searchTerm);
-      const locationMatch = selectedLocation === '' || cardLocation === selectedLocation;
-      
-      if (categoryMatch && searchMatch && locationMatch) {
-        card.style.display = 'block';
-        visibleCount++;
-      } else {
-        card.style.display = 'none';
-      }
-    });
-    
-    // Show/hide empty state
-    if (visibleCount === 0) {
-      emptyState.classList.remove('hidden');
-      taskGrid.classList.add('hidden');
-    } else {
-      emptyState.classList.add('hidden');
-      taskGrid.classList.remove('hidden');
-    }
-  }
-  
-  function sortTasks() {
-    const sortValue = sortFilter?.value || 'newest';
-    const cardsArray = Array.from(taskCards);
-    
-    cardsArray.sort((a, b) => {
-      switch (sortValue) {
-        case 'newest':
-          // Sort by time posted (newest first)
-          return 0; // Default order for demo
-        case 'distance':
-          // Sort by distance (closest first)
-          return 0; // Placeholder - would need actual distance data
-        case 'price-high':
-          // Sort by price (highest first)
-          const priceA = parseInt(a.querySelector('.fa-yen-sign').nextSibling.textContent.replace(/[¥,]/g, ''));
-          const priceB = parseInt(b.querySelector('.fa-yen-sign').nextSibling.textContent.replace(/[¥,]/g, ''));
-          return priceB - priceA;
-        case 'price-low':
-          // Sort by price (lowest first)
-          const priceA2 = parseInt(a.querySelector('.fa-yen-sign').nextSibling.textContent.replace(/[¥,]/g, ''));
-          const priceB2 = parseInt(b.querySelector('.fa-yen-sign').nextSibling.textContent.replace(/[¥,]/g, ''));
-          return priceA2 - priceB2;
-        default:
-          return 0;
-      }
-    });
-    
-    // Re-append sorted cards
-    const taskGridEl = document.getElementById('taskGrid');
-    cardsArray.forEach(card => {
-      taskGridEl.appendChild(card);
-    });
-    
-    // Re-apply filters after sorting
-    filterTasks();
-  }
-  
-  // Load more functionality
-  const loadMoreBtn = document.getElementById('loadMoreBtn');
-  if (loadMoreBtn) {
-    loadMoreBtn.addEventListener('click', function() {
-      // Simulate loading more tasks
-      if (typeof toastr !== 'undefined') {
-        toastr.info('さらに多くの依頼を読み込んでいます...');
-        
-        setTimeout(() => {
-          toastr.success('新しい依頼が追加されました！');
-        }, 1000);
-      }
-    });
-  }
-  
-  // Apply to task functionality
-  document.addEventListener('click', function(e) {
-    if (e.target.textContent === '応募する') {
-      e.preventDefault();
-      
-      Swal.fire({
-        title: '依頼に応募しますか？',
-        text: 'この依頼に応募します。依頼者からの連絡をお待ちください。',
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#2563eb',
-        cancelButtonColor: '#6b7280',
-        confirmButtonText: '応募する',
-        cancelButtonText: 'キャンセル'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          Swal.fire({
-            title: '応募完了！',
-            text: '依頼への応募が完了しました。依頼者からの連絡をお待ちください。',
-            icon: 'success',
-            confirmButtonColor: '#2563eb'
-          });
-        }
-      });
-    }
-  });
-  
-  // Favorite functionality
-  document.addEventListener('click', function(e) {
-    if (e.target.classList.contains('fa-heart')) {
-      e.preventDefault();
-      
-      const heartIcon = e.target;
-      if (heartIcon.classList.contains('text-gray-400')) {
-        heartIcon.classList.remove('text-gray-400');
-        heartIcon.classList.add('text-red-400');
-        if (typeof toastr !== 'undefined') {
-          toastr.success('お気に入りに追加しました');
-        }
-      } else {
-        heartIcon.classList.remove('text-red-400');
-        heartIcon.classList.add('text-gray-400');
-        if (typeof toastr !== 'undefined') {
-          toastr.info('お気に入りから削除しました');
-        }
-      }
-    }
-  });
-  
-  // Toastr configuration
-  if (typeof toastr !== 'undefined') {
-    toastr.options = {
-      closeButton: true,
-      debug: false,
-      newestOnTop: true,
-      progressBar: true,
-      positionClass: 'toast-top-right',
-      preventDuplicates: false,
-      onclick: null,
-      showDuration: '300',
-      hideDuration: '1000',
-      timeOut: '3000',
-      extendedTimeOut: '1000',
-      showEasing: 'swing',
-      hideEasing: 'linear',
-      showMethod: 'fadeIn',
-      hideMethod: 'fadeOut'
-    };
-  }
-  
-  // Function to update relative times
-  function updateRelativeTimes() {
-    const timeElements = document.querySelectorAll('.relative-time');
-    const now = new Date();
-    
-    timeElements.forEach(element => {
-      const timeStr = element.getAttribute('data-time');
-      if (timeStr) {
-        const time = new Date(timeStr);
-        const diff = Math.floor((now - time) / 1000); // difference in seconds
-        
-        let relativeTime;
-        if (diff < 60) {
-          relativeTime = 'たった今';
-        } else if (diff < 3600) {
-          const minutes = Math.floor(diff / 60);
-          relativeTime = `${minutes}分前に投稿`;
-        } else if (diff < 86400) {
-          const hours = Math.floor(diff / 3600);
-          relativeTime = `${hours}時間前に投稿`;
-        } else if (diff < 2592000) { // 30 days
-          const days = Math.floor(diff / 86400);
-          relativeTime = `${days}日前に投稿`;
-        } else {
-          // For very old posts, show actual date
-          const year = time.getFullYear();
-          const month = time.getMonth() + 1;
-          const day = time.getDate();
-          relativeTime = `${year}年${month}月${day}日に投稿`;
-        }
-        
-        element.textContent = relativeTime;
-      }
-    });
-  }
-});
-</script>
-
-</body>
+</th:block>
 </html>

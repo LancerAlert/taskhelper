@@ -129,8 +129,8 @@
                     <a href="task-list.html" class="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200">タスク一覧</a>
                     <a href="task-create.html" class="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200">タスク作成</a>
                     <a href="my-tasks.html" class="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200">マイタスク</a>
-                    <a href="../user/user-messages.html" class="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200">メッセージ</a>
-                    <a href="../user/user-profile.html" class="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200">プロフィール</a>
+                    <a href="../user/messages.html" class="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200">メッセージ</a>
+                    <a href="../user/profile.html" class="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200">プロフィール</a>
                 </nav>
 
                 <!-- Auth Buttons -->
@@ -152,8 +152,8 @@
                     <a href="task-list.html" class="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200">タスク一覧</a>
                     <a href="task-create.html" class="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200">タスク作成</a>
                     <a href="my-tasks.html" class="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200">マイタスク</a>
-                    <a href="../user/user-messages.html" class="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200">メッセージ</a>
-                    <a href="../user/user-profile.html" class="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200">プロフィール</a>
+                    <a href="../user/messages.html" class="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200">メッセージ</a>
+                    <a href="../user/profile.html" class="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200">プロフィール</a>
                     <div class="flex flex-col space-y-2 pt-4 border-t border-gray-200">
                         <a href="login.html" class="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-200">ログイン</a>
                         <a href="register.html" class="bg-blue-600 text-white px-6 py-2.5 rounded-xl font-medium hover:bg-blue-700 transition-all duration-200 text-center border border-blue-600">始める</a>
@@ -267,7 +267,7 @@
                 </div>
             </div>
 
-            <!-- Price Range (for tasks) -->
+            <!-- Price Range (for task) -->
             <div x-show="searchType === 'tasks'" class="mb-6">
                 <h4 class="text-sm font-medium text-gray-700 mb-3">予算範囲</h4>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -674,7 +674,7 @@
                         }
                     }
                     
-                    // Filter by price range (tasks only)
+                    // Filter by price range (task only)
                     if (this.searchType === 'tasks' && this.priceRange) {
                         const [min, max] = this.priceRange.split('-').map(p => 
                             p.includes('+') ? Infinity : parseInt(p)
@@ -725,7 +725,7 @@
                 },
 
                 viewHelper(helperId) {
-                    window.location.href = `../user/user-profile.html?id=${helperId}`;
+                    window.location.href = `../user/profile.html`;
                 }
             }
         }

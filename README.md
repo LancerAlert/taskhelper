@@ -154,7 +154,7 @@ gradlew test --tests "TaskhelperApplicationTests"
 gradlew clean
 
 # 사용 가능한 Gradle 태스크 확인
-gradlew tasks
+gradlew task
 
 # 개발 서버 실행 (자동 재로드)
 gradlew bootRun

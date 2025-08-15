@@ -1,74 +1,119 @@
-<!-- 
-  TaskHelper 표준 Footer
-  
-  사용법:
-  1. 현재 (정적 HTML): 이 파일 내용을 각 HTML 파일에 복사
-  2. Thymeleaf 변환 시: th:replace="fragments/footer :: footer" 사용
-  
-  특징:
-  - 4열 그리드 레이아웃 (브랜드 + 서비스 + 서포트 + 팔로우)
-  - 반응형 디자인 (모바일에서 1열로 변경)
-  - 접근성 개선 (aria-label, lang 속성)
-  - 카테고리 필터 링크 포함
--->
-
-<!-- Footer Fragment -->
-<!-- th:fragment="footer" (Thymeleaf 변환 시 추가 예정) -->
 <th:block th:fragment="footer">
-    <footer class="bg-gray-900 text-white py-12">
-      <div class="max-w-7xl mx-auto px-4">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <!-- Brand Section -->
-          <div>
-            <div class="flex items-center space-x-2 mb-4">
-              <i class="fas fa-hands-helping text-2xl text-blue-500" aria-hidden="true"></i>
-              <span class="text-xl font-bold">TaskHelper</span>
+    <footer class="relative bg-gray-800 text-white overflow-hidden">
+      <div class="relative py-12">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
+            <div class="lg:col-span-1">
+              <div class="flex items-center space-x-3 mb-6">
+                <div class="bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 p-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+                  <i class="fas fa-hands-helping text-2xl text-white" aria-hidden="true"></i>
+                </div>
+                <div>
+                  <h3 class="text-2xl font-bold bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">TaskHelper</h3>
+                  <p class="text-sm text-blue-200">信頼のコミュニティサービス</p>
+                </div>
+              </div>
+              <p class="text-gray-300 leading-relaxed mb-6">
+                近所の方々と一緒に作る、安心・信頼の代行サービスプラットフォーム
+              </p>
+              
+              <!-- Contact Info -->
+              <div class="space-y-2">
+                <p class="flex items-center text-gray-300">
+                  <i class="fas fa-phone w-5 text-blue-400 mr-3"></i>
+                  <span>0120-123-456</span>
+                </p>
+                <p class="flex items-center text-gray-300">
+                  <i class="fas fa-envelope w-5 text-blue-300 mr-3"></i>
+                  <span>info@taskhelper.jp</span>
+                </p>
+                <p class="flex items-center text-gray-300">
+                  <i class="fas fa-map-marker-alt w-5 text-blue-500 mr-3"></i>
+                  <span>東京都渋谷区</span>
+                </p>
+              </div>
             </div>
-            <p class="text-gray-400">近所の方々と一緒に信頼できる代行サービス</p>
-          </div>
+            <div class="lg:col-span-1">
+              <h4 class="text-xl font-semibold mb-4 text-white">最新情報をお届け</h4>
+              <p class="text-gray-300 mb-4">新しいサービスやお得な情報をメールでお知らせします</p>
+              <div class="space-y-3">
+                <input type="email" placeholder="メールアドレスを入力" 
+                       class="w-full px-4 py-3 rounded-lg bg-gray-800/50 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <button class="w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 hover:shadow-lg">
+                  <i class="fas fa-paper-plane mr-2"></i>登録する
+                </button>
+              </div>
+            </div>
 
-          <!-- Services Section -->
-          <div>
-            <h4 class="font-semibold mb-4">サービス</h4>
-            <ul class="space-y-2 text-gray-400">
-              <li><a href="task-list.html?category=shopping" class="hover:text-white transition-colors">買い物代行</a></li>
-              <li><a href="task-list.html?category=cleaning" class="hover:text-white transition-colors">清掃サービス</a></li>
-              <li><a href="task-list.html?category=delivery" class="hover:text-white transition-colors">配達・運搬</a></li>
-              <li><a href="task-list.html?category=petcare" class="hover:text-white transition-colors">ペットケア</a></li>
-            </ul>
-          </div>
-
-          <!-- Support Section -->
-          <div>
-            <h4 class="font-semibold mb-4">サポート</h4>
-            <ul class="space-y-2 text-gray-400">
-              <li><a href="#" class="hover:text-white transition-colors">ヘルプセンター</a></li>
-              <li><a href="#" class="hover:text-white transition-colors">お問い合わせ</a></li>
-              <li><a href="#" class="hover:text-white transition-colors">利用規約</a></li>
-              <li><a href="#" class="hover:text-white transition-colors">プライバシーポリシー</a></li>
-            </ul>
-          </div>
-
-          <!-- Follow Section -->
-          <div>
-            <h4 class="font-semibold mb-4">フォロー</h4>
-            <div class="flex space-x-4">
-              <a href="#" class="text-gray-400 hover:text-white transition-colors" aria-label="Twitter">
-                <i class="fab fa-twitter text-xl"></i>
-              </a>
-              <a href="#" class="text-gray-400 hover:text-white transition-colors" aria-label="Facebook">
-                <i class="fab fa-facebook text-xl"></i>
-              </a>
-              <a href="#" class="text-gray-400 hover:text-white transition-colors" aria-label="Instagram">
-                <i class="fab fa-instagram text-xl"></i>
-              </a>
+            <div class="lg:col-span-1">
+              <h4 class="text-xl font-semibold mb-4 text-white">法的情報・SNS</h4>
+              <div class="mb-6">
+                <ul class="space-y-2">
+                  <li>
+                    <a th:href="@{/support/terms}" 
+                       class="group flex items-center text-gray-300 hover:text-white transition-all duration-200">
+                      <i class="fas fa-file-contract w-4 text-blue-400 mr-2 group-hover:scale-110 transition-transform"></i>
+                      <span class="group-hover:translate-x-1 transition-transform">利用規約</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a th:href="@{/support/privacy-policy}" 
+                       class="group flex items-center text-gray-300 hover:text-white transition-all duration-200">
+                      <i class="fas fa-shield-alt w-4 text-blue-300 mr-2 group-hover:scale-110 transition-transform"></i>
+                      <span class="group-hover:translate-x-1 transition-transform">プライバシーポリシー</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a th:href="@{/support/help}" 
+                       class="group flex items-center text-gray-300 hover:text-white transition-all duration-200">
+                      <i class="fas fa-question-circle w-4 text-blue-500 mr-2 group-hover:scale-110 transition-transform"></i>
+                      <span class="group-hover:translate-x-1 transition-transform">ヘルプ</span>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+              <div>
+                <p class="text-sm text-gray-300 mb-3">フォローして最新情報をチェック</p>
+                <div class="flex flex-wrap gap-3">
+                  <a th:href="@{#}" class="group flex items-center justify-center w-10 h-10 bg-gray-800/30 rounded-lg hover:bg-gradient-to-r hover:from-slate-800 hover:to-black transition-all duration-200 hover:shadow-lg" aria-label="X (Twitter)">
+                    <span class="text-gray-200 group-hover:text-white group-hover:scale-110 transition-all font-bold text-lg">𝕏</span>
+                  </a>
+                  <a th:href="@{#}" class="group flex items-center justify-center w-10 h-10 bg-blue-800/30 rounded-lg hover:bg-gradient-to-r hover:from-blue-600 hover:to-blue-800 transition-all duration-200 hover:shadow-lg" aria-label="Facebook">
+                    <i class="fab fa-facebook text-blue-200 group-hover:text-white group-hover:scale-110 transition-all"></i>
+                  </a>
+                  <a th:href="@{#}" class="group flex items-center justify-center w-10 h-10 bg-pink-800/30 rounded-lg hover:bg-gradient-to-r hover:from-pink-500 hover:via-purple-500 hover:to-yellow-500 transition-all duration-200 hover:shadow-lg" aria-label="Instagram">
+                    <i class="fab fa-instagram text-pink-200 group-hover:text-white group-hover:scale-110 transition-all"></i>
+                  </a>
+                  <a th:href="@{#}" class="group flex items-center justify-center w-10 h-10 bg-blue-800/30 rounded-lg hover:bg-gradient-to-r hover:from-green-500 hover:to-green-600 transition-all duration-200 hover:shadow-lg" aria-label="LINE">
+                    <i class="fab fa-line text-green-200 group-hover:text-white group-hover:scale-110 transition-all"></i>
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-
-        <!-- Copyright Section -->
-        <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-          <p>&copy; 2025 <span lang="en">TaskHelper</span>. <span lang="en">All rights reserved</span>.</p>
+          <div class="border-t border-gray-700/50 pt-6">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+              <div class="flex items-center space-x-4 text-gray-400 text-sm">
+                <p>&copy; 2025 <span class="font-semibold text-white">TaskHelper</span></p>
+                <span class="hidden sm:inline">|</span>
+                <p>すべての権利を保有</p>
+              </div>
+              
+              <div class="flex items-center space-x-4 text-sm">
+                <div class="flex items-center text-gray-400">
+                  <i class="fas fa-shield-check mr-2 text-blue-400"></i>
+                  <span>SSL保護</span>
+                </div>
+                <div class="flex items-center text-gray-400">
+                  <i class="fas fa-globe mr-2 text-blue-300"></i>
+                  <select class="bg-transparent text-gray-400 cursor-pointer focus:outline-none hover:text-white transition-colors">
+                    <option value="ja">日本語</option>
+                    <option value="en">English</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </footer>

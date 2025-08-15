@@ -22,8 +22,23 @@
       "Bash(move settings.html user-settings.html)",
       "Bash(ren:*)",
       "Bash(git add:*)",
-      "Bash(git rm:*)"
+      "Bash(git rm:*)",
+      "Bash(del \"C:\\programming\\taskhelper\\src\\main\\resources\\static\\js\\register.js\")",
+      "Bash(npm install)",
+      "Bash(npm run build-css-prod:*)",
+      "Bash(del \"C:\\programming\\taskhelper\\package.json\")",
+      "Bash(./gradlew:*)",
+      "Bash(taskkill:*)",
+      "Bash(\"../../../../gradlew\" bootRun)",
+      "Bash(dir:*)",
+      "Bash(../../../../gradlew bootRun)",
+      "Bash(.gradlew:*)",
+      "Bash(del \"C:\\programming\\taskhelper\\src\\main\\resources\\static\\js\\auth\\login.js\")",
+      "Bash(C:programmingtaskhelpergradlew.bat bootRun)",
+      "Bash(move:*)",
+      "Bash(git commit:*)"
     ],
-    "deny": []
+    "deny": [],
+    "defaultMode": "acceptEdits"
   }
 }

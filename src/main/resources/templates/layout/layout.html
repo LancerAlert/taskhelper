@@ -5,110 +5,101 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="format-detection" content="telephone=no">
   <title layout:title-pattern="${title}">TaskHelper - 近所の信頼できる代行サービス</title>
   
-  <!-- CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    // Tailwind CSS Configuration
+    if (window.history && window.history.scrollRestoration) {
+      window.history.scrollRestoration = 'manual';
+    }
+    window.addEventListener('beforeunload', function() {
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    });
+  </script>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- 드롭다운 FOUC 방지 - 간단한 접근 -->
+  <style>
+    /* x-cloak 기본 지원 */
+    [x-cloak] {
+      display: none !important;
+    }
+    
+    /* 초기 로딩 시에만 헤더 드롭다운만 숨김 - 더 구체적인 선택자 사용 */
+    .dropdown-loading #header .absolute.top-full.w-64 {
+      opacity: 0 !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+    }
+  </style>
+  
+  <script>
     tailwind.config = {
       theme: {
-        extend: {
-          animation: {
-            // Smooth, elegant animations
-            'fade-in-smooth': 'fadeInSmooth 0.8s ease-out',
-            'slide-up-gentle': 'slideUpGentle 0.7s ease-out',
-            'scale-in-soft': 'scaleInSoft 0.6s ease-out',
-            'float-subtle': 'floatSubtle 4s ease-in-out infinite',
-            'glow-pulse': 'glowPulse 2s ease-in-out infinite',
-            'slide-in-left': 'slideInLeft 0.8s ease-out',
-            'slide-in-right': 'slideInRight 0.8s ease-out',
-            'bounce-gentle': 'bounceGentle 0.8s ease-out',
-          },
-          keyframes: {
-            fadeInSmooth: {
-              '0%': { opacity: '0', transform: 'translateY(20px)' },
-              '100%': { opacity: '1', transform: 'translateY(0)' }
-            },
-            slideUpGentle: {
-              '0%': { opacity: '0', transform: 'translateY(30px)' },
-              '100%': { opacity: '1', transform: 'translateY(0)' }
-            },
-            scaleInSoft: {
-              '0%': { opacity: '0', transform: 'scale(0.9)' },
-              '100%': { opacity: '1', transform: 'scale(1)' }
-            },
-            floatSubtle: {
-              '0%, 100%': { transform: 'translateY(0px)' },
-              '50%': { transform: 'translateY(-10px)' }
-            },
-            glowPulse: {
-              '0%, 100%': { boxShadow: '0 0 20px rgba(59, 130, 246, 0.3)' },
-              '50%': { boxShadow: '0 0 30px rgba(59, 130, 246, 0.6)' }
-            },
-            slideInLeft: {
-              '0%': { opacity: '0', transform: 'translateX(-30px)' },
-              '100%': { opacity: '1', transform: 'translateX(0)' }
-            },
-            slideInRight: {
-              '0%': { opacity: '0', transform: 'translateX(30px)' },
-              '100%': { opacity: '1', transform: 'translateX(0)' }
-            },
-            bounceGentle: {
-              '0%': { opacity: '0', transform: 'translateY(20px) scale(0.95)' },
-              '60%': { transform: 'translateY(-5px) scale(1.02)' },
-              '100%': { opacity: '1', transform: 'translateY(0) scale(1)' }
-            }
-          }
-        }
+        extend: {}
       }
     };
   </script>
   
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
-  <!-- CSS Libraries -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.1/sweetalert2.min.css" rel="stylesheet">
   
-  <!-- Custom CSS -->
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+  
+  <link href="https://cdn.jsdelivr.net/npm/@tailwindcss/typography@0.5.x/dist/typography.min.css" rel="stylesheet">
+  
   <link th:href="@{/css/styles.css}" rel="stylesheet">
   
-  <!-- Alpine.js -->
-  <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.x.x/dist/cdn.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   
+  <th:block layout:fragment="extra-head"></th:block>
 </head>
-  
-  <!-- Page-specific head content -->
-<body class="bg-gray-50">
-  <!-- Header Navigation -->
+<body class="bg-gray-50 flex flex-col min-h-screen dropdown-loading">
   <div th:replace="~{fragments/header :: header}"></div>
   
-  <!-- Main Content Area -->
   <main class="pt-16 flex-1">
     <div layout:fragment="content">
-      <!-- Page content will be inserted here -->
     </div>
   </main>
   
-  <!-- Footer -->
   <div th:replace="~{fragments/footer :: footer}"></div>
   
-  <!-- JavaScript Libraries -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.1/sweetalert2.min.js"></script>
   
-  <!-- Common JavaScript -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  
+  <script src="https://unpkg.com/countup.js@2.8.0/dist/countUp.umd.js"></script>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
+  
+  <script src="https://unpkg.com/micromodal/dist/micromodal.min.js"></script>
+  
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/joi-browser/13.4.0/joi-browser.min.js"></script>
+  
+  <script src="https://unpkg.com/headroom.js@0.12.0/dist/headroom.min.js"></script>
+  
   <div th:replace="~{fragments/common-scripts :: common-scripts}"></div>
   
-  <!-- Page-specific JavaScript -->
-  <th:block layout:fragment="extra-scripts">
-    <!-- Page-specific scripts will be inserted here -->
-  </th:block>
+  <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.x.x/dist/cdn.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  
+  <script>
+    document.addEventListener('alpine:init', () => {
+      setTimeout(() => {
+        document.body.classList.remove('dropdown-loading');
+        document.body.classList.add('alpine-ready');
+      }, 150);
+    });
+  </script>
+  
+  <th:block layout:fragment="extra-scripts"></th:block>
 
 </body>
 </html>

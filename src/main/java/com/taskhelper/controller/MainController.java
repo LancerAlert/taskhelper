@@ -1,10 +1,11 @@
 package com.taskhelper.controller;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
-public class IndexController {
+public class MainController {
 
     @GetMapping("/")
     public String index() {
@@ -19,5 +20,10 @@ public class IndexController {
     @GetMapping("login")
     public String loginForm() {
         return "auth/login";
+    }
+
+    @GetMapping("dashboard")
+    public String dashboard() {
+        return "dashboard";
     }
 }

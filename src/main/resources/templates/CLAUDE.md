@@ -26,15 +26,15 @@ TaskHelper is a Japanese neighborhood task assistance service website built as a
 - **Typography**: Inter font family for consistent UI
 
 ### Directory Structure (src/main/resources/templates/)
-- **Root**: index.html (main landing page)
-- **tasks/**: Core task flow (task-list.html, task-create.html, task-detail.html, my-tasks.html, task-progress.html)
-- **user/**: User management (user-profile.html, user-settings.html, user-notifications.html, user-messages.html, user-reviews.html, user-favorites.html)
+- **Root**: index.html (main landing page), dashboard.html (user dashboard)
+- **task/**: Core task flow (create.html, detail.html, list.html, my.html, progress.html)
+- **user/**: User management (profile.html, profile-public.html, settings.html, notifications.html, messages.html, reviews.html, favorites.html)
 - **auth/**: Authentication flow (login.html, register.html, forgot-password.html, verify-email.html, two-factor.html, reset-password.html, login-history.html)
-- **helper/**: Helper-specific features (helper-onboarding.html, helper-leaderboard.html, achievement-center.html, helper-earnings.html)
-- **admin/**: Administrative panel (admin-dashboard.html, admin-users.html, admin-disputes.html, admin-analytics.html, admin-content.html)
+- **helper/**: Helper-specific features (onboarding.html, leaderboard.html, achievement-center.html, earnings.html)
+- **admin/**: Administrative panel (dashboard.html, users.html, disputes.html, analytics.html, content.html)
 - **support/**: Support and information pages (help.html, about.html, terms.html, privacy-policy.html, dispute-resolution.html, testimonials.html, onboarding-guide.html)
 - **misc/**: Utility pages (payment.html, search.html)
-- **layouts/**: Template inheritance (layout.html, fragments.html)
+- **layout/**: Template inheritance (layout.html, fragments.html)
 - **fragments/**: Reusable components (header.html, footer.html, common-scripts.html)
 
 ### Template System
@@ -50,11 +50,12 @@ TaskHelper is a Japanese neighborhood task assistance service website built as a
 **Interactive Elements**: Standardized hover effects with `hover:scale-105 transition-all duration-200` and `.modern-button` class with gradient backgrounds and ripple effects.
 
 **Color System**: Blue (#2563eb) primary with category-specific colors:
-- Green: Shopping (買い物代行)
-- Blue: Cleaning (清掃・掃除) 
-- Orange: Delivery (配達・運搬)
+- Green: Shopping (買い物)
+- Blue: Cleaning (掃除) 
+- Orange: Delivery (配送)
 - Purple: Pet Care (ペットケア)
 - Red: Repairs (修理)
+- Gray: Others (その他)
 
 **Mobile Responsiveness**: Breakpoints at `sm:` (640px), `md:` (768px), `lg:` (1024px) with mobile-first approach. Special mobile CSS in styles.css for form element handling.
 
@@ -67,6 +68,13 @@ TaskHelper is a Japanese neighborhood task assistance service website built as a
 **Relative Time Display**: JavaScript `updateRelativeTimes()` function converts timestamps to Japanese format (たった今, X分前, X時間前) with 60-second auto-refresh.
 
 **Form Validation**: `.error-field` and `.success-field` classes for visual feedback with border and background color changes.
+
+**Image Upload System**: Task creation form supports up to 4 image uploads with:
+- File type validation (image/* only)
+- File size limits (10MB max per file)
+- Preview thumbnails with hover controls
+- Remove and preview functionality
+- Alpine.js reactive management in `create.js`
 
 ## Development Commands
 
@@ -103,8 +111,10 @@ gradlew test --tests "TaskhelperApplicationTests"
 ## Backend Architecture
 
 ### Controller Structure
-- **IndexController**: Simple MVC pattern handling root route to index.html template
-- **AuthController**: Handles authentication routes (register, login) with form processing
+- **MainController**: Handles core routes (/, register, login, dashboard) with simple MVC pattern
+- **TaskController**: Manages task-related routes (/tasks/list, /tasks/create, /tasks/detail/{id}, /tasks/my) mapped to task/ templates
+- **UserController**: User management and profile functionality
+- **AdminController**: Administrative panel routes including admin dashboard
 - **SecurityConfig**: Spring Security configuration with CSRF disabled for development, custom login/logout URLs
 
 ### Key Backend Files
@@ -140,7 +150,7 @@ gradlew test --tests "TaskhelperApplicationTests"
 ```
 
 ### Key Thymeleaf Patterns
-- **URL Generation**: `th:href="@{/task-list(category='shopping')}"`
+- **URL Generation**: `th:href="@{/tasks/list(category='shopping')}"` (note: updated to /tasks/ prefix)
 - **Authentication**: `th:if="${#authorization.expression('isAuthenticated()')}"`
 - **Active Navigation**: `th:classappend="${#httpServletRequest.requestURI == '/' ? 'active-class' : ''}"`
 - **User Context**: `th:text="${#authentication.name}"`
@@ -186,3 +196,25 @@ gradlew test --tests "TaskhelperApplicationTests"
 **Japanese Localization**: Complete Japanese language support including relative time formatting (`updateRelativeTimes()` function) and culturally appropriate UI patterns.
 
 **Complex Navigation System**: Sophisticated mega menu structure in header.html with desktop and mobile variants, using Alpine.js for interactivity and extensive JavaScript for mobile menu functionality.
+
+## Current Implementation Status
+
+### Completed Features ✅
+- **Task Creation System**: Full form with 6 categories (shopping, cleaning, delivery, petcare, repair, others), image upload (up to 4 files), validation, and Alpine.js reactive components
+- **Task Listing**: Filtered task display with category buttons, search, and location filters
+- **Dashboard**: User landing page after successful task creation
+- **Template Architecture**: Complete Thymeleaf layout system with consistent navigation and styling
+- **Responsive Design**: Mobile-first design with Tailwind CSS utilities
+- **Japanese Localization**: All UI text in Japanese with proper relative time formatting
+
+### Key Route Mappings
+- **MainController**: `/` → index.html, `/register` → auth/register.html, `/login` → auth/login.html, `/dashboard` → dashboard.html
+- **TaskController**: `/tasks/list` → task/list.html, `/tasks/create` → task/create.html, `/tasks/detail/{id}` → task/detail.html, `/tasks/my` → task/my.html
+- **AdminController**: `/admin/dashboard` → admin/dashboard.html
+
+### Development Notes
+- **Image Upload**: Handled client-side with JavaScript FileReader API, validates file types and sizes before preview
+- **Form Validation**: Real-time validation with Alpine.js, visual feedback with Tailwind CSS classes
+- **Category System**: Six predefined categories with consistent color coding across all templates
+- **Mobile Menu**: Alpine.js powered responsive navigation with proper ARIA attributes
+- **Time Display**: Automatic relative time updates every 60 seconds for dynamic content

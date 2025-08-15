@@ -1,156 +1,493 @@
 <!-- Common JavaScript Scripts Fragment -->
 <th:block th:fragment="common-scripts">
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Mobile menu functionality
-            const mobileMenuButton = document.getElementById('mobile-menu-button');
-            const mobileMenu = document.getElementById('mobile-menu');
-            const menuIcon = document.getElementById('menu-icon');
-            const closeIcon = document.getElementById('close-icon');
-
-            if (mobileMenuButton && mobileMenu) {
-                mobileMenuButton.addEventListener('click', function() {
-                    const isExpanded = this.getAttribute('aria-expanded') === 'true';
-                    this.setAttribute('aria-expanded', !isExpanded);
-                    mobileMenu.classList.toggle('hidden');
-
-                    // Toggle menu/close icons
-                    if (menuIcon && closeIcon) {
-                        menuIcon.classList.toggle('opacity-0');
-                        closeIcon.classList.toggle('opacity-0');
+        // Alpine.js Header Navigation Component (must be defined before Alpine initializes)
+        window.headerNavigation = function() {
+            return {
+                // Mobile menu state
+                mobileMenuOpen: false,
+                
+                // Initialize header functionality
+                init() {
+                    //console.log('Header navigation initialized');
+                    
+                    // Initialize Headroom.js for scroll effects with delay to ensure DOM is ready
+                    setTimeout(() => {
+                        this.initHeadroom();
+                    }, 100);
+                },
+                
+                // Headroom.js initialization for smart scroll behavior
+                initHeadroom() {
+                    if (typeof Headroom === 'undefined') {
+                        console.warn('Headroom.js not found - scroll effects disabled');
+                        return;
                     }
-                });
-            }
-
-            // Header scroll effect
-            let lastScrollTop = 0;
-            const header = document.querySelector('nav');
-
-            window.addEventListener('scroll', function() {
-                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-
-                if (scrollTop > 100) {
-                    header.classList.add('header-scrolled');
-                } else {
-                    header.classList.remove('header-scrolled');
-                }
-
-                lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
-            });
-
-            // Close mobile menu when clicking outside
-            document.addEventListener('click', function(event) {
-                if (mobileMenuButton && mobileMenu &&
-                    !mobileMenuButton.contains(event.target) &&
-                    !mobileMenu.contains(event.target)) {
-                    mobileMenu.classList.add('hidden');
-                    mobileMenuButton.setAttribute('aria-expanded', 'false');
-                    if (menuIcon && closeIcon) {
-                        menuIcon.classList.remove('opacity-0');
-                        closeIcon.classList.add('opacity-0');
-                    }
-                }
-            });
-
-            // Escape key handling
-            document.addEventListener('keydown', function(event) {
-                if (event.key === 'Escape' && mobileMenu && !mobileMenu.classList.contains('hidden')) {
-                    mobileMenu.classList.add('hidden');
-                    mobileMenuButton.setAttribute('aria-expanded', 'false');
-                    if (menuIcon && closeIcon) {
-                        menuIcon.classList.remove('opacity-0');
-                        closeIcon.classList.add('opacity-0');
-                    }
-                }
-            });
-
-            // Initialize Particles.js
-            if (typeof particlesJS !== 'undefined') {
-                // Hero section particles
-                if (document.getElementById('particles-js')) {
-                    particlesJS('particles-js', {
-                        particles: {
-                            number: { value: 50, density: { enable: true, value_area: 1000 } },
-                            color: { value: '#ffffff' },
-                            shape: { type: 'circle', stroke: { width: 0, color: '#000000' } },
-                            opacity: { value: 0.3, random: true, anim: { enable: true, speed: 0.5, opacity_min: 0.1, sync: false } },
-                            size: { value: 2, random: true, anim: { enable: true, speed: 2, size_min: 0.5, sync: false } },
-                            line_linked: { enable: true, distance: 120, color: '#ffffff', opacity: 0.2, width: 1 },
-                            move: { enable: true, speed: 1.5, direction: 'none', random: true, straight: false, out_mode: 'out', bounce: false }
-                        },
-                        interactivity: {
-                            detect_on: 'canvas',
-                            events: { onhover: { enable: true, mode: 'grab' }, onclick: { enable: true, mode: 'bubble' }, resize: true },
-                            modes: { 
-                                grab: { distance: 150, line_linked: { opacity: 0.6 } }, 
-                                bubble: { distance: 200, size: 6, duration: 2, opacity: 0.8, speed: 3 }, 
-                                repulse: { distance: 100, duration: 0.4 }, 
-                                push: { particles_nb: 2 }, 
-                                remove: { particles_nb: 1 } 
+                    
+                    const header = document.getElementById('header');
+                    if (header) {
+                        const headroom = new Headroom(header, {
+                            // 스크롤 허용량을 줄여서 더 반응성 있게
+                            tolerance: {
+                                down: 5,  // 아래로 스크롤 시 5px만 이동해도 숨김
+                                up: 15    // 위로 스크롤 시 15px 이동하면 다시 보임
+                            },
+                            // 헤더가 숨겨지는 최소 스크롤 거리
+                            offset: 60,
+                            // CSS classes to apply
+                            classes: {
+                                initial: "headroom",
+                                pinned: "headroom--pinned",
+                                unpinned: "headroom--unpinned",
+                                top: "headroom--top",
+                                notTop: "headroom--not-top",
+                                bottom: "headroom--bottom",
+                                notBottom: "headroom--not-bottom"
                             }
-                        },
-                        retina_detect: true
-                    });
+                        });
+                        
+                        headroom.init();
+                        //console.log('Headroom.js initialized with improved scroll tracking');
+                    }
                 }
+            };
+        };
 
-                // Stats section particles
-                if (document.getElementById('particles-stats')) {
-                    particlesJS('particles-stats', {
-                        particles: {
-                            number: { value: 60, density: { enable: true, value_area: 800 } },
-                            color: { value: '#ffffff' },
-                            shape: { type: 'circle' },
-                            opacity: { value: 0.3, random: false },
-                            size: { value: 2, random: true },
-                            line_linked: { enable: true, distance: 120, color: '#ffffff', opacity: 0.2, width: 1 },
-                            move: { enable: true, speed: 2, direction: 'none', random: false, straight: false, out_mode: 'out', bounce: false }
-                        },
-                        interactivity: { detect_on: 'canvas', events: { onhover: { enable: false }, onclick: { enable: false }, resize: true } },
-                        retina_detect: true
+        // Alpine.js Registration Form Component (must be defined before Alpine initializes)
+        window.registerForm = function() {
+            return {
+                // Form data
+                form: {
+                    name: '',
+                    email: '',
+                    password: '',
+                    confirmPassword: '',
+                    role: 'user',
+                    bio: '',
+                    services: [],
+                    terms: []
+                },
+
+                // UI state
+                showPassword: false,
+                showConfirmPassword: false,
+                isSubmitting: false,
+
+                // Validation errors
+                errors: {
+                    name: '',
+                    email: '',
+                    password: '',
+                    confirmPassword: '',
+                    role: '',
+                    terms: ''
+                },
+
+                // Validation status
+                isValid: {
+                    name: false,
+                    email: false,
+                    password: false,
+                    confirmPassword: false,
+                    role: true,
+                    terms: false
+                },
+
+                // Password requirements computed properties
+                get passwordRequirements() {
+                    const password = this.form.password;
+                    return {
+                        length: password.length >= 8,
+                        alphanumeric: /[a-zA-Z]/.test(password) && /\d/.test(password),
+                        special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+                    };
+                },
+
+                // Overall form validity
+                get isFormValid() {
+                    return this.isValid.name && 
+                           this.isValid.email && 
+                           this.isValid.password && 
+                           this.isValid.confirmPassword && 
+                           this.isValid.role && 
+                           this.isValid.terms;
+                },
+
+                // Initialize form
+                initForm() {
+                    this.setInitialUserTypeState();
+                },
+
+                // Set initial user type selection state
+                setInitialUserTypeState() {
+                    const checkedRadio = document.querySelector('.user-type-radio:checked');
+                    if (checkedRadio) {
+                        this.form.role = checkedRadio.value;
+                        this.updateUserTypeUI(checkedRadio.value);
+                    }
+                },
+
+                // Update user type UI
+                updateUserTypeUI(role) {
+                    // Update card styles
+                    document.querySelectorAll('.user-type-card').forEach(card => {
+                        card.classList.remove('border-blue-500', 'bg-blue-50', 'border-purple-500', 'bg-purple-50');
+                        const checkIcon = card.querySelector('.check-icon');
+                        if (checkIcon) checkIcon.classList.add('hidden');
                     });
-                }
-            }
 
-            // Stat counter animation
-            function animateStatNumbers() {
-                const statNumbers = document.querySelectorAll('.stat-number');
-                statNumbers.forEach(function(element) {
-                    const target = parseFloat(element.getAttribute('data-count'));
-                    const type = element.getAttribute('data-type');
-                    const suffix = element.getAttribute('data-suffix') || '';
-                    let current = 0;
-                    const increment = target / 100;
-                    const timer = setInterval(function() {
-                        current += increment;
-                        if (current >= target) {
-                            current = target;
-                            clearInterval(timer);
+                    const selectedRadio = document.querySelector(`input[value="${role}"]`);
+                    if (selectedRadio) {
+                        const selectedCard = selectedRadio.parentElement.querySelector('.user-type-card');
+                        const checkIcon = selectedCard.querySelector('.check-icon');
+
+                        if (role === 'user') {
+                            selectedCard.classList.add('border-blue-500', 'bg-blue-50');
+                            // Helper info visibility is now controlled by Alpine.js :class binding
+                        } else {
+                            selectedCard.classList.add('border-purple-500', 'bg-purple-50');
+                            // Helper info visibility is now controlled by Alpine.js :class binding
+                        }
+
+                        if (checkIcon) checkIcon.classList.remove('hidden');
+                    }
+                },
+
+                // Validate individual field
+                validateField(fieldName) {
+                    switch (fieldName) {
+                        case 'name':
+                            return this.validateName();
+                        case 'email':
+                            return this.validateEmail();
+                        case 'password':
+                            return this.validatePassword();
+                        case 'confirmPassword':
+                            return this.validateConfirmPassword();
+                        case 'terms':
+                            return this.validateTerms();
+                        default:
+                            return true;
+                    }
+                },
+
+                // Name validation
+                validateName() {
+                    const name = this.form.name.trim();
+                    if (!name) {
+                        this.errors.name = 'お名前を入力してください。';
+                        this.isValid.name = false;
+                    } else if (name.length < 2) {
+                        this.errors.name = 'お名前は2文字以上で入力してください。';
+                        this.isValid.name = false;
+                    } else {
+                        this.errors.name = '';
+                        this.isValid.name = true;
+                    }
+                    return this.isValid.name;
+                },
+
+                // Email validation
+                validateEmail() {
+                    const email = this.form.email.trim();
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    
+                    if (!email) {
+                        this.errors.email = 'メールアドレスを入力してください。';
+                        this.isValid.email = false;
+                    } else if (!emailRegex.test(email)) {
+                        this.errors.email = '有効なメールアドレスを入力してください。';
+                        this.isValid.email = false;
+                    } else {
+                        this.errors.email = '';
+                        this.isValid.email = true;
+                    }
+                    return this.isValid.email;
+                },
+
+                // Password validation
+                validatePassword() {
+                    const password = this.form.password;
+                    const requirements = this.passwordRequirements;
+                    
+                    if (!password) {
+                        this.errors.password = 'パスワードを入力してください。';
+                        this.isValid.password = false;
+                    } else if (!requirements.length) {
+                        this.errors.password = 'パスワードは8文字以上で入力してください。';
+                        this.isValid.password = false;
+                    } else if (!requirements.alphanumeric) {
+                        this.errors.password = '英数字を含むパスワードを入力してください。';
+                        this.isValid.password = false;
+                    } else if (!requirements.special) {
+                        this.errors.password = '記号を含むパスワードを入力してください。';
+                        this.isValid.password = false;
+                    } else {
+                        this.errors.password = '';
+                        this.isValid.password = true;
+                    }
+
+                    // Re-validate confirm password when password changes
+                    if (this.form.confirmPassword) {
+                        this.validateConfirmPassword();
+                    }
+
+                    return this.isValid.password;
+                },
+
+                // Confirm password validation
+                validateConfirmPassword() {
+                    const confirmPassword = this.form.confirmPassword;
+                    const password = this.form.password;
+                    
+                    if (!confirmPassword) {
+                        this.errors.confirmPassword = 'パスワード確認を入力してください。';
+                        this.isValid.confirmPassword = false;
+                    } else if (password !== confirmPassword) {
+                        this.errors.confirmPassword = 'パスワードが一致しません。';
+                        this.isValid.confirmPassword = false;
+                    } else {
+                        this.errors.confirmPassword = '';
+                        this.isValid.confirmPassword = true;
+                    }
+                    return this.isValid.confirmPassword;
+                },
+
+                // Terms validation
+                validateTerms() {
+                    const requiredTerms = this.form.terms.filter(term => term === 'service' || term === 'privacy');
+                    if (requiredTerms.length < 2) {
+                        this.errors.terms = '必須利用規約に同意してください。';
+                        this.isValid.terms = false;
+                    } else {
+                        this.errors.terms = '';
+                        this.isValid.terms = true;
+                    }
+                    return this.isValid.terms;
+                },
+
+                // Handle role change
+                handleRoleChange(event) {
+                    this.form.role = event.target.value;
+                    this.updateUserTypeUI(event.target.value);
+                },
+
+                // Handle terms checkbox change
+                handleTermsChange(event) {
+                    const value = event.target.value;
+                    const checked = event.target.checked;
+                    
+                    if (checked) {
+                        if (!this.form.terms.includes(value)) {
+                            this.form.terms.push(value);
+                        }
+                    } else {
+                        this.form.terms = this.form.terms.filter(term => term !== value);
+                    }
+                    
+                    // Sync with "agree all" checkbox
+                    this.syncAgreeAllCheckbox();
+                    
+                    this.validateTerms();
+                },
+
+                // Sync "agree all" checkbox based on individual checkbox states
+                syncAgreeAllCheckbox() {
+                    const allTermsValues = ['service', 'privacy', 'marketing'];
+                    const agreeAllCheckbox = document.getElementById('agreeAll');
+                    
+                    if (agreeAllCheckbox) {
+                        const allChecked = allTermsValues.every(term => this.form.terms.includes(term));
+                        agreeAllCheckbox.checked = allChecked;
+                    }
+                },
+
+                // Toggle service selection
+                toggleService(service) {
+                    const services = Array.isArray(this.form.services) ? this.form.services : [];
+                    
+                    if (services.includes(service)) {
+                        this.form.services = services.filter(s => s !== service);
+                    } else {
+                        this.form.services = [...services, service];
+                    }
+                    
+                    // Force immediate re-render to ensure state updates are visible immediately
+                    this.$nextTick(() => {
+                        // Trigger a small re-render by updating the services array reference
+                        this.form.services = [...this.form.services];
+                    });
+                    
+                    this.validateField('services');
+                },
+
+                // Handle agree all checkbox
+                handleAgreeAll(event) {
+                    const checked = event.target.checked;
+                    const allTermsValues = ['service', 'privacy', 'marketing'];
+                    const checkboxIds = ['service-terms', 'privacy-terms', 'marketing-terms'];
+                    
+                    if (checked) {
+                        // Select all terms
+                        this.form.terms = [...allTermsValues];
+                        // Check all individual checkboxes by ID
+                        checkboxIds.forEach(checkboxId => {
+                            const checkbox = document.getElementById(checkboxId);
+                            if (checkbox) {
+                                checkbox.checked = true;
+                            }
+                        });
+                    } else {
+                        // Clear all terms
+                        this.form.terms = [];
+                        // Uncheck all individual checkboxes by ID
+                        checkboxIds.forEach(checkboxId => {
+                            const checkbox = document.getElementById(checkboxId);
+                            if (checkbox) {
+                                checkbox.checked = false;
+                            }
+                        });
+                    }
+                    
+                    this.validateTerms();
+                },
+
+                // Form submission
+                async submitForm() {
+                    // Validate all fields
+                    const isNameValid = this.validateName();
+                    const isEmailValid = this.validateEmail();
+                    const isPasswordValid = this.validatePassword();
+                    const isConfirmPasswordValid = this.validateConfirmPassword();
+                    const isTermsValid = this.validateTerms();
+                    
+                    if (!isNameValid || !isEmailValid || !isPasswordValid || !isConfirmPasswordValid || !isTermsValid) {
+                        return;
+                    }
+                    
+                    this.isSubmitting = true;
+                    
+                    try {
+                        // Simulate registration process
+                        await new Promise(resolve => setTimeout(resolve, 2000));
+                        
+                        // Show success message with toastr
+                        if (typeof toastr !== 'undefined') {
+                            toastr.success(`${this.form.role === 'helper' ? 'ヘルパー' : '利用者'}として登録されました`);
                         }
                         
-                        if (type === 'rating') {
-                            element.textContent = current.toFixed(1) + suffix;
-                        } else {
-                            element.textContent = Math.floor(current) + suffix;
+                        // Redirect after success
+                        setTimeout(() => {
+                            window.location.href = '/login';
+                        }, 1500);
+                        
+                    } catch (error) {
+                        console.error('Registration failed:', error);
+                        if (typeof toastr !== 'undefined') {
+                            toastr.error('登録中にエラーが発生しました。もう一度お試しください。');
                         }
-                    }, 20);
+                    } finally {
+                        this.isSubmitting = false;
+                    }
+                },
+
+                // Social registration handler
+                handleSocialRegister(provider) {
+                    const providers = {
+                        line: { name: 'LINE', url: '/oauth/line', color: '#00C300' },
+                        yahoo: { name: 'Yahoo! JAPAN', url: '/oauth/yahoo', color: '#FF0033' },
+                        google: { name: 'Google', url: '/oauth/google', color: '#DB4437' },
+                        twitter: { name: 'X (Twitter)', url: '/oauth/twitter', color: '#000000' },
+                        apple: { name: 'Apple', url: '/oauth/apple', color: '#000000' }
+                    };
+
+                    const providerInfo = providers[provider];
+                    if (providerInfo && typeof toastr !== 'undefined') {
+                        toastr.info(`${providerInfo.name} 登録はシミュレーションです。実際の環境では ${providerInfo.url} にリダイレクトされます。`, '開発環境');
+                    }
+                }
+            };
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Prevent duplicate initialization
+            if (window.TaskHelperCommonScriptsLoaded) {
+                return;
+            }
+            window.TaskHelperCommonScriptsLoaded = true;
+            
+            // Core common scripts initialization
+            //console.log('TaskHelper common scripts initialized');
+
+            // ========================================
+            // MicroModal Global Initialization
+            // ========================================
+            if (typeof MicroModal !== 'undefined' && !window.MicroModalInitialized) {
+                MicroModal.init({
+                    disableScroll: true,
+                    disableFocus: false,
+                    awaitCloseAnimation: true,
+                    awaitOpenAnimation: true,
+                    debugMode: false
                 });
+                window.MicroModalInitialized = true;
             }
 
-            // Trigger stat animation when stats section is in view
-            const statsSection = document.querySelector('.stats');
-            if (statsSection) {
-                const observer = new IntersectionObserver(function(entries) {
-                    entries.forEach(function(entry) {
-                        if (entry.isIntersecting) {
-                            animateStatNumbers();
-                            observer.unobserve(entry.target);
-                        }
-                    });
-                });
-                observer.observe(statsSection);
-            }
+            // ========================================
+            // Headroom.js CSS Classes & Tailwind Component Utilities
+            // ========================================
+            const style = document.createElement('style');
+            style.textContent = `
+                /* Headroom.js CSS Classes - Library-based approach */
+                .headroom {
+                    will-change: transform;
+                    transition: transform 200ms ease-out;
+                }
+                
+                .headroom--pinned {
+                    transform: translateY(0%);
+                }
+                
+                .headroom--unpinned {
+                    transform: translateY(-100%);
+                }
+                
+                .headroom--top {
+                    background: rgba(255, 255, 255, 0.95);
+                    backdrop-filter: blur(12px);
+                    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+                }
+                
+                .headroom--not-top {
+                    background: rgba(255, 255, 255, 0.98);
+                    backdrop-filter: blur(20px);
+                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+                    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+                }
+                
+                /* 헤더 초기 상태 보장 */
+                #header {
+                    transform: translateY(0);
+                }
+                
+                /* Alpine.js x-cloak directive - Essential for preventing FOUC */
+                [x-cloak] { 
+                    display: none !important; 
+                }
+                
+                /* Form field states - essential utilities */
+                .error-field {
+                    border-color: #dc2626 !important;
+                    background-color: #fef2f2 !important;
+                }
+                
+                .success-field {
+                    border-color: #10b981 !important;
+                    background-color: #f0fdf4 !important;
+                }
+            `;
+            document.head.appendChild(style);
 
-            console.log('TaskHelper common scripts initialized');
         });
     </script>
 </th:block>

@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layouts/layout}"
+      layout:decorate="~{layout/layout}"
       th:with="title='新規登録 - TaskHelper | 近所の信頼できる代行サービス'">
 
 <!-- Main Content -->
-<section class="bg-gradient-to-r from-blue-500 to-purple-600 text-white py-20 pt-32" aria-labelledby="register-title">
+<th:block layout:fragment="content">
+
+<section class="bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 text-white py-20" aria-labelledby="register-title">
   <div class="flex items-center justify-center px-4 sm:px-6">
     <div class="max-w-md w-full space-y-6 sm:space-y-8">
       <!-- Header -->
@@ -21,7 +23,10 @@
 
       <!-- Register Form -->
       <div class="bg-white rounded-2xl shadow-lg p-6 sm:p-8 space-y-6">
-        <form id="registerForm" class="space-y-6" novalidate>
+        <form id="registerForm" class="space-y-5" novalidate 
+              x-data="registerForm()" 
+              @submit.prevent="submitForm()"
+              x-init="initForm()">
           <!-- 基本情報 -->
           <fieldset class="space-y-5">
             <legend class="sr-only">基本情報</legend>
@@ -34,10 +39,14 @@
                 </div>
                 <input type="text" id="name" name="name" required autocomplete="name"
                        maxlength="50" minlength="2"
-                       class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400"
-                       placeholder="山田太郎">
+                       class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 text-gray-900"
+                       :class="{ 'border-red-300 bg-red-50': errors.name, 'border-green-300 bg-green-50': isValid.name && form.name }"
+                       placeholder="山田太郎"
+                       x-model="form.name"
+                       @blur="validateField('name')"
+                       @input="validateField('name')">
               </div>
-              <p id="nameError" class="text-xs mt-1 text-red-500 hidden"></p>
+              <p x-show="errors.name" x-text="errors.name" class="text-xs mt-1 text-red-500"></p>
             </div>
 
             <div class="space-y-1">
@@ -48,10 +57,14 @@
                 </div>
                 <input type="email" id="email" name="email" required autocomplete="username"
                        maxlength="254" minlength="5"
-                       class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400"
-                       placeholder="your@email.com">
+                       class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 text-gray-900"
+                       :class="{ 'border-red-300 bg-red-50': errors.email, 'border-green-300 bg-green-50': isValid.email && form.email }"
+                       placeholder="your@email.com"
+                       x-model="form.email"
+                       @blur="validateField('email')"
+                       @input="validateField('email')">
               </div>
-              <p id="emailError" class="text-xs mt-1 text-red-500 hidden"></p>
+              <p x-show="errors.email" x-text="errors.email" class="text-xs mt-1 text-red-500"></p>
             </div>
 
             <div class="space-y-1">
@@ -60,29 +73,33 @@
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <i class="fas fa-lock text-gray-400 text-sm" aria-hidden="true"></i>
                 </div>
-                <input type="password" id="password" name="password" required autocomplete="new-password"
+                <input :type="showPassword ? 'text' : 'password'" id="password" name="password" required autocomplete="new-password"
                        maxlength="128" minlength="8"
-                       class="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400"
-                       placeholder="8文字以上で入力">
-                <button type="button" id="togglePassword" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-blue-600 transition-colors duration-200" aria-label="パスワードを表示/非表示" title="パスワードを表示">
-                  <i class="fas fa-eye text-sm" aria-hidden="true"></i>
+                       class="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 text-gray-900"
+                       :class="{ 'border-red-300 bg-red-50': errors.password, 'border-green-300 bg-green-50': isValid.password && form.password }"
+                       placeholder="8文字以上で入力"
+                       x-model="form.password"
+                       @blur="validateField('password')"
+                       @input="validateField('password')">
+                <button type="button" @click="showPassword = !showPassword" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-blue-600 transition-colors duration-200" :aria-label="showPassword ? 'パスワードを非表示' : 'パスワードを表示'" :title="showPassword ? 'パスワードを非表示' : 'パスワードを表示'">
+                  <i :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'" class="text-sm" aria-hidden="true"></i>
                 </button>
               </div>
               <div class="mt-2 space-y-1">
-                <div class="password-requirement flex items-center text-xs text-gray-500 transition-all duration-200">
-                  <i class="fas fa-circle text-gray-400 mr-2 text-xs"></i>
+                <div class="flex items-center text-xs transition-all duration-200" :class="passwordRequirements.length ? 'text-green-600' : 'text-gray-500'">
+                  <i :class="passwordRequirements.length ? 'fas fa-check text-green-500' : 'fas fa-circle text-gray-400'" class="mr-2 text-xs"></i>
                   <span>8文字以上</span>
                 </div>
-                <div class="password-requirement flex items-center text-xs text-gray-500 transition-all duration-200">
-                  <i class="fas fa-circle text-gray-400 mr-2 text-xs"></i>
+                <div class="flex items-center text-xs transition-all duration-200" :class="passwordRequirements.alphanumeric ? 'text-green-600' : 'text-gray-500'">
+                  <i :class="passwordRequirements.alphanumeric ? 'fas fa-check text-green-500' : 'fas fa-circle text-gray-400'" class="mr-2 text-xs"></i>
                   <span>英数字を含む</span>
                 </div>
-                <div class="password-requirement flex items-center text-xs text-gray-500 transition-all duration-200">
-                  <i class="fas fa-circle text-gray-400 mr-2 text-xs"></i>
+                <div class="flex items-center text-xs transition-all duration-200" :class="passwordRequirements.special ? 'text-green-600' : 'text-gray-500'">
+                  <i :class="passwordRequirements.special ? 'fas fa-check text-green-500' : 'fas fa-circle text-gray-400'" class="mr-2 text-xs"></i>
                   <span>記号を含む</span>
                 </div>
               </div>
-              <p id="passwordError" class="text-xs mt-1 text-red-500 hidden"></p>
+              <p x-show="errors.password" x-text="errors.password" class="text-xs mt-1 text-red-500"></p>
             </div>
 
             <div class="space-y-1">
@@ -91,25 +108,30 @@
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <i class="fas fa-lock text-gray-400 text-sm" aria-hidden="true"></i>
                 </div>
-                <input type="password" id="confirmPassword" name="confirmPassword" required autocomplete="new-password"
+                <input :type="showConfirmPassword ? 'text' : 'password'" id="confirmPassword" name="confirmPassword" required autocomplete="new-password"
                        maxlength="128" minlength="8"
-                       class="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400"
-                       placeholder="パスワードを再入力">
-                <button type="button" id="toggleConfirmPassword" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-blue-600 transition-colors duration-200" aria-label="パスワード確認を表示/非表示" title="パスワード確認を表示">
-                  <i class="fas fa-eye text-sm" aria-hidden="true"></i>
+                       class="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 text-gray-900"
+                       :class="{ 'border-red-300 bg-red-50': errors.confirmPassword, 'border-green-300 bg-green-50': isValid.confirmPassword && form.confirmPassword }"
+                       placeholder="パスワードを再入力"
+                       x-model="form.confirmPassword"
+                       @blur="validateField('confirmPassword')"
+                       @input="validateField('confirmPassword')">
+                <button type="button" @click="showConfirmPassword = !showConfirmPassword" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-blue-600 transition-colors duration-200" :aria-label="showConfirmPassword ? 'パスワード確認を非表示' : 'パスワード確認を表示'" :title="showConfirmPassword ? 'パスワード確認を非表示' : 'パスワード確認を表示'">
+                  <i :class="showConfirmPassword ? 'fas fa-eye-slash' : 'fas fa-eye'" class="text-sm" aria-hidden="true"></i>
                 </button>
               </div>
-              <p id="confirmPasswordError" class="text-xs mt-1 text-red-500 hidden"></p>
+              <p x-show="errors.confirmPassword" x-text="errors.confirmPassword" class="text-xs mt-1 text-red-500"></p>
             </div>
           </fieldset>
 
           <!-- User Type Selection -->
-          <div class="space-y-4">
+          <div class="space-y-3">
             <h3 class="text-lg font-semibold text-gray-900 text-center">どのようにご利用予定ですか？</h3>
 
             <div class="grid grid-cols-1 gap-4">
               <label class="relative">
-                <input type="radio" name="role" value="user" class="sr-only user-type-radio" checked>
+                <input type="radio" name="role" value="user" class="sr-only user-type-radio" checked 
+                       x-model="form.role" @change="handleRoleChange($event)">
                 <div class="user-type-card border-2 border-gray-200 rounded-xl p-4 cursor-pointer transition-all duration-300 hover:border-blue-300 hover:bg-blue-50">
                   <div class="flex items-center space-x-3">
                     <div class="flex-shrink-0">
@@ -129,7 +151,8 @@
               </label>
 
               <label class="relative">
-                <input type="radio" name="role" value="helper" class="sr-only user-type-radio">
+                <input type="radio" name="role" value="helper" class="sr-only user-type-radio"
+                       x-model="form.role" @change="handleRoleChange($event)">
                 <div class="user-type-card border-2 border-gray-200 rounded-xl p-4 cursor-pointer transition-all duration-300 hover:border-purple-300 hover:bg-purple-50">
                   <div class="flex items-center space-x-3">
                     <div class="flex-shrink-0">
@@ -152,82 +175,177 @@
           </div>
 
           <!-- 追加情報（ヘルパー用） -->
-          <fieldset id="helperInfo" class="space-y-4 hidden">
+          <fieldset id="helperInfo" class="overflow-hidden transition-all duration-300" 
+                    :class="form.role === 'helper' ? 'max-h-[500px] opacity-100 pointer-events-auto' : 'max-h-0 opacity-0 pointer-events-none'">
+            <div>
             <legend class="sr-only">ヘルパー追加情報</legend>
-            <div class="border-t pt-4">
-              <h4 class="font-medium text-gray-900 mb-3">ヘルパー追加情報</h4>
+            <div class="border-t pt-3">
+              <h4 class="font-medium text-gray-900 mb-2">ヘルパー追加情報</h4>
 
               <div>
-                <label for="bio" class="block text-sm font-medium text-gray-700 mb-1">自己紹介</label>
+                <label for="bio" class="block text-sm font-medium text-gray-700 mb-0.5">自己紹介</label>
                 <textarea id="bio" name="bio" rows="3"
-                          class="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50/50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400"
+                          class="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 text-gray-900"
                           placeholder="簡単な自己紹介を作成してください"></textarea>
               </div>
 
-              <div>
+              <div class="mt-3 pb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-2">提供可能サービス</label>
-                <div class="grid grid-cols-2 gap-2">
-                  <label class="flex items-center">
-                    <input type="checkbox" name="services" value="shopping" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                    <span class="ml-2 text-sm text-gray-700">買い物</span>
-                  </label>
-                  <label class="flex items-center">
-                    <input type="checkbox" name="services" value="cleaning" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                    <span class="ml-2 text-sm text-gray-700">掃除</span>
-                  </label>
-                  <label class="flex items-center">
-                    <input type="checkbox" name="services" value="delivery" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                    <span class="ml-2 text-sm text-gray-700">配送</span>
-                  </label>
-                  <label class="flex items-center">
-                    <input type="checkbox" name="services" value="petcare" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                    <span class="ml-2 text-sm text-gray-700">ペットケア</span>
-                  </label>
+                <div class="grid grid-cols-3 gap-1.5 px-2">
+                  <div @click="toggleService('shopping')" 
+                       class="service-card group bg-white border border-gray-200 rounded-lg p-1.5 sm:p-2 aspect-square flex flex-col items-center justify-center cursor-pointer hover:border-green-200 hover:bg-gradient-to-br hover:from-green-50 hover:to-green-100"
+                       :class="form.services.includes('shopping') ? 'selected border-green-500 bg-gradient-to-br from-green-50 to-green-100' : ''">
+                    <input type="checkbox" name="services" value="shopping" class="sr-only" 
+                           x-model="form.services" @change="validateField('services')">
+                    <div class="w-6 h-6 sm:w-7 sm:h-7 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center mb-0.5 group-hover:scale-110 transition-all duration-300 shadow-sm">
+                      <i class="fas fa-shopping-cart text-sm text-white" aria-hidden="true"></i>
+                    </div>
+                    <h3 class="text-[10px] sm:text-xs font-medium text-gray-900 transition-colors group-hover:text-green-700"
+                        :class="form.services.includes('shopping') ? 'text-green-700' : ''">買い物</h3>
+                  </div>
+
+                  <div @click="toggleService('cleaning')" 
+                       class="service-card group bg-white border border-gray-200 rounded-lg p-1.5 sm:p-2 aspect-square flex flex-col items-center justify-center cursor-pointer hover:border-blue-200 hover:bg-gradient-to-br hover:from-blue-50 hover:to-blue-100"
+                       :class="form.services.includes('cleaning') ? 'selected border-blue-500 bg-gradient-to-br from-blue-50 to-blue-100' : ''">
+                    <input type="checkbox" name="services" value="cleaning" class="sr-only"
+                           x-model="form.services" @change="validateField('services')">
+                    <div class="w-6 h-6 sm:w-7 sm:h-7 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center mb-0.5 group-hover:scale-110 transition-all duration-300 shadow-sm">
+                      <i class="fas fa-broom text-sm text-white" aria-hidden="true"></i>
+                    </div>
+                    <h3 class="text-[10px] sm:text-xs font-medium text-gray-900 transition-colors group-hover:text-blue-700"
+                        :class="form.services.includes('cleaning') ? 'text-blue-700' : ''">掃除</h3>
+                  </div>
+
+                  <div @click="toggleService('delivery')" 
+                       class="service-card group bg-white border border-gray-200 rounded-lg p-1.5 sm:p-2 aspect-square flex flex-col items-center justify-center cursor-pointer hover:border-orange-200 hover:bg-gradient-to-br hover:from-orange-50 hover:to-orange-100"
+                       :class="form.services.includes('delivery') ? 'selected border-orange-500 bg-gradient-to-br from-orange-50 to-orange-100' : ''">
+                    <input type="checkbox" name="services" value="delivery" class="sr-only"
+                           x-model="form.services" @change="validateField('services')">
+                    <div class="w-6 h-6 sm:w-7 sm:h-7 bg-gradient-to-br from-orange-400 to-orange-600 rounded-lg flex items-center justify-center mb-0.5 group-hover:scale-110 transition-all duration-300 shadow-sm">
+                      <i class="fas fa-truck text-sm text-white" aria-hidden="true"></i>
+                    </div>
+                    <h3 class="text-[10px] sm:text-xs font-medium text-gray-900 transition-colors group-hover:text-orange-700"
+                        :class="form.services.includes('delivery') ? 'text-orange-700' : ''">配送</h3>
+                  </div>
+
+                  <div @click="toggleService('petcare')" 
+                       class="service-card group bg-white border border-gray-200 rounded-lg p-1.5 sm:p-2 aspect-square flex flex-col items-center justify-center cursor-pointer hover:border-purple-200 hover:bg-gradient-to-br hover:from-purple-50 hover:to-purple-100"
+                       :class="form.services.includes('petcare') ? 'selected border-purple-500 bg-gradient-to-br from-purple-50 to-purple-100' : ''">
+                    <input type="checkbox" name="services" value="petcare" class="sr-only"
+                           x-model="form.services" @change="validateField('services')">
+                    <div class="w-6 h-6 sm:w-7 sm:h-7 bg-gradient-to-br from-purple-400 to-purple-600 rounded-lg flex items-center justify-center mb-0.5 group-hover:scale-110 transition-all duration-300 shadow-sm">
+                      <i class="fas fa-paw text-sm text-white" aria-hidden="true"></i>
+                    </div>
+                    <h3 class="text-[10px] sm:text-xs font-medium text-gray-900 transition-colors group-hover:text-purple-700"
+                        :class="form.services.includes('petcare') ? 'text-purple-700' : ''">ペットケア</h3>
+                  </div>
+
+                  <div @click="toggleService('repairs')" 
+                       class="service-card group bg-white border border-gray-200 rounded-lg p-1.5 sm:p-2 aspect-square flex flex-col items-center justify-center cursor-pointer hover:border-red-200 hover:bg-gradient-to-br hover:from-red-50 hover:to-red-100"
+                       :class="form.services.includes('repairs') ? 'selected border-red-500 bg-gradient-to-br from-red-50 to-red-100' : ''">
+                    <input type="checkbox" name="services" value="repairs" class="sr-only"
+                           x-model="form.services" @change="validateField('services')">
+                    <div class="w-6 h-6 sm:w-7 sm:h-7 bg-gradient-to-br from-red-400 to-red-600 rounded-lg flex items-center justify-center mb-0.5 group-hover:scale-110 transition-all duration-300 shadow-sm">
+                      <i class="fas fa-tools text-sm text-white" aria-hidden="true"></i>
+                    </div>
+                    <h3 class="text-[10px] sm:text-xs font-medium text-gray-900 transition-colors group-hover:text-red-700"
+                        :class="form.services.includes('repairs') ? 'text-red-700' : ''">修理</h3>
+                  </div>
+
+                  <div @click="toggleService('others')" 
+                       class="service-card group bg-white border border-gray-200 rounded-lg p-1.5 sm:p-2 aspect-square flex flex-col items-center justify-center cursor-pointer hover:border-gray-300 hover:bg-gradient-to-br hover:from-gray-50 hover:to-gray-100"
+                       :class="form.services.includes('others') ? 'selected border-gray-500 bg-gradient-to-br from-gray-50 to-gray-100' : ''">
+                    <input type="checkbox" name="services" value="others" class="sr-only"
+                           x-model="form.services" @change="validateField('services')">
+                    <div class="w-6 h-6 sm:w-7 sm:h-7 bg-gradient-to-br from-gray-400 to-gray-600 rounded-lg flex items-center justify-center mb-0.5 group-hover:scale-110 transition-all duration-300 shadow-sm">
+                      <i class="fas fa-ellipsis-h text-sm text-white" aria-hidden="true"></i>
+                    </div>
+                    <h3 class="text-[10px] sm:text-xs font-medium text-gray-900 transition-colors group-hover:text-gray-700"
+                        :class="form.services.includes('others') ? 'text-gray-700' : ''">その他</h3>
+                  </div>
                 </div>
               </div>
+            </div>
             </div>
           </fieldset>
 
           <!-- 利用規約同意 -->
-          <fieldset class="space-y-3">
+          <fieldset class="-mt-5">
             <legend class="sr-only">利用規約同意</legend>
-            <label class="flex items-start">
-              <input type="checkbox" id="agreeAll" class="mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-              <span class="ml-2 text-sm text-gray-700 font-medium">全ての利用規約に同意します</span>
-            </label>
-
-            <div class="pl-6 space-y-2">
-              <label class="flex items-center justify-between">
-                <div class="flex items-center">
-                  <input type="checkbox" name="terms" value="service" required class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 terms-checkbox">
-                  <span class="ml-2 text-sm text-gray-700">[必須] サービス利用規約</span>
-                </div>
-                <button type="button" id="showServiceTerms" class="text-blue-600 hover:text-blue-700 text-sm underline">表示</button>
-              </label>
-
-              <label class="flex items-center justify-between">
-                <div class="flex items-center">
-                  <input type="checkbox" name="terms" value="privacy" required class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 terms-checkbox">
-                  <span class="ml-2 text-sm text-gray-700">[必須] 個人情報保護方針</span>
-                </div>
-                <button type="button" id="showPrivacyPolicy" class="text-blue-600 hover:text-blue-700 text-sm underline">表示</button>
-              </label>
-
-              <label class="flex items-center justify-between">
-                <div class="flex items-center">
-                  <input type="checkbox" name="terms" value="marketing" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 terms-checkbox">
-                  <span class="ml-2 text-sm text-gray-700">[任意] マーケティング情報受信</span>
-                </div>
-                <button type="button" id="showMarketingTerms" class="text-blue-600 hover:text-blue-700 text-sm underline">表示</button>
+            
+            <!-- 全ての利用規約に同意 -->
+            <div class="flex items-start gap-2">
+              <input type="checkbox" id="agreeAll" 
+                     class="terms-checkbox mt-0.5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                     @change="handleAgreeAll($event)">
+              <label for="agreeAll" class="text-sm text-gray-700 font-medium cursor-pointer">
+                全ての利用規約に同意します
               </label>
             </div>
+
+            <!-- 個別利用規約 -->
+            <div class="space-y-3 pl-2 sm:pl-6">
+              <!-- サービス利用規約 -->
+              <div class="terms-container">
+                <div class="terms-content flex items-start gap-2">
+                  <input type="checkbox" id="service-terms" name="terms" value="service" required 
+                         class="terms-checkbox mt-0.5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                         @change="handleTermsChange($event)">
+                  <label for="service-terms" class="terms-label text-xs sm:text-sm text-gray-700 cursor-pointer leading-tight">
+                    <span class="inline-block px-1 py-0.5 bg-red-100 text-red-600 text-[10px] sm:text-xs rounded font-medium mr-1">必須</span>
+                    サービス利用規約
+                  </label>
+                </div>
+                <button type="button" class="text-blue-600 hover:text-blue-700 text-xs underline flex-shrink-0" 
+                        data-micromodal-trigger="modal-service-terms">表示</button>
+              </div>
+
+              <!-- 個人情報保護方針 -->
+              <div class="terms-container">
+                <div class="terms-content flex items-start gap-2">
+                  <input type="checkbox" id="privacy-terms" name="terms" value="privacy" required 
+                         class="terms-checkbox mt-0.5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                         @change="handleTermsChange($event)">
+                  <label for="privacy-terms" class="terms-label text-xs sm:text-sm text-gray-700 cursor-pointer leading-tight">
+                    <span class="inline-block px-1 py-0.5 bg-red-100 text-red-600 text-[10px] sm:text-xs rounded font-medium mr-1">必須</span>
+                    個人情報保護方針
+                  </label>
+                </div>
+                <button type="button" class="text-blue-600 hover:text-blue-700 text-xs underline flex-shrink-0" 
+                        data-micromodal-trigger="modal-privacy-policy">表示</button>
+              </div>
+
+              <!-- マーケティング情報受信 -->
+              <div class="terms-container">
+                <div class="terms-content flex items-start gap-2">
+                  <input type="checkbox" id="marketing-terms" name="terms" value="marketing" 
+                         class="terms-checkbox mt-0.5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                         @change="handleTermsChange($event)">
+                  <label for="marketing-terms" class="terms-label text-xs sm:text-sm text-gray-700 cursor-pointer leading-tight">
+                    <span class="inline-block px-1 py-0.5 bg-gray-300 text-gray-600 text-[10px] sm:text-xs rounded font-medium mr-1">任意</span>
+                    マーケティング情報受信
+                  </label>
+                </div>
+                <button type="button" class="text-blue-600 hover:text-blue-700 text-xs underline flex-shrink-0" 
+                        data-micromodal-trigger="modal-marketing-terms">表示</button>
+              </div>
+            </div>
+            
+            <!-- 에러 메시지 -->
+            <p x-show="errors.terms" x-text="errors.terms" class="text-xs mt-1 text-red-500"></p>
           </fieldset>
-          <p id="termsError" class="text-xs mt-1 text-red-500 hidden"></p>
 
           <!-- Submit Button -->
           <button type="submit" id="registerBtn"
-                  class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-4 rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]">
-            アカウント作成
+                  :disabled="!isFormValid || isSubmitting"
+                  :class="isFormValid && !isSubmitting ? 
+                    'w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold py-4 px-6 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500/50' : 
+                    'w-full bg-gray-300 text-gray-500 py-4 px-6 rounded-xl font-bold transition-all duration-300 cursor-not-allowed'"
+            <span x-show="!isSubmitting">アカウント作成</span>
+            <span x-show="isSubmitting" class="flex items-center justify-center">
+              <i class="fas fa-spinner fa-spin mr-2"></i>
+              アカウント作成中...
+            </span>
           </button>
 
           <!-- Divider -->
@@ -243,13 +361,13 @@
           <!-- Social Login -->
           <div class="grid grid-cols-2 gap-3">
             <!-- LINE Register -->
-            <button type="button" class="group flex items-center justify-center py-3 px-4 bg-green-500 hover:bg-green-600 rounded-xl text-white transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]" id="lineRegister" title="LINEで登録">
+            <button type="button" class="group flex items-center justify-center py-3 px-4 bg-green-500 hover:bg-green-600 rounded-xl text-white transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]" title="LINEで登録" data-micromodal-trigger="modal-social-line">
               <i class="fab fa-line text-white text-lg group-hover:scale-110 transition-transform duration-200" aria-hidden="true"></i>
               <span class="ml-2 text-sm font-medium">LINE</span>
             </button>
 
             <!-- Yahoo Japan Register -->
-            <button type="button" class="group flex items-center justify-center py-3 px-4 bg-red-600 hover:bg-red-700 rounded-xl text-white transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]" id="yahooRegister" title="Yahoo! JAPAN IDで登録">
+            <button type="button" class="group flex items-center justify-center py-3 px-4 bg-red-600 hover:bg-red-700 rounded-xl text-white transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]" title="Yahoo! JAPAN IDで登録" data-micromodal-trigger="modal-social-yahoo">
               <i class="fab fa-yahoo text-white text-lg group-hover:scale-110 transition-transform duration-200" aria-hidden="true"></i>
               <span class="ml-2 text-sm font-medium">Yahoo!</span>
             </button>
@@ -257,15 +375,15 @@
 
           <!-- Additional Social Login -->
           <div class="grid grid-cols-3 gap-3 mt-3">
-            <button type="button" class="group flex items-center justify-center py-3 px-4 border border-gray-300 rounded-xl bg-white hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]" id="googleRegister" title="Googleアカウントで登録">
+            <button type="button" class="group flex items-center justify-center py-3 px-4 border border-gray-300 rounded-xl bg-white hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]" title="Googleアカウントで登録" data-micromodal-trigger="modal-social-google">
               <i class="fab fa-google text-red-500 text-lg group-hover:scale-110 transition-transform duration-200" aria-hidden="true"></i>
             </button>
 
-            <button type="button" class="group flex items-center justify-center py-3 px-4 border border-gray-300 rounded-xl bg-black hover:bg-gray-800 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]" id="twitterRegister" title="X(Twitter)で登録">
+            <button type="button" class="group flex items-center justify-center py-3 px-4 border border-gray-300 rounded-xl bg-black hover:bg-gray-800 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]" title="X(Twitter)で登録" data-micromodal-trigger="modal-social-twitter">
               <span class="text-white text-lg font-bold group-hover:scale-110 transition-transform duration-200">𝕏</span>
             </button>
 
-            <button type="button" class="group flex items-center justify-center py-3 px-4 border border-gray-300 rounded-xl bg-black hover:bg-gray-800 text-white transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]" id="appleRegister" title="Apple IDで登録">
+            <button type="button" id="apple-social-trigger" class="group flex items-center justify-center py-3 px-4 border border-gray-300 rounded-xl bg-black hover:bg-gray-800 text-white transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]" title="Apple IDで登録">
               <i class="fab fa-apple text-white text-lg group-hover:scale-110 transition-transform duration-200" aria-hidden="true"></i>
             </button>
           </div>
@@ -274,7 +392,7 @@
           <div class="text-center mt-6 pt-6 border-t border-gray-100">
             <p class="text-sm text-gray-600">
               すでにアカウントをお持ちですか？
-              <a th:href="@{/auth/login}" class="text-blue-600 hover:text-blue-700 font-medium hover:underline transition-colors ml-1">
+              <a th:href="@{/login}" class="text-blue-600 hover:text-blue-700 font-medium hover:underline transition-colors ml-1">
                 ログイン
               </a>
             </p>
@@ -286,12 +404,512 @@
   </div>
 </section>
 
-
+<!-- MicroModal - Service Terms -->
+<div class="modal micromodal-slide" id="modal-service-terms" aria-hidden="true">
+  <div class="modal__overlay" tabindex="-1" data-micromodal-close>
+    <div class="modal__container bg-white rounded-2xl shadow-2xl w-[600px] h-[600px] mx-4 flex flex-col" role="dialog" aria-modal="true" aria-labelledby="modal-service-terms-title">
+      <header class="modal__header flex justify-between items-center p-6 border-b border-gray-200 bg-white rounded-t-2xl">
+        <h2 class="modal__title text-2xl font-bold text-gray-800" id="modal-service-terms-title">
+          <i class="fas fa-file-contract mr-2 text-blue-600"></i>サービス利用規約
+        </h2>
+        <button class="modal__close text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full w-8 h-8 flex items-center justify-center transition-all" aria-label="Close modal" data-micromodal-close>
+          <i class="fas fa-times"></i>
+        </button>
+      </header>
+      <main class="modal__content flex-1 p-8 text-gray-700 space-y-8 overflow-y-auto">
+        <div class="bg-blue-50 border-l-4 border-blue-500 p-6 rounded">
+          <h4 class="font-bold text-blue-900 mb-4 flex items-center text-lg">
+            <i class="fas fa-info-circle mr-3"></i>第1条（利用規約の適用）
+          </h4>
+          <p class="text-blue-800">本規約は、TaskHelperが提供するサービスの利用に関して適用されます。利用者はアカウント作成時に本規約に同意したものとみなします。</p>
+        </div>
+        <div class="bg-green-50 border-l-4 border-green-500 p-6 rounded">
+          <h4 class="font-bold text-green-900 mb-4 flex items-center text-lg">
+            <i class="fas fa-user-check mr-3"></i>第2条（利用者の責任）
+          </h4>
+          <p class="text-green-800">利用者は、本サービスを適切に利用し、他の利用者に迷惑をかけないよう努めるものとします。また、正確な情報を提供し、信頼関係の維持に努めるものとします。</p>
+        </div>
+        <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded">
+          <h4 class="font-bold text-red-900 mb-4 flex items-center text-lg">
+            <i class="fas fa-ban mr-3"></i>第3条（禁止事項）
+          </h4>
+          <div class="text-red-800">
+            <p class="mb-2">以下の行為を禁止します：</p>
+            <ul class="list-disc list-inside space-y-1">
+              <li>違法行為や犯罪行為</li>
+              <li>他者への迷惑行為や嫌がらせ</li>
+              <li>システムの不正利用やハッキング</li>
+              <li>虚偽情報の提供や詐欺行為</li>
+            </ul>
+          </div>
+        </div>
+        <div class="bg-yellow-50 border-l-4 border-yellow-500 p-6 rounded">
+          <h4 class="font-bold text-yellow-900 mb-4 flex items-center text-lg">
+            <i class="fas fa-exclamation-triangle mr-3"></i>第4条（サービスの変更・停止）
+          </h4>
+          <p class="text-yellow-800">当社は必要に応じてサービス内容の変更や一時停止を行う場合があります。重要な変更については事前に通知いたします。</p>
+        </div>
+      </main>
+      <footer class="modal__footer p-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl flex justify-end space-x-3">
+        <button class="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors" data-micromodal-close>閉じる</button>
+        <button id="service-terms-confirm" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-all duration-200 hover:shadow-lg">
+          <i class="fas fa-check mr-2"></i>確認しました
+        </button>
+      </footer>
+    </div>
+  </div>
 </div>
+
+<!-- MicroModal - Privacy Policy -->
+<div class="modal micromodal-slide" id="modal-privacy-policy" aria-hidden="true">
+  <div class="modal__overlay" tabindex="-1" data-micromodal-close>
+    <div class="modal__container bg-white rounded-2xl shadow-2xl w-[600px] h-[600px] mx-4 flex flex-col" role="dialog" aria-modal="true" aria-labelledby="modal-privacy-policy-title">
+      <header class="modal__header flex justify-between items-center p-6 border-b border-gray-200 bg-white rounded-t-2xl">
+        <h2 class="modal__title text-2xl font-bold text-gray-800" id="modal-privacy-policy-title">
+          <i class="fas fa-shield-alt mr-2 text-green-600"></i>個人情報保護方針
+        </h2>
+        <button class="modal__close text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full w-8 h-8 flex items-center justify-center transition-all" aria-label="Close modal" data-micromodal-close>
+          <i class="fas fa-times"></i>
+        </button>
+      </header>
+      <main class="modal__content flex-1 p-8 text-gray-700 space-y-8 overflow-y-auto">
+        <div class="bg-blue-50 border-l-4 border-blue-500 p-6 rounded">
+          <h4 class="font-bold text-blue-900 mb-4 flex items-center text-lg">
+            <i class="fas fa-database mr-3"></i>1. 収集する個人情報
+          </h4>
+          <p class="text-blue-800">氏名、メールアドレス、電話番号、プロフィール情報、サービス利用履歴等を収集します。収集はサービス提供に必要な範囲に限定します。</p>
+        </div>
+        <div class="bg-green-50 border-l-4 border-green-500 p-6 rounded">
+          <h4 class="font-bold text-green-900 mb-4 flex items-center text-lg">
+            <i class="fas fa-bullseye mr-3"></i>2. 利用目的
+          </h4>
+          <div class="text-green-800">
+            <ul class="list-disc list-inside space-y-1">
+              <li>サービスの提供と機能改善</li>
+              <li>ユーザーサポートとお問い合わせ対応</li>
+              <li>サービスの安全性とセキュリティ確保</li>
+              <li>法的義務の履行</li>
+            </ul>
+          </div>
+        </div>
+        <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded">
+          <h4 class="font-bold text-red-900 mb-4 flex items-center text-lg">
+            <i class="fas fa-user-shield mr-3"></i>3. 第三者への提供
+          </h4>
+          <p class="text-red-800">ユーザーの明示的な同意なく第三者に個人情報を提供することはありません。法令に基づく場合を除きます。</p>
+        </div>
+        <div class="bg-yellow-50 border-l-4 border-yellow-500 p-6 rounded">
+          <h4 class="font-bold text-yellow-900 mb-4 flex items-center text-lg">
+            <i class="fas fa-lock mr-3"></i>4. 情報の管理と保護
+          </h4>
+          <p class="text-yellow-800">適切な技術的・物理的・組織的セキュリティ対策を実施し、個人情報の漏洩、滅失、改ざんを防止します。</p>
+        </div>
+        <div class="bg-purple-50 border-l-4 border-purple-500 p-6 rounded">
+          <h4 class="font-bold text-purple-900 mb-4 flex items-center text-lg">
+            <i class="fas fa-envelope mr-3"></i>5. お問い合わせ
+          </h4>
+          <p class="text-purple-800">個人情報に関するお問い合わせや開示・修正・削除のご要望は、privacy@taskhelper.com までご連絡ください。</p>
+        </div>
+      </main>
+      <footer class="modal__footer p-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl flex justify-end space-x-3">
+        <button class="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors" data-micromodal-close>閉じる</button>
+        <button id="privacy-policy-confirm" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-all duration-200 hover:shadow-lg">
+          <i class="fas fa-check mr-2"></i>確認しました
+        </button>
+      </footer>
+    </div>
+  </div>
+</div>
+
+<!-- MicroModal - Marketing Terms -->
+<div class="modal micromodal-slide" id="modal-marketing-terms" aria-hidden="true">
+  <div class="modal__overlay" tabindex="-1" data-micromodal-close>
+    <div class="modal__container bg-white rounded-2xl shadow-2xl w-[600px] h-[600px] mx-4 flex flex-col" role="dialog" aria-modal="true" aria-labelledby="modal-marketing-terms-title">
+      <header class="modal__header flex justify-between items-center p-6 border-b border-gray-200 bg-white rounded-t-2xl">
+        <h2 class="modal__title text-2xl font-bold text-gray-800" id="modal-marketing-terms-title">
+          <i class="fas fa-bullhorn mr-2 text-purple-600"></i>マーケティング情報受信について
+        </h2>
+        <button class="modal__close text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full w-8 h-8 flex items-center justify-center transition-all" aria-label="Close modal" data-micromodal-close>
+          <i class="fas fa-times"></i>
+        </button>
+      </header>
+      <main class="modal__content flex-1 p-8 text-gray-700 space-y-8 overflow-y-auto">
+        <div class="bg-blue-50 border-l-4 border-blue-500 p-6 rounded">
+          <h4 class="font-bold text-blue-900 mb-4 flex items-center text-lg">
+            <i class="fas fa-bullhorn mr-3"></i>第1条（配信内容）
+          </h4>
+          <p class="text-blue-800">新機能のお知らせ、キャンペーン情報、特別なプロモーション、サービス改善のアンケート、ユーザー限定イベント等の有益な情報をお送りします。配信内容はユーザーエクスペリエンスの向上を目的としています。</p>
+        </div>
+        <div class="bg-green-50 border-l-4 border-green-500 p-6 rounded">
+          <h4 class="font-bold text-green-900 mb-4 flex items-center text-lg">
+            <i class="fas fa-paper-plane mr-3"></i>第2条（配信方法）
+          </h4>
+          <div class="text-green-800">
+            <p class="mb-2">以下の方法でマーケティング情報をお送りします：</p>
+            <ul class="list-disc list-inside space-y-1">
+              <li>登録メールアドレスへのニュースレター</li>
+              <li>アプリ内プッシュ通知</li>
+              <li>SMS（重要なキャンペーンのみ）</li>
+              <li>マイページ内のお知らせ</li>
+            </ul>
+          </div>
+        </div>
+        <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded">
+          <h4 class="font-bold text-red-900 mb-4 flex items-center text-lg">
+            <i class="fas fa-user-times mr-3"></i>第3条（同意の撤回）
+          </h4>
+          <p class="text-red-800">マーケティング情報の配信停止はいつでも可能です。マイページの設定画面、メール内の配信停止リンク、またはカスタマーサポートへのご連絡により、即座に配信を停止いたします。</p>
+        </div>
+        <div class="bg-yellow-50 border-l-4 border-yellow-500 p-6 rounded">
+          <h4 class="font-bold text-yellow-900 mb-4 flex items-center text-lg">
+            <i class="fas fa-clock mr-3"></i>第4条（配信頻度）
+          </h4>
+          <p class="text-yellow-800">通常は月1〜2回程度の配信を予定していますが、重要なキャンペーンやサービス更新の際には追加で配信する場合があります。スパム的な過度な配信は行いません。</p>
+        </div>
+        <div class="bg-purple-50 border-l-4 border-purple-500 p-6 rounded">
+          <h4 class="font-bold text-purple-900 mb-4 flex items-center text-lg">
+            <i class="fas fa-shield-alt mr-3"></i>第5条（個人情報の取扱い）
+          </h4>
+          <p class="text-purple-800">マーケティング配信のための個人情報は、弊社のプライバシーポリシーに従って適切に管理し、第三者への提供や不正利用を防止いたします。</p>
+        </div>
+      </main>
+      <footer class="modal__footer p-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl flex justify-end space-x-3">
+        <button class="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors" data-micromodal-close>閉じる</button>
+        <button id="marketing-terms-confirm" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-all duration-200 hover:shadow-lg">
+          <i class="fas fa-check mr-2"></i>確認しました
+        </button>
+      </footer>
+    </div>
+  </div>
+</div>
+
+<!-- Social Login Modals -->
+<!-- LINE Modal -->
+<div class="modal micromodal-slide" id="modal-social-line" aria-hidden="true">
+  <div class="modal__overlay" tabindex="-1" data-micromodal-close>
+    <div class="modal__container bg-white rounded-2xl shadow-2xl w-[600px] h-[600px] mx-4 flex flex-col" role="dialog" aria-modal="true" aria-labelledby="modal-social-line-title">
+      <header class="modal__header flex justify-between items-center p-6 border-b border-gray-200 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-t-2xl">
+        <h2 class="modal__title text-2xl font-bold" id="modal-social-line-title">
+          <i class="fab fa-line mr-2"></i>LINEで登録
+        </h2>
+        <button class="modal__close text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full w-8 h-8 flex items-center justify-center transition-all" aria-label="Close modal" data-micromodal-close>
+          <i class="fas fa-times"></i>
+        </button>
+      </header>
+      <main class="modal__content flex-1 p-8 text-gray-700 space-y-8 overflow-y-auto">
+        <div class="text-center">
+          <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="fab fa-line text-green-600 text-5xl"></i>
+          </div>
+          <h3 class="text-2xl font-bold mb-4">LINEアカウントで簡単登録</h3>
+          <p class="text-gray-600 mb-8">お使いのLINEアカウントでTaskHelperに登録できます。</p>
+        </div>
+        
+        <div class="bg-green-50 border-l-4 border-green-500 p-6 rounded">
+          <h4 class="font-bold text-green-900 mb-3 flex items-center">
+            <i class="fas fa-shield-check mr-2"></i>安全性について
+          </h4>
+          <p class="text-green-800">TaskHelperはLINEの認証システムを使用しており、あなたのLINEパスワードを保存することはありません。</p>
+        </div>
+        
+        <div class="bg-blue-50 border-l-4 border-blue-500 p-6 rounded">
+          <h4 class="font-bold text-blue-900 mb-3 flex items-center">
+            <i class="fas fa-info-circle mr-2"></i>共有される情報
+          </h4>
+          <ul class="list-disc list-inside space-y-1 text-blue-800">
+            <li>プロフィール名</li>
+            <li>プロフィール画像</li>
+            <li>メールアドレス（設定されている場合）</li>
+          </ul>
+        </div>
+      </main>
+      <footer class="modal__footer p-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl flex justify-end space-x-3">
+        <button class="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors" data-micromodal-close>キャンセル</button>
+        <button id="line-login-btn" class="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-2 rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 hover:shadow-lg">
+          <i class="fab fa-line mr-2"></i>LINEで続ける
+        </button>
+      </footer>
+    </div>
+  </div>
+</div>
+
+<!-- Yahoo Modal -->
+<div class="modal micromodal-slide" id="modal-social-yahoo" aria-hidden="true">
+  <div class="modal__overlay" tabindex="-1" data-micromodal-close>
+    <div class="modal__container bg-white rounded-2xl shadow-2xl w-[600px] h-[600px] mx-4 flex flex-col" role="dialog" aria-modal="true" aria-labelledby="modal-social-yahoo-title">
+      <header class="modal__header flex justify-between items-center p-6 border-b border-gray-200 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-t-2xl">
+        <h2 class="modal__title text-2xl font-bold" id="modal-social-yahoo-title">
+          <i class="fab fa-yahoo mr-2"></i>Yahoo! JAPANで登録
+        </h2>
+        <button class="modal__close text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full w-8 h-8 flex items-center justify-center transition-all" aria-label="Close modal" data-micromodal-close>
+          <i class="fas fa-times"></i>
+        </button>
+      </header>
+      <main class="modal__content flex-1 p-8 text-gray-700 space-y-8 overflow-y-auto">
+        <div class="text-center">
+          <div class="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="fab fa-yahoo text-red-600 text-5xl"></i>
+          </div>
+          <h3 class="text-2xl font-bold mb-4">Yahoo! JAPAN IDで簡単登録</h3>
+          <p class="text-gray-600 mb-8">お使いのYahoo! JAPAN IDでTaskHelperに登録できます。</p>
+        </div>
+        
+        <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded">
+          <h4 class="font-bold text-red-900 mb-3 flex items-center">
+            <i class="fas fa-shield-check mr-2"></i>安全性について
+          </h4>
+          <p class="text-red-800">TaskHelperはYahoo! JAPANの認証システムを使用しており、あなたのパスワードを保存することはありません。</p>
+        </div>
+        
+        <div class="bg-blue-50 border-l-4 border-blue-500 p-6 rounded">
+          <h4 class="font-bold text-blue-900 mb-3 flex items-center">
+            <i class="fas fa-info-circle mr-2"></i>共有される情報
+          </h4>
+          <ul class="list-disc list-inside space-y-1 text-blue-800">
+            <li>Yahoo! JAPAN ID</li>
+            <li>ニックネーム</li>
+            <li>メールアドレス</li>
+          </ul>
+        </div>
+      </main>
+      <footer class="modal__footer p-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl flex justify-end space-x-3">
+        <button class="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors" data-micromodal-close>キャンセル</button>
+        <button id="yahoo-login-btn" class="bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-2 rounded-lg hover:from-red-700 hover:to-red-800 transition-all duration-200 hover:shadow-lg">
+          <i class="fab fa-yahoo mr-2"></i>Yahoo!で続ける
+        </button>
+      </footer>
+    </div>
+  </div>
+</div>
+
+<!-- Google Modal -->
+<div class="modal micromodal-slide" id="modal-social-google" aria-hidden="true">
+  <div class="modal__overlay" tabindex="-1" data-micromodal-close>
+    <div class="modal__container bg-white rounded-2xl shadow-2xl w-[600px] h-[600px] mx-4 flex flex-col" role="dialog" aria-modal="true" aria-labelledby="modal-social-google-title">
+      <header class="modal__header flex justify-between items-center p-6 border-b border-gray-200 bg-white text-gray-800 rounded-t-2xl border-t-4 border-t-blue-500">
+        <h2 class="modal__title text-2xl font-bold" id="modal-social-google-title">
+          <svg class="w-6 h-6 inline mr-2" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>Googleで登録
+        </h2>
+        <button class="modal__close text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-full w-8 h-8 flex items-center justify-center transition-all" aria-label="Close modal" data-micromodal-close>
+          <i class="fas fa-times"></i>
+        </button>
+      </header>
+      <main class="modal__content flex-1 p-8 text-gray-700 space-y-8 overflow-y-auto">
+        <div class="text-center">
+          <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="fab fa-google text-red-500 text-5xl"></i>
+          </div>
+          <h3 class="text-2xl font-bold mb-4">Googleアカウントで簡単登録</h3>
+          <p class="text-gray-600 mb-8">お使いのGoogleアカウントでTaskHelperに登録できます。</p>
+        </div>
+        
+        <div class="bg-blue-50 border-l-4 border-blue-500 p-6 rounded">
+          <h4 class="font-bold text-blue-900 mb-3 flex items-center">
+            <i class="fas fa-shield-check mr-2"></i>安全性について
+          </h4>
+          <p class="text-blue-800">TaskHelperはGoogleの認証システムを使用しており、あなたのGoogleパスワードを保存することはありません。</p>
+        </div>
+        
+        <div class="bg-yellow-50 border-l-4 border-yellow-500 p-6 rounded">
+          <h4 class="font-bold text-yellow-900 mb-3 flex items-center">
+            <i class="fas fa-info-circle mr-2"></i>共有される情報
+          </h4>
+          <ul class="list-disc list-inside space-y-1 text-yellow-800">
+            <li>名前</li>
+            <li>メールアドレス</li>
+            <li>プロフィール写真</li>
+          </ul>
+        </div>
+      </main>
+      <footer class="modal__footer p-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl flex justify-end space-x-3">
+        <button class="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors" data-micromodal-close>キャンセル</button>
+        <button id="google-login-btn" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-all duration-200 hover:shadow-lg">
+          <i class="fab fa-google mr-2"></i>Googleで続ける
+        </button>
+      </footer>
+    </div>
+  </div>
+</div>
+
+<!-- Twitter/X Modal -->
+<div class="modal micromodal-slide" id="modal-social-twitter" aria-hidden="true">
+  <div class="modal__overlay" tabindex="-1" data-micromodal-close>
+    <div class="modal__container bg-white rounded-2xl shadow-2xl w-[600px] h-[600px] mx-4 flex flex-col" role="dialog" aria-modal="true" aria-labelledby="modal-social-twitter-title">
+      <header class="modal__header flex justify-between items-center p-6 border-b border-gray-200 bg-black text-white rounded-t-2xl">
+        <h2 class="modal__title text-2xl font-bold" id="modal-social-twitter-title">
+          <span class="mr-2">𝕏</span>X (Twitter)で登録
+        </h2>
+        <button class="modal__close text-white hover:text-gray-300 hover:bg-white/20 rounded-full w-8 h-8 flex items-center justify-center transition-all" aria-label="Close modal" data-micromodal-close>
+          <i class="fas fa-times"></i>
+        </button>
+      </header>
+      <main class="modal__content flex-1 p-8 text-gray-700 space-y-8 overflow-y-auto">
+        <div class="text-center">
+          <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <span class="text-5xl font-bold">𝕏</span>
+          </div>
+          <h3 class="text-2xl font-bold mb-4">X (Twitter)アカウントで簡単登録</h3>
+          <p class="text-gray-600 mb-8">お使いのXアカウントでTaskHelperに登録できます。</p>
+        </div>
+        
+        <div class="bg-gray-100 border-l-4 border-gray-600 p-6 rounded">
+          <h4 class="font-bold text-gray-900 mb-3 flex items-center">
+            <i class="fas fa-shield-check mr-2"></i>安全性について
+          </h4>
+          <p class="text-gray-800">TaskHelperはX (Twitter)の認証システムを使用しており、あなたのパスワードを保存することはありません。</p>
+        </div>
+        
+        <div class="bg-blue-50 border-l-4 border-blue-500 p-6 rounded">
+          <h4 class="font-bold text-blue-900 mb-3 flex items-center">
+            <i class="fas fa-info-circle mr-2"></i>共有される情報
+          </h4>
+          <ul class="list-disc list-inside space-y-1 text-blue-800">
+            <li>ユーザー名</li>
+            <li>表示名</li>
+            <li>プロフィール画像</li>
+          </ul>
+        </div>
+      </main>
+      <footer class="modal__footer p-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl flex justify-end space-x-3">
+        <button class="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors" data-micromodal-close>キャンセル</button>
+        <button id="twitter-login-btn" class="bg-black text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition-all duration-200 hover:shadow-lg">
+          <span class="mr-2 font-bold">𝕏</span>Xで続ける
+        </button>
+      </footer>
+    </div>
+  </div>
+</div>
+
+<!-- Apple Modal -->
+<div class="modal micromodal-slide" id="modal-social-apple" aria-hidden="true">
+  <div class="modal__overlay" tabindex="-1" data-micromodal-close>
+    <div class="modal__container bg-white rounded-2xl shadow-2xl w-[600px] h-[600px] mx-4 flex flex-col" role="dialog" aria-modal="true" aria-labelledby="modal-social-apple-title">
+      <header class="modal__header flex justify-between items-center p-6 border-b border-gray-200 bg-black text-white rounded-t-2xl">
+        <h2 class="modal__title text-2xl font-bold" id="modal-social-apple-title">
+          <i class="fab fa-apple mr-2"></i>Apple IDで登録
+        </h2>
+        <button class="modal__close text-white hover:text-gray-300 hover:bg-white/20 rounded-full w-8 h-8 flex items-center justify-center transition-all" aria-label="Close modal" data-micromodal-close>
+          <i class="fas fa-times"></i>
+        </button>
+      </header>
+      <main class="modal__content flex-1 p-8 text-gray-700 space-y-8 overflow-y-auto">
+        <div class="text-center">
+          <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="fab fa-apple text-black text-5xl"></i>
+          </div>
+          <h3 class="text-2xl font-bold mb-4">Apple IDで簡単登録</h3>
+          <p class="text-gray-600 mb-8">お使いのApple IDでTaskHelperに登録できます。</p>
+        </div>
+        
+        <div class="bg-gray-100 border-l-4 border-gray-600 p-6 rounded">
+          <h4 class="font-bold text-gray-900 mb-3 flex items-center">
+            <i class="fas fa-shield-check mr-2"></i>安全性について
+          </h4>
+          <p class="text-gray-800">TaskHelperはAppleの認証システムを使用しており、あなたのApple IDパスワードを保存することはありません。</p>
+        </div>
+        
+        <div class="bg-blue-50 border-l-4 border-blue-500 p-6 rounded">
+          <h4 class="font-bold text-blue-900 mb-3 flex items-center">
+            <i class="fas fa-info-circle mr-2"></i>共有される情報
+          </h4>
+          <ul class="list-disc list-inside space-y-1 text-blue-800">
+            <li>名前（任意）</li>
+            <li>メールアドレス（プライベートリレー可能）</li>
+          </ul>
+        </div>
+        
+        <div class="bg-green-50 border-l-4 border-green-500 p-6 rounded">
+          <h4 class="font-bold text-green-900 mb-3 flex items-center">
+            <i class="fas fa-user-secret mr-2"></i>プライバシー機能
+          </h4>
+          <p class="text-green-800">Appleの「メールを非公開」機能を使用して、実際のメールアドレスを共有せずに登録することも可能です。</p>
+        </div>
+      </main>
+      <footer class="modal__footer p-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl flex justify-end space-x-3">
+        <button class="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors" data-micromodal-close>キャンセル</button>
+        <button id="apple-login-btn" class="bg-black text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition-all duration-200 hover:shadow-lg">
+          <i class="fab fa-apple mr-2"></i>Apple IDで続ける
+        </button>
+      </footer>
+    </div>
+  </div>
+</div>
+
+</th:block>
+
+<!-- Page-specific styles -->
+<th:block layout:fragment="extra-head">
+    <style>
+        /* ========================================
+         * Terms & Conditions Custom Styles
+         * ========================================
+         * Custom CSS allowed for precise form control
+         * as documented in CLAUDE.md exceptions
+         */
+        
+        /* Checkbox size constraint - Required for consistent UI across browsers */
+        .terms-checkbox {
+            width: 16px !important;
+            height: 16px !important;
+            min-width: 16px !important;
+            min-height: 16px !important;
+            max-width: 16px !important;
+            max-height: 16px !important;
+            flex-shrink: 0 !important;
+            flex-grow: 0 !important;
+        }
+        
+        /* Terms container layout - Responsive flex layout for mobile optimization */
+        .terms-container {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 0.5rem;
+            max-width: 100%;
+        }
+        
+        /* Terms content wrapper - Flex optimization */
+        .terms-content {
+            flex: 1;
+            min-width: 0; /* Allow flexbox children to shrink */
+        }
+        
+        /* Label text constraint - Prevent unnecessary line breaks */
+        .terms-label {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        /* Mobile exception - Allow wrapping on very small screens only */
+        @media (max-width: 320px) {
+            .terms-label {
+                white-space: normal;
+            }
+        }
+        
+        /* Category card mobile optimization - Prevent layout shift */
+        .service-card {
+            transform: translateY(0) !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        .service-card:hover {
+            transform: translateY(0) scale(1.02) !important;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+        }
+        
+        .service-card.selected {
+            transform: translateY(0) scale(1.02) !important;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+        }
+    </style>
+</th:block>
 
 <!-- Page-specific JavaScript -->
 <th:block layout:fragment="extra-scripts">
-  <script th:src="@{/js/register.js}"></script>
+    <!-- Register page functionality handled by separate JS file -->
+    <script th:src="@{/js/auth/register.js}"></script>
 </th:block>
 
 </html>
